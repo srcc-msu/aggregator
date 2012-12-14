@@ -43,6 +43,7 @@ void CAggregator :: Process()
 {
 	unsigned char buffer[MAX_MESSAGE_SIZE];
 
+cout << "waiting for data" << endl;
  	int bytes_read = recv(socket, buffer, MAX_MESSAGE_SIZE, 0);//, (struct sockaddr*)&from, (socklen_t*)&rmt_length);
 
 // read and convert header
@@ -98,7 +99,6 @@ void CAggregator :: Process()
 			if(!queue_filter.FilterOut(packet, sens_data + cnt + 4))
 			{
 				queue.Add(packet);
-				cout << packet.data_string << endl;
 			}
 
 			buffer_aggregator.Add(packet.address, packet.sensor_id, packet);

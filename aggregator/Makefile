@@ -34,8 +34,7 @@ $(TGT) : $(SRC) $(INC)
 
 clean:
 	rm -f $(BIN_DIR)/*.so
-
-
+	rm bin/test
 
 
 #$(OBJ_DIR)agg.o : $(SRC_DIR)agg.cpp $(SRC_DIR)agg.h $(SRC_DIR)sensor_metainf.h

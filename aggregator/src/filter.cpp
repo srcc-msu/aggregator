@@ -21,13 +21,13 @@ bool CSensorFilter :: FilterOut(SPacket& packet, unsigned char* raw_buffer)
 
 	if(diff > filter.max_interval || filter.last.packet.agent_timestamp == 0)
 	{
-		cout << "diff " << diff << " let it pass!" << endl;
+//		cout << "diff " << diff << " let it pass!" << endl;
 
 		filter_out = false;
 	}
 	else if(delta > filter.delta)
 	{
-		cout << "delta " << delta << " let it pass!" << endl;
+//		cout << "delta " << delta << " let it pass!" << endl;
 
 		filter_out = false;
 	}
