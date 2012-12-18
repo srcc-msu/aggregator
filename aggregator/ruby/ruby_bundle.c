@@ -93,6 +93,22 @@ VALUE rb_GetInterval(VALUE self, VALUE rb_address, VALUE rb_sensor_id, VALUE rb_
 	return arr;
 }
 
+VALUE rb_BlacklistAddress(VALUE self, VALUE rb_address)
+{
+	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
+	char* address = STR2CSTR(rb_address);
+
+	BlacklistAddress(agg_id, address);
+}
+
+VALUE rb_BlacklistId(VALUE self, VALUE rb_id)
+{
+	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
+	char* address = FIX2INT(rb_id);
+
+	BlacklistId(agg_id, address);
+}
+
 void Init_ruby_aggregator()
 {
 	agg_class = rb_define_class("Aggregator", rb_cObject);
@@ -102,6 +118,8 @@ void Init_ruby_aggregator()
 	rb_define_method(agg_class, "Process", rb_Process, 0);
 	rb_define_method(agg_class, "GetAllData", rb_GetAllData, 0);
 	rb_define_method(agg_class, "GetInterval", rb_GetInterval, 3);
+	rb_define_method(agg_class, "BlacklistAddress", rb_BlacklistAddress, 1);
+	rb_define_method(agg_class, "BlacklistId", rb_BlacklistId, 1);
 
 	printf("aggregator loaded\n");
 }
