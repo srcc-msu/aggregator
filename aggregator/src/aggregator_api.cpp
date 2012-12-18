@@ -1,6 +1,7 @@
 #include "aggregator_api.h"
 
 #include <iostream>
+#include <vector>
 
 using std :: cout;
 using std :: endl;
@@ -8,81 +9,50 @@ using std :: endl;
 #include "queue.h"
 #include "aggregator.h"
 
-int test(int port)
+static const int AGENT_CONTROL_PORT = 4259;
+
+void __aggregator()
 {
-	CCircularBuffer<int> buffer(10);
-
-	for(int i = 0; i < 13; i++)
-		buffer.Add(i);
-
-	int* t = buffer.Get(5);
-
-	for(int i = 0; i < 5; i++)
-		cout << t[i] << " ";
-
-	cout << endl;
-
-// -------------------------------------------------------
-
-	CSensorQueue<int> squeue;
-
-	for(int i = 0; i < 13; i++)
-		squeue.Add(i);
-
-	size_t count = 0;
-	int* t2 = squeue.GetAll(&count);
-
-	for(int i = 0; i < 5; i++)
-		cout << t2[i] << " ";
-
-	cout << endl;
-	squeue.RemoveOld();
-
-// -------------------------------------------------------
-
-	CAggregator agg(port);
-
-	agg.Process();
-
-	SPacket* packets = agg.GetAllData(&count);
-
-	for(int i = 0; i < 10; i++)
-		cout << packets[i].address << " " << packets[i].data_string << endl;
-
-	return 0;
+	cout << "peace and love, bro!" << endl;
 }
 
-CAggregator* aggregator = nullptr;
+std :: vector<CAggregator*> aggregators;
 
-void InitAggregator(int port)
+int InitAggregator(const char* address)
 {
-	if(aggregator != nullptr)
-		delete aggregator;
+	int n = aggregators.size();
 
-	aggregator = new CAggregator(port);
+	aggregators.push_back(new CAggregator(AGENT_CONTROL_PORT, inet_addr(address)));
+
+	return n;
 }
 
-void Process()
+void InitAgent(int agg_id, const char* address)
 {
-	aggregator->Process();
+	aggregators[agg_id]->Connection().InitAgent(inet_addr(address));
 }
 
-void BlacklistAddress(uint32_t address)
+void Process(int agg_id)
 {
-	aggregator->BlacklistAddress(address);
+	aggregators[agg_id]->Process();
 }
 
-void BlacklistId(uint16_t id)
+void BlacklistAddress(int agg_id, const char* address)
 {
-	aggregator->BlacklistId(id);
+	aggregators[agg_id]->Connection().BlacklistAddress(inet_addr(address));
 }
 
-SPacket* GetInterval(uint32_t address, uint16_t id, size_t seconds)
+void BlacklistId(int agg_id, uint16_t id)
 {
-	return aggregator->GetInterval(address, id, seconds);
+	aggregators[agg_id]->BlacklistId(id);
 }
 
-SPacket* GetAllData(size_t* count)
+SPacket* GetInterval(int agg_id, const char* address, uint16_t id, size_t seconds)
 {
-	return aggregator->GetAllData(count);
+	return aggregators[agg_id]->GetInterval(inet_addr(address), id, seconds);
+}
+
+SPacket* GetAllData(int agg_id, size_t* count)
+{
+	return aggregators[agg_id]->GetAllData(count);
 }

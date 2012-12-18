@@ -196,7 +196,7 @@ def waitForDataMessage(stage, s_data, cookie):
         msg, msgaddr = s_data.recvfrom(65535)
         print 'msglen = ', len(msg)
         print 'msgaddr =', msgaddr
-        hexdump(msg[0:54])
+        hexdump(msg[0:154])
         if not msg.startswith('MMCS.NAG'):
             print 'Unknown message, retrying'
             continue
@@ -237,6 +237,18 @@ def doTest():
     print 'stage 1 passed'
 
     print 'stage 2: wait for data stream'
+    waitForDataMessage('stage 2', s_data, cookie)
+    waitForDataMessage('stage 2', s_data, cookie)
+    waitForDataMessage('stage 2', s_data, cookie)
+    waitForDataMessage('stage 2', s_data, cookie)
+    waitForDataMessage('stage 2', s_data, cookie)
+    waitForDataMessage('stage 2', s_data, cookie)
+    waitForDataMessage('stage 2', s_data, cookie)
+    waitForDataMessage('stage 2', s_data, cookie)
+    waitForDataMessage('stage 2', s_data, cookie)
+    waitForDataMessage('stage 2', s_data, cookie)
+    waitForDataMessage('stage 2', s_data, cookie)
+    waitForDataMessage('stage 2', s_data, cookie)
     waitForDataMessage('stage 2', s_data, cookie)
     print 'stage 2 passed'
 

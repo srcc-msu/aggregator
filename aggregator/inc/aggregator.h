@@ -17,6 +17,7 @@ using std :: endl;
 #include "sensor_metainf.h"
 #include "filter.h"
 #include "packet.h"
+#include "connection.h"
 
 /**
 	Implements so called 'tristasecundnij buffer'
@@ -35,7 +36,12 @@ public:
 
 /// Get the \seconds interval data for one sesnor on one node from the buffer
 	SPacket* GetInterval(uint32_t address, uint16_t sensor_id, int seconds)
-		{ assert(0); };
+		{ 
+			if(buffers[address].count(sensor_id) != 0)
+				return buffers[address][sensor_id]->Get(seconds);
+
+			return nullptr;
+		};
 };
 
 /**
@@ -46,25 +52,18 @@ public:
 class CAggregator
 {
 private:
-	sockaddr_in address;
-	int socket;
+	CConnectionManager connection;
 
 	CSensorQueue<SPacket> queue;
 	CBufferAggregator buffer_aggregator;
 
-	Blacklister<uint32_t> address_blacklist;
 	Blacklister<uint16_t> id_blacklist;
 
 	CSensorFilter queue_filter;
 
-/**
-	Creates a socket, where data will be read from
-*/
-	void Init(int port);
-
 public:
-	void BlacklistAddress(uint32_t address)
-		{ address_blacklist.Add(address); }
+	CConnectionManager& Connection()
+		{ return connection; }
 
 	void BlacklistId(uint16_t id)
 		{ id_blacklist.Add(id); }
@@ -81,17 +80,14 @@ public:
 */
 	void Process();
 
-	CAggregator(int port):
-	socket(-1)
+	CAggregator(int port, uint32_t address):
+	connection(port, address)
 	{
-		Init(port);
 		InitMetainf();
 	}
 
 	~CAggregator()
-	{
-		close(socket);
-	}
+	{}
 };
 
 #endif

@@ -2,17 +2,28 @@
 
 require 'ruby_aggregator'
 
-InitAggregator(33826)
+agg = Aggregator.new
 
+# Init aggregator
+agg.InitAggregator("127.0.0.1")
+
+
+# Configure agent to send data
+agg.InitAgent("127.0.0.1")
+
+
+# Collect all data
 t1 = Thread.new do
 	while true
-		Process()
+		agg.Process()
 	end
 end
 
+
+# Get collected data
 t2 = Thread.new do
 	while true
-		GetAllData().each do |num|
+		agg.GetAllData().each do |num|
 			num.each do |field|
 		    	print field, " "
 		    end
@@ -20,6 +31,8 @@ t2 = Thread.new do
 		end
 	end
 end
+
+
 
 t1.join
 t2.join

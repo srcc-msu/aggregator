@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -Werror -Wall -std=c++0x -O2
+CFLAGS = -Werror -Wall -std=c++0x -g
 LFLAGS = -shared -fPIC
 #	g++ -shared -Wl,-soname,libmylib.so -o libmylib.so mylib.o
 
@@ -34,15 +34,5 @@ $(TGT) : $(SRC) $(INC)
 
 clean:
 	rm -f $(BIN_DIR)/*.so
-	rm bin/test
-
-
-#$(OBJ_DIR)agg.o : $(SRC_DIR)agg.cpp $(SRC_DIR)agg.h $(SRC_DIR)sensor_metainf.h
-#	$(CC) $(CFLAGS) $(SRC_DIR)agg.cpp $(SRC_DIR)agg_api.cpp -o $(OBJ_DIR)agg.o
-
-#$(OBJ_DIR)queue.o : $(SRC_DIR)queue.cpp $(SRC_DIR)queue.h
-#	$(CC) $(CFLAGS) $(SRC_DIR)queue.cpp -o $(OBJ_DIR)queue.o
-
-#$(OBJ_DIR)agg_api.o : $(SRC_DIR)agg_api.cpp $(SRC_DIR)agg_api.h
-#	$(CC) $(CFLAGS) $(SRC_DIR)agg_api.cpp -o $(OBJ_DIR)agg_api.o
-
+	rm -f bin/test
+	rm -f ruby/Makefile

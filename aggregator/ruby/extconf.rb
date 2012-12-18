@@ -5,6 +5,6 @@ extension_name = 'ruby_aggregator'
 
 dir_config(extension_name)
 
-have_library("aggregator", "Process")
+have_library("aggregator", "__aggregator")
 
 create_makefile(extension_name)

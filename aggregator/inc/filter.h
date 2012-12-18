@@ -30,15 +30,9 @@ public:
 		blacklist.erase(value);
 	}
 
-	void Remove(T value)
+	bool IsIn(T value) const
 	{
-		blacklist.remove(value);
-	}
-
-
-	bool IsIn(T value)
-	{
-		return blacklist.find(value) != blacklist.end();
+		return blacklist.count(value) > 0;
 	}
 
 	Blacklister()
@@ -83,6 +77,10 @@ private:
 	std::unordered_map<uint32_t, std::unordered_map<uint16_t, SensorFilterMetainf>> filters;
 
 public:
+/**
+	Bad functions, check if the /packet must be filtered or not
+	modifies last ext_packets, modifies the \packet
+*/
 	bool FilterOut(SPacket& packet, unsigned char* raw_buffer);
 };
 

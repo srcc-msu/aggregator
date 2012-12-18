@@ -7,7 +7,7 @@
 
 #include <cstring>
 
-const size_t MAX_QUEUE_SIZE = 1024 * 1024 * 16;
+const size_t MAX_QUEUE_SIZE = 1024 * 1024;
 
 /**
 	Thread safe sensor queue. (ORLY?)

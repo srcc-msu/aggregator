@@ -6,30 +6,32 @@ using std :: endl;
 using std :: stringstream;
 
 #include "aggregator_api.h"
+#include "connection.h"
 
 int main(int argc, char** argv)
 {
-	int port = 0;
-	
-	if(argc <= 1)
-		return 1;
-	else
-	{
-		stringstream s(argv[1]);
-		s >> port;
-	}
-	
-	InitAggregator(port);
+	int agg_id = InitAggregator("127.0.0.1");
 
-	for(int i = 0; i < 1; i++)
-		Process();
+	InitAgent(agg_id, "127.0.0.1");
+
+	for(int i = 0; i < 5; i++)
+		Process(agg_id);
 
 	size_t count = 0;
-	SPacket* l = GetAllData(&count);
+	SPacket* l = GetAllData(agg_id, &count);
 
 	cout << "Got " << count << endl;
 
 	cout << "First " << l[0].address << endl;
 
+	l = GetInterval(agg_id, "127.0.0.1", 2061, 1);
+
+	printf("%x\n", (int)l);
+	
+	if(l != nullptr)
+		for(int i = 0; i < 1; i++)
+			cout << i << " " << l[i].address << endl;
+
 	return 0;
 }
+

@@ -49,7 +49,8 @@ double GetDiv(UValue v1, UValue v2, e_sens_type type, size_t msg_length);
 UValue ParseSensValue(unsigned char* buffer, size_t msg_length);
 
 /**
-	packet structure with extended info that will be used for filtering
+	Packet structure with extended info that will be used for filtering.
+	Currently copies and modifies the packet
 */
 struct SPacketExt
 {
@@ -66,6 +67,10 @@ public:
 	SPacketExt()
 	{}
 
+/**
+	wheh this class is constucted - it fills data_string field of \packet
+	TODO: make it more clear
+*/
 	SPacketExt(SPacket packet, unsigned char* raw_buffer):
 	packet(packet)
 	{

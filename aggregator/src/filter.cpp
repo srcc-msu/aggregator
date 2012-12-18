@@ -7,14 +7,14 @@ using namespace std;
 bool CSensorFilter :: FilterOut(SPacket& packet, unsigned char* raw_buffer)
 {
 	SPacketExt ext_packet(packet, raw_buffer);
-	packet = ext_packet.packet;
+	packet = ext_packet.packet; // TODO maek it more clear
 	
 	SensorFilterMetainf& filter = filters[packet.address][packet.sensor_id];
 
 	bool filter_out = true;
 
-
 	uint32_t diff = packet.agent_timestamp - filter.last.packet.agent_timestamp;
+
 	double delta = fabs(GetDiv(ext_packet.value, filter.last.value, 
 		ext_packet.info.type, filter.last.info.msg_length) - 1.0);
 	
