@@ -14,74 +14,32 @@
 	TODO check performance
 */
 template <class T>
-class Blacklister
+class AccessList
 {
 private:
-	std :: unordered_set<T> blacklist;
+	std :: unordered_set<T> access_list;
 
 public:
 	void Add(T value)
 	{
-		blacklist.insert(value);
+		access_list.insert(value);
 	}
 
-	void Delete(T value)
+	void Remove(T value)
 	{
-		blacklist.erase(value);
+		access_list.erase(value);
 	}
 
 	bool IsIn(T value) const
 	{
-		return blacklist.count(value) > 0;
+		return access_list.find(value) != access_list.end();
 	}
 
-	Blacklister()
+	AccessList()
 	{}
 
-	~Blacklister()
+	~AccessList()
 	{}
-};
-
-const double DEFAULT_DELTA = 0.01;
-const double DEFAULT_MAX_INTERVAL = 30;
-
-/**
-	stores metainformation about each sensor on each address
-*/
-struct SensorFilterMetainf
-{
-	double delta;
-
-/*NIY*/
-	//int abs_delta; // should be used if \delta == 0
-
-	uint32_t max_interval; // interval in seconds, when new packet will be sent regardless anyting
-
-	SPacketExt last;
-
-	SensorFilterMetainf(double delta = DEFAULT_DELTA, int max_interval = DEFAULT_MAX_INTERVAL):
-	delta(delta),
-	max_interval(max_interval)
-	{}
-};
-
-
-/**
-	provides extended filtering options for sensors, basing on values,
-	ids and addresses
-*/
-class CSensorFilter
-{
-private:
-	
-	std::unordered_map<uint32_t, std::unordered_map<uint16_t, SensorFilterMetainf>> filters;
-
-public:
-/**
-	Bad functions, check if the /packet must be filtered or not
-	modifies last ext_packets, modifies the \packet
-*/
-	bool FilterOut(SPacket& packet, unsigned char* raw_buffer);
 };
 
 #endif

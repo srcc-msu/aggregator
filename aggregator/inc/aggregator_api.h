@@ -22,31 +22,43 @@ int InitAggregator(const char* address);
 /**
 	Configures the agent on \addres to send data to this aggregator
 */
-void InitAgent(int aggr_id, const char* address);
+void InitAgent(int agg_id, const char* address);
 
 /**
 	Process one incoming packet by aggregator.
 	Pretends to be thread safe. (orly? TODO check)
 */
-void Process(int aggr_id);
+void Process(int agg_id);
 
 /**
 	Add the \address to the global blacklist,
 	IPv4 packed in uint32 currently.
 	TODO: provide aliases for arrays/strings, if needed.
 */
-void BlacklistAddress(int aggr_id, const char* address);
+void GlobalBlacklistAddress(int agg_id, const char* address);
 
 /**
 	Add the sensor \id to the global blacklist.
 */
-void BlacklistId(int aggr_id, uint16_t id);
+void QueueBlacklistId(int agg_id, uint16_t id);
+void QueueUnblacklistId(int agg_id, uint16_t id);
+
+void BufferAllowId(int agg_id, uint16_t id);
+void BufferDisallowId(int agg_id, uint16_t id);
+
+void SetDeltaAS(int agg_id, uint32_t address, uint16_t sensor_id, double delta);
+void SetDeltaS(int agg_id, uint16_t sensor_id, double delta);
+void SetDelta(int agg_id, double delta);
+
+void SetIntervalAS(int agg_id, uint32_t address, uint16_t sensor_id, int max_interval);
+void SetIntervalS(int agg_id, uint16_t sensor_id, int max_interval);
+void SetInterval(int agg_id, int max_interval);
 
 /**
 	Returns \seconds interval of data from circular buffer, corresponding to
 	\address and \id.
 */
-SPacket* GetInterval(int aggr_id, const char* address, uint16_t id, size_t seconds);
+SPacket* GetInterval(int agg_id, const char* address, uint16_t id, size_t seconds);
 
 /**
 	Returns pointer to collected data. And they will not be availiable throught 
@@ -55,7 +67,7 @@ SPacket* GetInterval(int aggr_id, const char* address, uint16_t id, size_t secon
 	(!) Also they will be deleted, when the librarys is unloaded.
 	Returns array of \SPacket and writes the length into the \count.
 */
-SPacket* GetAllData(int aggr_id, size_t* count);
+SPacket* GetAllData(int agg_id, size_t* count);
 }
 
 #endif

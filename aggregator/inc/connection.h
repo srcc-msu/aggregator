@@ -24,7 +24,7 @@ private:
 // Stores inited agents addresses
 	std :: unordered_set<uint32_t> agents;
 	
-	Blacklister<uint32_t> address_blacklist;
+	AccessList<uint32_t> address_blacklist;
 
 /**
 	Creates a socket, where data will be read from
@@ -44,7 +44,7 @@ public:
 	All messages form this address will not be ignored anymore.
 */
 	void UnblacklistAddress(uint32_t address)
-		{ address_blacklist.Delete(address); }
+		{ address_blacklist.Remove(address); }
 
 /**
 	Form a control message, that sets an angent him to send data 

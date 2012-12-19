@@ -11,17 +11,6 @@
 
 #include "debug.h"
 
-void CBufferAggregator :: Add(uint32_t address, uint16_t sensor_id, SPacket p)
-{
-	if(buffers[address].count(sensor_id) == 0)
-		buffers[address][sensor_id] = new CCircularBuffer<SPacket>();
-
-	buffers[address][sensor_id]->Add(p);
-
-	DMSG2("added to circ. buffer, size is now " << buffers.size() << " and " << buffers[address].size());
-}
-
-//************************************************************************
 
 const size_t MAX_MESSAGE_SIZE = 4096; // TODO check, message size, passed in the message seems to be incorrret
 
@@ -124,29 +113,20 @@ void CAggregator :: Process()
 
 		if(id == 0) break; // it was last
 
-//	if the sensor in a global blacklist - skip
-		if(!id_blacklist.IsIn(id)) 
-		{
-			SPacket packet;
+		SPacket packet;
 
-			packet.address = header->client_host.b4[0];
-			packet.agent_timestamp = header->ts_m * 1000000 + header->ts_sec;
-			packet.agent_usec = header->ts_usec;
-			packet.server_timestamp = current_time.tv_sec;
-			packet.server_usec = current_time.tv_usec;
-			packet.sensor_id = id;
+		packet.address = header->client_host.b4[0];
+		packet.agent_timestamp = header->ts_m * 1000000 + header->ts_sec;
+		packet.agent_usec = header->ts_usec;
+		packet.server_timestamp = current_time.tv_sec;
+		packet.server_usec = current_time.tv_usec;
+		packet.sensor_id = id;
 
-			if(!queue_filter.FilterOut(packet, sens_data + cnt + 4))
-			{
-				queue.Add(packet);
-				DMSG2(id << " packet added");
-			}
-			
-			buffer_aggregator.Add(packet.address, packet.sensor_id, packet);
-		}
-		DBLOCK2(
-			else DMSG2(id << " is in blacklist");
-		)
+		SPacketExt ext_packet(packet, sens_data + cnt + 4);
+
+		queue_aggregator.Add(ext_packet);
+		
+		buffer_aggregator.Add(ext_packet);
 
 		cnt += size + 4;
 	}

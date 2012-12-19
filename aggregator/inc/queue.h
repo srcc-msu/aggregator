@@ -132,6 +132,10 @@ public:
 			pointer = 0;
 	}
 
+/**
+	Gets n values from the buffer. If thy were not added yet - 
+	returns default values from \T constructor.
+*/
 	T* Get(size_t n)
 	{
 		std::lock_guard<std::mutex> lock(mutex);
@@ -171,6 +175,9 @@ public:
 		size = new_size;
 		pointer = 0;
 		buffer = new T[size];
+
+		for(size_t i = 0; i < size; i++)
+			buffer[i] = T();
 	}
 
 	CCircularBuffer(size_t size = DEFAULT_BUFF_SIZE):

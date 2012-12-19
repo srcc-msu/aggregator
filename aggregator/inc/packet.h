@@ -32,6 +32,7 @@ struct SPacket
 	{}
 };
 
+
 union UValue
 {
 	uint64_t b8[1];
@@ -40,13 +41,12 @@ union UValue
 	uint8_t b1[8];
 };
 
+UValue ParseSensValue(unsigned char* buffer, size_t msg_length);
 
 /**
 	TODO check div zero
 */
 double GetDiv(UValue v1, UValue v2, e_sens_type type, size_t msg_length);
-
-UValue ParseSensValue(unsigned char* buffer, size_t msg_length);
 
 /**
 	Packet structure with extended info that will be used for filtering.
@@ -68,7 +68,8 @@ public:
 	{}
 
 /**
-	wheh this class is constucted - it fills data_string field of \packet
+	wheh this class is constucted - it fills data_string field of packet
+	and stores modified copy inside himself. Old packet should not be used.
 	TODO: make it more clear
 */
 	SPacketExt(SPacket packet, unsigned char* raw_buffer):

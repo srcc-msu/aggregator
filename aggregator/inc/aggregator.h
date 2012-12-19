@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <string>
+#include <algorithm>
 
 using std :: string;
 using std :: cout;
@@ -18,31 +19,8 @@ using std :: endl;
 #include "filter.h"
 #include "packet.h"
 #include "connection.h"
-
-/**
-	Implements so called 'tristasecundnij buffer'
-	stores all packets and set of sicular buffers
-	implements, used std::unordered_map  TODO check performance
-*/
-class CBufferAggregator
-{
-private:
-	std::unordered_map<uint32_t, std::unordered_map<uint16_t, CCircularBuffer<SPacket>* >> buffers;
-
-public:
-
-/// Add single packet to the buffer
-	void Add(uint32_t address, uint16_t sensor_id, SPacket p);
-
-/// Get the \seconds interval data for one sesnor on one node from the buffer
-	SPacket* GetInterval(uint32_t address, uint16_t sensor_id, int seconds)
-		{ 
-			if(buffers[address].count(sensor_id) != 0)
-				return buffers[address][sensor_id]->Get(seconds);
-
-			return nullptr;
-		};
-};
+#include "buffer_aggregator.h"
+#include "queue_aggregator.h"
 
 /**
 	Listens the socket for all incoming packets and agregates them
@@ -54,25 +32,18 @@ class CAggregator
 private:
 	CConnectionManager connection;
 
-	CSensorQueue<SPacket> queue;
 	CBufferAggregator buffer_aggregator;
-
-	Blacklister<uint16_t> id_blacklist;
-
-	CSensorFilter queue_filter;
+	CQueueAggregator queue_aggregator;
 
 public:
 	CConnectionManager& Connection()
 		{ return connection; }
 
-	void BlacklistId(uint16_t id)
-		{ id_blacklist.Add(id); }
+	CBufferAggregator& BufferAggregator()
+		{ return buffer_aggregator; }
 
-	SPacket* GetInterval(uint32_t address, uint16_t id, size_t seconds) 
-		{ return buffer_aggregator.GetInterval(address, id, seconds); }
-
-	SPacket* GetAllData(size_t* count) 
-		{ return queue.GetAll(count); }
+	CQueueAggregator& QueueAggregator()
+		{ return queue_aggregator; }
 
 /**
 	Recieve one message from the socket, converts it as needed
