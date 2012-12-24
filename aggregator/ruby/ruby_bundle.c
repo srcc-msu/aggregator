@@ -93,21 +93,137 @@ VALUE rb_GetInterval(VALUE self, VALUE rb_address, VALUE rb_sensor_id, VALUE rb_
 	return arr;
 }
 
-VALUE rb_BlacklistAddress(VALUE self, VALUE rb_address)
+VALUE rb_GlobalBlacklistAddress(VALUE self, VALUE rb_address)
 {
 	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
 	char* address = STR2CSTR(rb_address);
 
-	BlacklistAddress(agg_id, address);
+	GlobalBlacklistAddress(agg_id, address);
 }
 
-VALUE rb_BlacklistId(VALUE self, VALUE rb_id)
+// -----------
+
+VALUE rb_QueueBlacklistId(VALUE self, VALUE rb_sensor_id)
 {
 	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
-	char* address = FIX2INT(rb_id);
+	uint16_t sensor_id = FIX2INT(rb_sensor_id);
 
-	BlacklistId(agg_id, address);
+	QueueBlacklistId(agg_id, sensor_id);
 }
+
+VALUE rb_QueueUnblacklistId(VALUE self, VALUE rb_sensor_id)
+{
+	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
+	uint16_t sensor_id = FIX2INT(rb_sensor_id);
+
+	QueueUnblacklistId(agg_id, sensor_id);
+}
+
+// ------
+
+VALUE rb_BufferAllowId(VALUE self, VALUE rb_sensor_id)
+{
+	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
+	uint16_t sensor_id = FIX2INT(rb_sensor_id);
+
+	BufferAllowId(agg_id, sensor_id);
+}
+
+VALUE rb_BufferDisallowId(VALUE self, VALUE rb_sensor_id)
+{
+	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
+	uint16_t sensor_id = FIX2INT(rb_sensor_id);
+
+	BufferDisallowId(agg_id, sensor_id);
+}
+
+// -------
+
+VALUE rb_SetDeltaAS(VALUE self, VALUE rb_address, VALUE rb_sensor_id, VALUE rb_delta)
+{
+	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
+	
+	char* address = STR2CSTR(rb_address);
+	uint16_t sensor_id = FIX2INT(rb_sensor_id);
+	double delta = NUM2DBL(rb_delta);
+
+	SetDeltaAS(agg_id, address, sensor_id, delta);
+}
+
+
+VALUE rb_SetDeltaA(VALUE self, VALUE rb_address, VALUE rb_delta)
+{
+	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
+	
+	char* address = STR2CSTR(rb_address);
+	double delta = NUM2DBL(rb_delta);
+
+	SetDeltaA(agg_id, address, delta);
+}
+
+VALUE rb_SetDeltaS(VALUE self, VALUE rb_sensor_id, VALUE rb_delta)
+{
+	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
+	
+	uint16_t sensor_id = FIX2INT(rb_sensor_id);
+	double delta = NUM2DBL(rb_delta);
+
+	SetDeltaS(agg_id, sensor_id, delta);
+}
+
+VALUE rb_SetDelta(VALUE self, VALUE rb_delta)
+{
+	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
+	
+	double delta = NUM2DBL(rb_delta);
+
+	SetDelta(agg_id, delta);
+}
+
+// -------
+
+VALUE rb_SetIntervalAS(VALUE self, VALUE rb_address, VALUE rb_sensor_id, VALUE rb_interval)
+{
+	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
+	
+	char* address = STR2CSTR(rb_address);
+	uint16_t sensor_id = FIX2INT(rb_sensor_id);
+	int interval = FIX2INT(rb_interval);
+
+	SetIntervalAS(agg_id, address, sensor_id, interval);
+}
+
+
+VALUE rb_SetIntervalA(VALUE self, VALUE rb_address, VALUE rb_interval)
+{
+	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
+	
+	char* address = STR2CSTR(rb_address);
+	int interval = FIX2INT(rb_interval);
+
+	SetIntervalA(agg_id, address, interval);
+}
+
+VALUE rb_SetIntervalS(VALUE self, VALUE rb_sensor_id, VALUE rb_interval)
+{
+	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
+	
+	uint16_t sensor_id = FIX2INT(rb_sensor_id);
+	int interval = FIX2INT(rb_interval);
+
+	SetIntervalS(agg_id, sensor_id, interval);
+}
+
+VALUE rb_SetInterval(VALUE self, VALUE rb_interval)
+{
+	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
+	
+	int interval = FIX2INT(rb_interval);
+
+	SetInterval(agg_id, interval);
+}
+
+// -------
 
 void Init_ruby_aggregator()
 {
@@ -118,8 +234,24 @@ void Init_ruby_aggregator()
 	rb_define_method(agg_class, "Process", rb_Process, 0);
 	rb_define_method(agg_class, "GetAllData", rb_GetAllData, 0);
 	rb_define_method(agg_class, "GetInterval", rb_GetInterval, 3);
-	rb_define_method(agg_class, "BlacklistAddress", rb_BlacklistAddress, 1);
-	rb_define_method(agg_class, "BlacklistId", rb_BlacklistId, 1);
+	
+	rb_define_method(agg_class, "GlobalBlacklistAddress", rb_GlobalBlacklistAddress, 1);
+
+	rb_define_method(agg_class, "QueueBlacklistId"  , rb_QueueBlacklistId, 1);
+	rb_define_method(agg_class, "QueueUnblacklistId", rb_QueueUnblacklistId, 1);
+
+	rb_define_method(agg_class, "BufferAllowId"   , rb_BufferAllowId, 1);
+	rb_define_method(agg_class, "BufferDisallowId", rb_BufferDisallowId, 1);
+
+	rb_define_method(agg_class, "SetIntervalAS", rb_SetInterval, 3);
+	rb_define_method(agg_class, "SetIntervalA", rb_SetIntervalA, 2);
+	rb_define_method(agg_class, "SetIntervalS", rb_SetIntervalS, 2);
+	rb_define_method(agg_class, "SetInterval", rb_SetInterval, 1);
+
+	rb_define_method(agg_class, "SetDeltaAS", rb_SetDeltaAS, 3);
+	rb_define_method(agg_class, "SetDeltaA", rb_SetDeltaA, 2);
+	rb_define_method(agg_class, "SetDeltaS", rb_SetDeltaS, 2);
+	rb_define_method(agg_class, "SetDelta", rb_SetDelta, 1);
 
 	printf("aggregator loaded\n");
 }

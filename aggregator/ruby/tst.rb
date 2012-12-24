@@ -11,11 +11,21 @@ agg.InitAggregator("127.0.0.1")
 # Configure agent to send data
 agg.InitAgent("127.0.0.1")
 
+$i = 1100
+$num = 3000
+
+while $i < $num  do
+	agg.QueueBlacklistId($i)
+	$i += 1
+end
+
+agg.QueueBlacklistId(1052)
+agg.SetDeltaA("127.0.0.1", 1.3)
+
 # his sensor will not be connected
-agg.BlacklistId(2162)
 
 # Messages from this address will be ignored
-agg.BlacklistAddress("123.255.255.255")
+agg.GlobalBlacklistAddress("123.255.255.255")
 
 # Collect all data
 t1 = Thread.new do

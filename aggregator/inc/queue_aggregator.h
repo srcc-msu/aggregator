@@ -42,29 +42,39 @@ class CQueueAggregator
 {
 private:
 	CSensorQueue<SPacket> queue;
-	
+
+//
+//	Filtration checks the filter in following order (below).
+//	If requested \address and/or \sensor_id found - does not check next.
+
+//	address + sensor_id filter
 	std::unordered_map<uint32_t, std::unordered_map<uint16_t, SensorFilterMetainf>> filters;
+
+//	address filter
+	std::unordered_map<uint32_t, SensorFilterMetainf> address_filters;
+
+//	sensor_id filter
+	std::unordered_map<uint16_t, SensorFilterMetainf> sensor_id_filters;
+
+	SensorFilterMetainf default_filter;
 
 	AccessList<uint16_t> id_blacklist;
 
 	bool FilterOut(const SPacketExt& ext_packet);
 
 public:
-	void BlacklistId(uint16_t sensor_id)
-		{ id_blacklist.Add(sensor_id); }
-
-	void UnblacklistId(uint16_t sensor_id)
-		{ id_blacklist.Remove(sensor_id); }
-
-
-//	TODO works wrong, filter change required
+	void BlacklistId(uint16_t sensor_id);
+	void UnblacklistId(uint16_t sensor_id);
+	
 	void SetDelta(uint32_t address, uint16_t sensor_id, double delta);
-	void SetDelta(uint16_t sensor_id, double delta); // TODO
-	void SetDelta(double delta); // TODO
+	void SetDelta(uint32_t address, double delta);
+	void SetDelta(uint16_t sensor_id, double delta);
+	void SetDelta(double delta);
 
 	void SetInterval(uint32_t address, uint16_t sensor_id, int max_interval);
-	void SetInterval(uint16_t sensor_id, int max_interval); // TODO
-	void SetInterval(int max_interval); // TODO
+	void SetInterval(uint32_t address, int max_interval);
+	void SetInterval(uint16_t sensor_id, int max_interval);
+	void SetInterval(int max_interval);
 
 	void Add(const SPacketExt& ext_packet);
 

@@ -38,19 +38,34 @@ void Process(int agg_id);
 void GlobalBlacklistAddress(int agg_id, const char* address);
 
 /**
-	Add the sensor \id to the global blacklist.
+	Add/remove the sensor \id to the queue blacklist.
+	By default all sensors are allowed.
 */
 void QueueBlacklistId(int agg_id, uint16_t id);
 void QueueUnblacklistId(int agg_id, uint16_t id);
 
+/**
+	Allos/disallow the sensor \id to be collected in 300s buffer.
+	By default all sensors are disallowed.
+*/
 void BufferAllowId(int agg_id, uint16_t id);
 void BufferDisallowId(int agg_id, uint16_t id);
 
-void SetDeltaAS(int agg_id, uint32_t address, uint16_t sensor_id, double delta);
+/**
+	Set the change threshold \delta, when new sensor value will be added to the queue.
+	Proirity of filters comes as follow:
+*/
+void SetDeltaAS(int agg_id, const char* address, uint16_t sensor_id, double delta);
 void SetDeltaS(int agg_id, uint16_t sensor_id, double delta);
+void SetDeltaA(int agg_id, const char* address, double delta);
 void SetDelta(int agg_id, double delta);
 
-void SetIntervalAS(int agg_id, uint32_t address, uint16_t sensor_id, int max_interval);
+/**
+	Set the time threshold \max_interval, when new sensor value will be added to the queue.
+	Proirity of filters comes as follow:
+*/
+void SetIntervalAS(int agg_id, const char* address, uint16_t sensor_id, int max_interval);
+void SetIntervalA(int agg_id, const char* address, int max_interval);
 void SetIntervalS(int agg_id, uint16_t sensor_id, int max_interval);
 void SetInterval(int agg_id, int max_interval);
 

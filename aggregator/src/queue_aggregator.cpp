@@ -2,16 +2,42 @@
 
 #include "debug.h"
 
+void CQueueAggregator :: BlacklistId(uint16_t sensor_id)
+{
+	DMSG1("added to the queue blacklist: " << sensor_id);
+
+	id_blacklist.Add(sensor_id); 
+}
+
+void CQueueAggregator :: UnblacklistId(uint16_t sensor_id)
+{ 
+	DMSG1("removed from the queue blacklist: " << sensor_id);
+
+	id_blacklist.Remove(sensor_id); 
+}
+
 bool CQueueAggregator :: FilterOut(const SPacketExt& ext_packet)
 {
 	const SPacket& packet = ext_packet.packet; // short
 	
-	SensorFilterMetainf& filter = filters[packet.address][packet.sensor_id];
-
 	bool filter_out = true;
 
+//	get appropriate filter
+	SensorFilterMetainf filter = default_filter;
+
+ 	if(filters[packet.address].find(packet.sensor_id) != filters[packet.address].end())
+ 		filter = filters[packet.address][packet.sensor_id];
+
+ 	else if(address_filters.find(packet.address) != address_filters.end())
+ 		filter = address_filters[packet.address];
+
+ 	else if(sensor_id_filters.find(packet.sensor_id) != sensor_id_filters.end())
+ 		filter = sensor_id_filters[packet.sensor_id];
+
+//	time diff
 	uint32_t diff = packet.agent_timestamp - filter.last.packet.agent_timestamp;
 
+//	change diff
 	double delta = fabs(GetDiv(ext_packet.value, filter.last.value, 
 		ext_packet.info.type, filter.last.info.msg_length) - 1.0);
 	
@@ -47,6 +73,9 @@ void CQueueAggregator :: Add(const SPacketExt& ext_packet)
 	)
 }
 
+
+//---------
+
 void CQueueAggregator :: SetDelta(uint32_t address, uint16_t sensor_id, double delta)
 { 
 	filters[address][sensor_id].delta = delta; 
@@ -54,16 +83,20 @@ void CQueueAggregator :: SetDelta(uint32_t address, uint16_t sensor_id, double d
 
 void CQueueAggregator :: SetDelta(uint16_t sensor_id, double delta)
 { 
-	//for(auto addr : filters)
-	//	addr[sensor_id].delta = delta; 
+	sensor_id_filters[sensor_id].delta = delta; 
+}
+
+void CQueueAggregator :: SetDelta(uint32_t address, double delta)
+{ 
+	address_filters[address].delta = delta; 
 }
 
 void CQueueAggregator :: SetDelta(double delta)
 { 
-	//for(auto addr : filters)
-	//	for(auto filter : addr)
-	//		filter[sensor_id].delta = delta; 
+	default_filter.delta = delta;
 }
+
+//---------
 
 void CQueueAggregator :: SetInterval(uint32_t address, uint16_t sensor_id, int max_interval)
 { 
@@ -72,13 +105,15 @@ void CQueueAggregator :: SetInterval(uint32_t address, uint16_t sensor_id, int m
 
 void CQueueAggregator :: SetInterval(uint16_t sensor_id, int max_interval)
 { 
-	//for(auto addr : filters)
-	//	addr[sensor_id].max_interval = max_interval; 
+	sensor_id_filters[sensor_id].max_interval = max_interval; 
+}
+
+void CQueueAggregator :: SetInterval(uint32_t address, int max_interval)
+{ 
+	address_filters[address].max_interval = max_interval; 
 }
 
 void CQueueAggregator :: SetInterval(int max_interval)
 { 
-	//for(auto addr : filters)
-	//	for(auto filter : addr)
-	//		filter[sensor_id].max_interval = max_interval; 
+	default_filter.max_interval = max_interval;
 }

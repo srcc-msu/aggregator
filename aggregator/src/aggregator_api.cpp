@@ -63,37 +63,51 @@ void BufferDisallowId(int agg_id, uint16_t id)
 	aggregators[agg_id]->BufferAggregator().DisallowId(id);
 }
 
-void QueueSetDeltaAS(int agg_id, uint32_t address, uint16_t sensor_id, double delta)
+// --------------------------
+
+void SetDeltaAS(int agg_id, const char* address, uint16_t sensor_id, double delta)
 {
-	aggregators[agg_id]->QueueAggregator().SetDelta(address, sensor_id, delta);
+	aggregators[agg_id]->QueueAggregator().SetDelta(inet_addr(address), sensor_id, delta);
 }
 
-void QueueSetDeltaS(int agg_id, uint16_t sensor_id, double delta)
+void SetDeltaS(int agg_id, uint16_t sensor_id, double delta)
 {
 	aggregators[agg_id]->QueueAggregator().SetDelta(sensor_id, delta);
 }
 
-void QueueSetDelta(int agg_id, double delta)
+void SetDeltaA(int agg_id, const char* address, double delta)
+{
+	aggregators[agg_id]->QueueAggregator().SetDelta(inet_addr(address), delta);
+}
+
+void SetDelta(int agg_id, double delta)
 {
 	aggregators[agg_id]->QueueAggregator().SetDelta(delta);
 }
 
+// --------------------------
 
-void QueueSetIntervalAS(int agg_id, uint32_t address, uint16_t sensor_id, int max_interval)
+void SetIntervalAS(int agg_id, const char* address, uint16_t sensor_id, int max_interval)
 {
-	aggregators[agg_id]->QueueAggregator().SetInterval(address, sensor_id, max_interval);
+	aggregators[agg_id]->QueueAggregator().SetInterval(inet_addr(address), sensor_id, max_interval);
 }
 
-void QueueSetIntervalS(int agg_id, uint16_t sensor_id, int max_interval)
+void SetIntervalA(int agg_id, const char* address, int max_interval)
+{
+	aggregators[agg_id]->QueueAggregator().SetInterval(inet_addr(address), max_interval);
+}
+
+void SetIntervalS(int agg_id, uint16_t sensor_id, int max_interval)
 {
 	aggregators[agg_id]->QueueAggregator().SetInterval(sensor_id, max_interval);
 }
 
-void QueueSetInterval(int agg_id, int max_interval)
+void SetInterval(int agg_id, int max_interval)
 {
 	aggregators[agg_id]->QueueAggregator().SetInterval(max_interval);
 }
 
+// --------------------------
 
 SPacket* GetInterval(int agg_id, const char* address, uint16_t id, size_t seconds)
 {
