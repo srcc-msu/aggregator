@@ -1,0 +1,2 @@
+http://redmine.parallel.ru/wiki/hopsa/HOPLANG_installation_procedure
+http://espresso.github.com/Streaming.html
