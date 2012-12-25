@@ -393,11 +393,12 @@ class HopServer <E
 
   def post_test *args
     @out={'counter' => GlobalCounter.get}
-    if (accept =~ /json/) or args[0] == 'json'
+#    if (accept =~ /json/) or args[0] == 'json'
+    if args[0] == 'json'
       content_type! '.json'
       render {Oj.dump @out}
     else
-      "TEST: #{@out}\nARGS: #{args.inspect}\nAccept: #{accept}\nENV: " + env.to_s
+      "TEST: #{@out}\nARGS: #{args.inspect}\nENV: " + env.to_s
     end
   end
 
@@ -482,7 +483,8 @@ class HopServer <E
     else 
       halt 404, "Bad command: '#{args[0]}'\n"
     end
-    if (accept =~ /json/) or (args[1] == 'json')
+#    if (accept =~ /json/) or (args[1] == 'json')
+    if (args[1] == 'json')
       content_type! '.json'
       render 'get_info.json'
     else
