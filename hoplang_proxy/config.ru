@@ -1,3 +1,3 @@
-require './hoplang_server_espresso2'
+require './hoplang_proxy'
 
-run HopServer
+run HoplangProxy
