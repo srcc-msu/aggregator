@@ -113,20 +113,27 @@ void CAggregator :: Process()
 
 		if(id == 0) break; // it was last
 
-		SPacket packet;
+		size_t val_size = sensor_metainf[id].msg_length;
 
-		packet.address = header->client_host.b4[0];
-		packet.agent_timestamp = header->ts_m * 1000000 + header->ts_sec;
-		packet.agent_usec = header->ts_usec;
-		packet.server_timestamp = current_time.tv_sec;
-		packet.server_usec = current_time.tv_usec;
-		packet.sensor_id = id;
+//	few values are packed into one message, make separate packet for each
+		for(size_t part = 0; part < size/val_size; part++)
+		{
+			SPacket packet;
 
-		SPacketExt ext_packet(packet, sens_data + cnt + 4);
+			packet.address = header->client_host.b4[0];
+			packet.agent_timestamp = header->ts_m * 1000000 + header->ts_sec;
+			packet.agent_usec = header->ts_usec;
+			packet.server_timestamp = current_time.tv_sec;
+			packet.server_usec = current_time.tv_usec;
+			packet.sensor_id = id;
+			packet.sensor_num = part;
 
-		queue_aggregator.Add(ext_packet);
-		
-		buffer_aggregator.Add(ext_packet);
+			SPacketExt ext_packet(packet, sens_data + cnt + 4 + val_size * part);
+
+			queue_aggregator.Add(ext_packet);
+			
+			buffer_aggregator.Add(ext_packet);
+		}
 
 		cnt += size + 4;
 	}

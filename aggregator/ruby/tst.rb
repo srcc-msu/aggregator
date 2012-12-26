@@ -1,6 +1,6 @@
 #! /usr/bin/env ruby
 
-require 'ruby_aggregator'
+require_relative 'ruby_aggregator'
 
 agg = Aggregator.new
 

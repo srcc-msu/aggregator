@@ -22,13 +22,16 @@ struct SPacket
 	uint32_t server_usec;
 
 	uint16_t sensor_id;
+	uint8_t sensor_num;
+
 	char data_string[MAX_LEN]; // string ??? seems like an easiest way to pass uniform data for now
 
 	SPacket():
 	address(0),
 	agent_timestamp(0),
 	agent_usec(0),
-	sensor_id(0)
+	sensor_id(0),
+	sensor_num(0)
 	{}
 };
 

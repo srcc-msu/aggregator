@@ -78,6 +78,7 @@ public:
 
 	CSensorQueue():
 	queue(nullptr),
+	pointer(0),
 	old(nullptr)
 	{
 		Reinit();

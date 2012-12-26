@@ -2,9 +2,10 @@
 
 require 'rubygems'
 require 'socket'
-require 'avro'
 #require 'tempfile'
-require 'e'
+
+require 'bundler/setup'
+require 'reel'
 #!require 'simple_uuid'
 require 'thread'
 require 'logger'
@@ -13,7 +14,7 @@ require 'yaml'
 
 $logger = Logger.new('_hoplang_proxy.log', 10, 1024000)
 
-require 'ruby_aggregator'
+require_relative 'ruby_aggregator'
 
 $agg = Aggregator.new
 
@@ -23,13 +24,27 @@ def Init
   puts config.inspect
   
   $agg.InitAggregator(config["server"]["address"])
+  $logger.warn ""
+  $logger.warn "Aggregator started"
 
   config["agents"]["list"].each do |address|
     $agg.InitAgent(address[1])
+    $logger.warn "#{address[0]} aka #{address[1]} agent added"
   end
 
   $agg.SetDelta(config["server"]["queue"]["delta"])
+  $logger.warn "delta set to #{config["server"]["queue"]["delta"]}"
+
   $agg.SetInterval(config["server"]["queue"]["interval"])
+  $logger.warn "max interval set to #{config["server"]["queue"]["interval"]}"
+
+  sensors = config["server"]["buffer"]["sensors"]
+
+  $logger.warn "#{sensors} id will be collected in buffer"
+
+  sensors.each do |num|
+    $agg.BufferAllowId(num)
+  end
 
   Thread.new do
     while true
@@ -37,51 +52,69 @@ def Init
       sleep(0.01)
     end
   end
+  
+  $logger.warn "Data collection started"
 end
 
 Init()
 
-class HoplangProxy <E
-  charset 'utf-8'
-  cache_control :public, :must_revalidate, :max_age => 600
-  format :html
+app = Rack::Builder.new do
+  map '/stream' do
+    run lambda { |env|
+      body = Reel::Stream.new do |body|
+        while true
+          data = $agg.GetAllData()
 
-  map '/'
+          $logger.warn "Queue fetched: " + data.length.to_s
 
-  error 500 do | exception |
-      "Error 500\nInternal Error: #{ exception } (#{exception.backtrace.join("\n")})"
+          data.each do |num|
+            body << 
+            "[[\"sb\",\"sensor\"],{\"ip\":#{num[0]%256}.#{num[0]/256%256}.#{num[0]/256/256%256}.#{num[0]/256/256/256%256}" +
+            ",\"sensor_id\":[#{num[5].to_s}" +
+            ",#{num[6].to_s}],\"value\":#{num[7].to_s}" +
+            ",\"gts\":#{num[3].to_s}" +
+            ".#{num[4].to_s}}]\n"
+          end
+        end
+        body.finish
+      end
+      [200, {
+        'Transfer-Encoding' => 'identity',
+        'Content-Type' => 'text/html'
+        }, body]
+    }
   end
 
-  error 404 do |msg|
-    "Error 404\nNot found! #{msg}"
-    
+  map '/sensorstats' do
+    run lambda { |env|
+      body = Reel::Stream.new do |body|
+
+        sensor_id = 1052
+        sensor_num = 0
+        address = "127.0.0.1"
+        interval = 30
+
+        data = $agg.GetInterval(address, sensor_id, interval)
+
+        $logger.warn "Buffer fetched: " + data.length.to_s
+
+        body << "\{\"#{sensor_id}.#{sensor_num}\":\{\n";
+
+        data.each do |num|
+          body << "\"#{num[3].to_s}.#{num[4].to_s}\":" +
+          "#{num[6].to_s},\n"
+        end
+
+        body << "}}\n"
+        
+        body.finish
+      end
+      [200, {
+        'Transfer-Encoding' => 'identity',
+        'Content-Type' => 'text/html'
+        }, body]
+    }
   end
+end.to_app
 
-  def session
-    "NIY"
-  end
-
-  def exit
-    abort("exit")
-  end
-
-  def stream
-    data = $agg.GetAllData()
-
-    $logger.warn "Queue fetched: " + data.length.to_s
-
-    str = ""
-
-    $agg.GetAllData().each do |num|
-      str += '[["sb","sensor"],{"ip":'+num[0].to_s + 
-      ',"sensor_id":[' + num[5].to_s+
-      ',UNDEF!!], "value":' + num[6].to_s + 
-      ',"gts":' + num[3].to_s + 
-      '.' + num[4].to_s + '}]' + "\n"
-    end
-
-    str
-  end
-
-end
-
+Rack::Handler::Reel.run app, Port: 9293

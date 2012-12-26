@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -Werror -Wall -std=c++0x -g
+CFLAGS = -Werror -Wall -std=c++0x -O2
 LFLAGS = -shared -fPIC
 #	g++ -shared -Wl,-soname,libmylib.so -o libmylib.so mylib.o
 

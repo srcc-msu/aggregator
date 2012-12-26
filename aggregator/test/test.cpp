@@ -12,7 +12,11 @@ int main(int argc, char** argv)
 {
 	int agg_id = InitAggregator("192.168.254.248");
 
+	BufferAllowId(agg_id, 1051);
+	BufferAllowId(agg_id, 1052);
+
 	InitAgent(agg_id, "192.168.254.248");
+	InitAgent(agg_id, "192.168.254.238");
 
 	for(int i = 0; i < 5; i++)
 		Process(agg_id);
@@ -24,7 +28,7 @@ int main(int argc, char** argv)
 
 	cout << "First " << l[0].address << endl;
 
-	l = GetInterval(agg_id, "192.168.254.248", 2061, 1);
+	l = GetInterval(agg_id, "192.168.254.248", 1051, 1);
 
 	printf("%x\n", (int)l);
 	

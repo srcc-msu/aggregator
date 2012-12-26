@@ -8,7 +8,7 @@ VALUE agg_class;
 
 VALUE rb_InitAggregator(VALUE self, VALUE rb_address)
 {
-	char* address = STR2CSTR(rb_address);
+	char* address = StringValueCStr(rb_address);
 
 	printf("init aggregator\n");
 
@@ -18,7 +18,7 @@ VALUE rb_InitAggregator(VALUE self, VALUE rb_address)
 VALUE rb_InitAgent(VALUE self, VALUE rb_address)
 {
 	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
-	char* address = STR2CSTR(rb_address);
+	char* address = StringValueCStr(rb_address);
 
 	InitAgent(agg_id, address);
 }
@@ -42,7 +42,8 @@ VALUE rb_GetAllData(VALUE self)
 
 	VALUE arr = rb_ary_new2(count);
 
-	int i = 0;
+	size_t i = 0;
+	
 	for(i = 0; i < count; i++)
 	{
 		VALUE sub_arr = rb_ary_new2(6);
@@ -53,7 +54,8 @@ VALUE rb_GetAllData(VALUE self)
 		rb_ary_store(sub_arr, 3, UINT2NUM(packets[i].server_timestamp));
 		rb_ary_store(sub_arr, 4, UINT2NUM(packets[i].server_usec));
 		rb_ary_store(sub_arr, 5, UINT2NUM(packets[i].sensor_id));
-		rb_ary_store(sub_arr, 6, rb_str_new2(packets[i].data_string));
+		rb_ary_store(sub_arr, 6, UINT2NUM((uint16_t)packets[i].sensor_num));
+		rb_ary_store(sub_arr, 7, rb_str_new2(packets[i].data_string));
 		rb_ary_store(arr, i, sub_arr);
 	}
 
@@ -64,9 +66,10 @@ VALUE rb_GetInterval(VALUE self, VALUE rb_address, VALUE rb_sensor_id, VALUE rb_
 {
 	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
 
-	char* address = STR2CSTR(rb_address);
+	char* address = StringValueCStr(rb_address);
 	int sensor_id = FIX2INT(rb_sensor_id);
 	int seconds = FIX2INT(rb_seconds);
+	int i = 0;
 
 	struct SPacket* packets = GetInterval(agg_id, address, sensor_id, seconds);
 
@@ -75,7 +78,6 @@ VALUE rb_GetInterval(VALUE self, VALUE rb_address, VALUE rb_sensor_id, VALUE rb_
 	if(packets == NULL)
 		return arr;
 
-	int i = 0;
 	for(i = 0; i < seconds; i++)
 	{
 		VALUE sub_arr = rb_ary_new2(6);
@@ -96,7 +98,7 @@ VALUE rb_GetInterval(VALUE self, VALUE rb_address, VALUE rb_sensor_id, VALUE rb_
 VALUE rb_GlobalBlacklistAddress(VALUE self, VALUE rb_address)
 {
 	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
-	char* address = STR2CSTR(rb_address);
+	char* address = StringValueCStr(rb_address);
 
 	GlobalBlacklistAddress(agg_id, address);
 }
@@ -143,7 +145,7 @@ VALUE rb_SetDeltaAS(VALUE self, VALUE rb_address, VALUE rb_sensor_id, VALUE rb_d
 {
 	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
 	
-	char* address = STR2CSTR(rb_address);
+	char* address = StringValueCStr(rb_address);
 	uint16_t sensor_id = FIX2INT(rb_sensor_id);
 	double delta = NUM2DBL(rb_delta);
 
@@ -155,7 +157,7 @@ VALUE rb_SetDeltaA(VALUE self, VALUE rb_address, VALUE rb_delta)
 {
 	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
 	
-	char* address = STR2CSTR(rb_address);
+	char* address = StringValueCStr(rb_address);
 	double delta = NUM2DBL(rb_delta);
 
 	SetDeltaA(agg_id, address, delta);
@@ -186,7 +188,7 @@ VALUE rb_SetIntervalAS(VALUE self, VALUE rb_address, VALUE rb_sensor_id, VALUE r
 {
 	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
 	
-	char* address = STR2CSTR(rb_address);
+	char* address = StringValueCStr(rb_address);
 	uint16_t sensor_id = FIX2INT(rb_sensor_id);
 	int interval = FIX2INT(rb_interval);
 
@@ -198,7 +200,7 @@ VALUE rb_SetIntervalA(VALUE self, VALUE rb_address, VALUE rb_interval)
 {
 	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
 	
-	char* address = STR2CSTR(rb_address);
+	char* address = StringValueCStr(rb_address);
 	int interval = FIX2INT(rb_interval);
 
 	SetIntervalA(agg_id, address, interval);
