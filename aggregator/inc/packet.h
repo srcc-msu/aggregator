@@ -44,6 +44,9 @@ union UValue
 	uint32_t b4[2];
 	uint16_t b2[4];
 	uint8_t b1[8];
+
+	float  f4[2];
+	double f8[1];
 };
 
 UValue ParseSensValue(unsigned char* buffer, size_t msg_length);
@@ -52,6 +55,7 @@ UValue ParseSensValue(unsigned char* buffer, size_t msg_length);
 	TODO check div zero
 */
 double GetDiv(UValue v1, UValue v2, e_sens_type type, size_t msg_length);
+UValue MultValue(UValue value, e_sens_type type, size_t msg_length, double mult);
 
 /**
 	Packet structure with extended info that will be used for filtering.
@@ -82,6 +86,7 @@ public:
 	{
 		info = sensor_metainf[packet.sensor_id];
 		value = ParseSensValue(raw_buffer, info.msg_length);
+		value = MultValue(value, info.type, info.msg_length, info.scale);
 
 		WriteValueToPacket();
 	}

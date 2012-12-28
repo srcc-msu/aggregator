@@ -25,6 +25,8 @@ bool CQueueAggregator :: FilterOut(const SPacketExt& ext_packet)
 //	get appropriate filter
 	SensorFilterMetainf filter = default_filter;
 
+	SensorFilterMetainf& last_filter = last_occurance[packet.address][packet.sensor_id];
+
  	if(filters[packet.address].find(packet.sensor_id) != filters[packet.address].end())
  		filter = filters[packet.address][packet.sensor_id];
 
@@ -35,42 +37,46 @@ bool CQueueAggregator :: FilterOut(const SPacketExt& ext_packet)
  		filter = sensor_id_filters[packet.sensor_id];
 
 //	time diff
-	uint32_t diff = packet.agent_timestamp - filter.last.packet.agent_timestamp;
+	uint32_t diff = packet.agent_timestamp - last_filter.last.packet.agent_timestamp;
 
 //	change diff
-	double delta = fabs(GetDiv(ext_packet.value, filter.last.value, 
-		ext_packet.info.type, filter.last.info.msg_length) - 1.0);
+	double delta = fabs(GetDiv(ext_packet.value, last_filter.last.value, 
+		ext_packet.info.type, last_filter.last.info.msg_length) - 1.0);
 	
-	if(diff > filter.max_interval || filter.last.packet.agent_timestamp == 0)
+	if(diff > filter.max_interval || last_filter.last.packet.agent_timestamp == 0)
 	{
-		DMSG2("diff " << diff << " let it pass!");
+		DMSG2("diff " << diff << " let it pass! " <<  packet.agent_timestamp << " "  <<  last_filter.last.packet.agent_timestamp);
 
 		filter_out = false;
 	}
 	else if(delta > filter.delta)
 	{
-		DMSG2("delta " << delta << " let it pass!");
+		DMSG2("delta " << delta << " let it pass! it is > " << filter.delta);
 
 		filter_out = false;
 	}
 
 	if(!filter_out)
-		filter.last = ext_packet;
+	{
+		last_filter.last = ext_packet;
+	}
 
 	return filter_out;
 }
 
 void CQueueAggregator :: Add(const SPacketExt& ext_packet)
 {
-	if(!id_blacklist.IsIn(ext_packet.packet.sensor_id) && 
-		!FilterOut(ext_packet))
+	if(id_blacklist.IsIn(ext_packet.packet.sensor_id))
 	{
-		queue.Add(ext_packet.packet);
-		DMSG2(ext_packet.packet.sensor_id << " packet added");
+		DMSG2(ext_packet.packet.sensor_id << " is in blacklist");
 	}
-	DBLOCK2(
-		else DMSG2(ext_packet.packet.sensor_id << " is in blacklist");
-	)
+	else if(FilterOut(ext_packet))
+	{
+		DMSG2(ext_packet.packet.sensor_id << " filtered out");
+	}
+	else 
+		queue.Add(ext_packet.packet);
+
 }
 
 

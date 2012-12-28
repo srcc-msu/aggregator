@@ -43,6 +43,9 @@ class CQueueAggregator
 private:
 	CSensorQueue<SPacket> queue;
 
+
+	std::unordered_map<uint32_t, std::unordered_map<uint16_t, SensorFilterMetainf>> last_occurance;
+
 //
 //	Filtration checks the filter in following order (below).
 //	If requested \address and/or \sensor_id found - does not check next.
