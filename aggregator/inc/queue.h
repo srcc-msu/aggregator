@@ -134,27 +134,38 @@ public:
 	}
 
 /**
-	Gets n values from the buffer. If thy were not added yet - 
+	Gets n values from the buffer, n = \from - \upto. If thy were not added yet - 
 	returns default values from \T constructor.
 */
-	T* Get(size_t n)
+	T* Get(size_t from, size_t upto)
 	{
+		if(from <= upto || upto > size)
+			return nullptr;
+
+		if(from > size)
+			from = size;
+
+		T* res = new T[from - upto];
+
 		std::lock_guard<std::mutex> lock(mutex);
 
-		if(n > size)
-			n = size;
+		int start = pointer - from;
+		int end = pointer - upto;
 
-		T* res = new T[n];
-
-		if(pointer >= n)
+		if(start >= 0)
 		{
-			std::memcpy(res, buffer + (pointer - n), (pointer - n) * sizeof(T));
+			std::memcpy(res, buffer + start, (end - start) * sizeof(T));
+		}
+
+		else if(start < 0 && end > 0)
+		{
+			std::memcpy(res, buffer + size + start, (-start) * sizeof(T));
+			std::memcpy(res + (-start), buffer, end * sizeof(T));
 		}
 		
-		else if(pointer < n)
+		else if(end <= 0)
 		{
-			std::memcpy(res, buffer + size - (n - pointer), (n - pointer) * sizeof(T));
-			std::memcpy(res + (n - pointer), buffer, pointer * sizeof(T));
+			std::memcpy(res, buffer + size + start, (end-start) * sizeof(T));
 		}
 
 		if(old != nullptr)

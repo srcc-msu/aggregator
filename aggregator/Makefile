@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -Werror -Wall -std=c++0x -O2
+CFLAGS = -Werror -Wall -std=c++0x -g -lpthread
 LFLAGS = -shared -fPIC
 #	g++ -shared -Wl,-soname,libmylib.so -o libmylib.so mylib.o
 
@@ -25,10 +25,10 @@ all : $(TGT)
 test : $(BIN_DIR)/test
 
 $(BIN_DIR)/test : $(TGT) $(TST)
-	$(CC) $(CFLAGS) $(TST) $(INC_FLAGS) -L$(BIN_DIR) -l$(NAME) -o $(BIN_DIR)/test
+	$(CC) $(TST) $(CFLAGS) $(INC_FLAGS) -L$(BIN_DIR) -l$(NAME) -o $(BIN_DIR)/test
 
 $(TGT) : $(SRC) $(INC)
-	$(CC) $(CFLAGS) $(LFLAGS) $(INC_FLAGS) $(SRC) -o $(TGT) 
+	$(CC) $(SRC) $(CFLAGS) $(LFLAGS) $(INC_FLAGS) -o $(TGT) 
 
 .PHONY: clean
 

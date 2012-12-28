@@ -27,13 +27,7 @@ agg.SetDeltaA("127.0.0.1", 1.3)
 # Messages from this address will be ignored
 agg.GlobalBlacklistAddress("123.255.255.255")
 
-# Collect all data
-t1 = Thread.new do
-	while true
-		agg.Process()
-	end
-end
-
+agg.BackgroundProcess()
 
 # Get collected data
 t2 = Thread.new do

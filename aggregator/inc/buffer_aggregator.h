@@ -38,7 +38,7 @@ public:
 	void Add(const SPacketExt& ext_packet);
 
 //	Get the \seconds interval data for one sesnor on one node from the buffer
-	SPacket* GetInterval(uint32_t address, uint16_t sensor_id, int seconds);
+	SPacket* GetInterval(uint32_t address, uint16_t sensor_id, int from, int upto);
 
 	CBufferAggregator()
 	{}

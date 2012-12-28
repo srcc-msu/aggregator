@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <vector>
+#include <thread>
 
 using std :: cout;
 using std :: endl;
@@ -35,6 +36,26 @@ void InitAgent(int agg_id, const char* address)
 void Process(int agg_id)
 {
 	aggregators[agg_id]->Process();
+}
+
+void BackgroundProcessHelper(int agg_id)
+{
+    while(1)
+    	aggregators[agg_id]->Process();
+}
+
+void BackgroundProcess(int agg_id)
+{
+	static bool started = false;
+
+	if(started == true)
+		return;
+
+	started = true;
+
+    std::thread t1(BackgroundProcessHelper, agg_id);
+
+    t1.detach();
 }
 
 void GlobalBlacklistAddress(int agg_id, const char* address)
@@ -109,9 +130,9 @@ void SetInterval(int agg_id, int max_interval)
 
 // --------------------------
 
-SPacket* GetInterval(int agg_id, const char* address, uint16_t id, size_t seconds)
+SPacket* GetInterval(int agg_id, const char* address, uint16_t id, size_t from, size_t upto)
 {
-	return aggregators[agg_id]->BufferAggregator().GetInterval(inet_addr(address), id, seconds);
+	return aggregators[agg_id]->BufferAggregator().GetInterval(inet_addr(address), id, from, upto);
 }
 
 SPacket* GetAllData(int agg_id, size_t* count)

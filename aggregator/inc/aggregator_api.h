@@ -31,6 +31,12 @@ void InitAgent(int agg_id, const char* address);
 void Process(int agg_id);
 
 /**
+	Starts the loop, procesing all incoming packet in separate thread.
+	Pretends to be thread safe. (orly? TODO check)
+*/
+void BackgroundProcess(int agg_id);
+
+/**
 	Add the \address to the global blacklist,
 	IPv4 packed in uint32 currently.
 	TODO: provide aliases for arrays/strings, if needed.
@@ -73,7 +79,7 @@ void SetInterval(int agg_id, int max_interval);
 	Returns \seconds interval of data from circular buffer, corresponding to
 	\address and \id.
 */
-SPacket* GetInterval(int agg_id, const char* address, uint16_t id, size_t seconds);
+SPacket* GetInterval(int agg_id, const char* address, uint16_t id, size_t from, size_t upto);
 
 /**
 	Returns pointer to collected data. And they will not be availiable throught 

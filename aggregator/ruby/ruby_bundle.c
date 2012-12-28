@@ -32,6 +32,15 @@ VALUE rb_Process(VALUE self)
 	return INT2NUM(0);
 }
 
+VALUE rb_BackgroundProcess(VALUE self)
+{	
+	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
+
+	BackgroundProcess(agg_id);
+
+	return INT2NUM(0);
+}
+
 VALUE rb_GetAllData(VALUE self)
 {
 	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
@@ -46,7 +55,7 @@ VALUE rb_GetAllData(VALUE self)
 	
 	for(i = 0; i < count; i++)
 	{
-		VALUE sub_arr = rb_ary_new2(6);
+		VALUE sub_arr = rb_ary_new2(8);
 		
 		rb_ary_store(sub_arr, 0, UINT2NUM(packets[i].address));
 		rb_ary_store(sub_arr, 1, UINT2NUM(packets[i].agent_timestamp));
@@ -62,25 +71,30 @@ VALUE rb_GetAllData(VALUE self)
 	return arr;
 }
 
-VALUE rb_GetInterval(VALUE self, VALUE rb_address, VALUE rb_sensor_id, VALUE rb_seconds)
+VALUE rb_GetInterval(VALUE self, VALUE rb_address, VALUE rb_sensor_id, VALUE rb_from, VALUE rb_upto)
 {
 	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
 
 	char* address = StringValueCStr(rb_address);
 	int sensor_id = FIX2INT(rb_sensor_id);
-	int seconds = FIX2INT(rb_seconds);
+	int from = FIX2INT(rb_from);
+	int upto = FIX2INT(rb_upto);
+	
 	int i = 0;
 
-	struct SPacket* packets = GetInterval(agg_id, address, sensor_id, seconds);
+	int count = from - upto;
 
-	VALUE arr = rb_ary_new2(seconds);
+	struct SPacket* packets = GetInterval(agg_id, address, sensor_id, from, upto);
+	VALUE arr;
 
 	if(packets == NULL)
-		return arr;
+		return rb_ary_new2(0);
 
-	for(i = 0; i < seconds; i++)
+	arr = rb_ary_new2(count);
+	
+	for(i = 0; i < count; i++)
 	{
-		VALUE sub_arr = rb_ary_new2(6);
+		VALUE sub_arr = rb_ary_new2(8);
 		
 		rb_ary_store(sub_arr, 0, UINT2NUM(packets[i].address));
 		rb_ary_store(sub_arr, 1, UINT2NUM(packets[i].agent_timestamp));
@@ -88,7 +102,8 @@ VALUE rb_GetInterval(VALUE self, VALUE rb_address, VALUE rb_sensor_id, VALUE rb_
 		rb_ary_store(sub_arr, 3, UINT2NUM(packets[i].server_timestamp));
 		rb_ary_store(sub_arr, 4, UINT2NUM(packets[i].server_usec));
 		rb_ary_store(sub_arr, 5, UINT2NUM(packets[i].sensor_id));
-		rb_ary_store(sub_arr, 6, rb_str_new2(packets[i].data_string));
+		rb_ary_store(sub_arr, 6, UINT2NUM((uint16_t)packets[i].sensor_num));
+		rb_ary_store(sub_arr, 7, rb_str_new2(packets[i].data_string));
 		rb_ary_store(arr, i, sub_arr);
 	}
 
@@ -234,8 +249,9 @@ void Init_ruby_aggregator()
 	rb_define_method(agg_class, "InitAggregator", rb_InitAggregator, 1);
 	rb_define_method(agg_class, "InitAgent", rb_InitAgent, 1);
 	rb_define_method(agg_class, "Process", rb_Process, 0);
+	rb_define_method(agg_class, "BackgroundProcess", rb_BackgroundProcess, 0);
 	rb_define_method(agg_class, "GetAllData", rb_GetAllData, 0);
-	rb_define_method(agg_class, "GetInterval", rb_GetInterval, 3);
+	rb_define_method(agg_class, "GetInterval", rb_GetInterval, 4);
 	
 	rb_define_method(agg_class, "GlobalBlacklistAddress", rb_GlobalBlacklistAddress, 1);
 

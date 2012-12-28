@@ -30,6 +30,8 @@ struct SPacket
 	address(0),
 	agent_timestamp(0),
 	agent_usec(0),
+	server_timestamp(0),
+	server_usec(0),
 	sensor_id(0),
 	sensor_num(0)
 	{}
