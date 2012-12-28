@@ -26,7 +26,7 @@ void CAggregator :: Process()
 
 //	we got zero length message - filtered out
 //	TODO add timeoutto socket
-	if(bytes_read == 0)
+	if(bytes_read != 1)
 		return;
 
 //	read and convert header
@@ -49,11 +49,13 @@ void CAggregator :: Process()
 	data->window     = ntohl(data->window);
 	data->data_len   = ntohl(data->data_len);
 
+	if(header->strm_num == 2) // some unknown for now message
+		return;
 
 //	read sensor values and store them
 	int sens_offset = sizeof(nm_data_hdr_t) + sizeof(nm_strm_buf_t); // WTF?? it is wrong
 
-	sens_offset = 54 + 20; // WTF?
+//	sens_offset = 54 + 20; // WTF?
 
 	unsigned char* sens_data = buffer + sens_offset; 
 
