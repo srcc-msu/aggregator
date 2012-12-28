@@ -18,15 +18,19 @@ void CAggregator :: Process()
 {
 	unsigned char buffer[MAX_MESSAGE_SIZE];
 
+//	read sensor values and store them
+	int sens_offset = sizeof(nm_data_hdr_t);
+	unsigned char* sens_data = buffer + sens_offset; 
+
 	DMSG1("waiting for data");
 
 	int bytes_read = connection.GetData(buffer, MAX_MESSAGE_SIZE);
 
 	DMSG1("recieved " << bytes_read);
 
-//	we got zero length message - filtered out
+//	we got zero length or wrong messages - skip it
 //	TODO add timeoutto socket
-	if(bytes_read != 1)
+	if(bytes_read < sens_offset)
 		return;
 
 //	read and convert header
@@ -40,28 +44,9 @@ void CAggregator :: Process()
 	header->ts_sec  = ntohl(header->ts_sec);
 	header->ts_usec = ntohl(header->ts_usec);
 	
-//	read and convert 2nd header
-	nm_strm_buf_t* data = reinterpret_cast<nm_strm_buf_t*> (buffer + sizeof(nm_data_hdr_t));
-
-	data->period     = ntohs(data->period);
-	data->flags_mask = ntohl(data->flags_mask);
-	data->seq_num    = ntohl(data->seq_num);
-	data->window     = ntohl(data->window);
-	data->data_len   = ntohl(data->data_len);
-
-	if(header->strm_num == 2) // some unknown for now message
-		return;
-
-//	read sensor values and store them
-	int sens_offset = sizeof(nm_data_hdr_t) + sizeof(nm_strm_buf_t); // WTF?? it is wrong
-
-//	sens_offset = 54 + 20; // WTF?
-
-	unsigned char* sens_data = buffer + sens_offset; 
-
 	DBLOCK2(
 	{
-		cout << "off1 " << sizeof(nm_data_hdr_t) << " off2 " << sizeof(nm_strm_buf_t) << endl;
+		cout << "off1 " << sizeof(nm_data_hdr_t) << endl;
 
 	    for(int i = 0; i < bytes_read; i++)
 		{	
@@ -86,18 +71,15 @@ void CAggregator :: Process()
 
 		for(int i = 0; i < 4; i++)
 		{
-			cout << int(header->client_host.b4[i]) << " ";
+			cout << int(header->client_host.b1[i]) << " ";
 		}
-		cout << endl;
 
-		cout << "num     : " <<  int(data->num) << endl;
-		cout << "period  : " <<  data->period << endl;
-		cout << "flags   : " <<  data->flags_mask << endl;
-		cout << "seq_num : " <<  data->seq_num << endl;
-		cout << "window  : " <<  data->window << endl;
-		cout << "len     : " <<  data->data_len << endl;
+		cout << endl;
 	})
 
+
+	if(header->strm_num != 1) // some unknown for now message
+		return;
 
 //	get current server time, that wil be written to all packets
 	timeval current_time;

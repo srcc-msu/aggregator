@@ -1,8 +1,6 @@
 #include <iostream>
 
-#ifndef DEBUG
-	#define DEBUG 1
-#endif
+#define DEBUG 1
 
 #define DMSG1(A) 
 #define DMSG2(A) 
