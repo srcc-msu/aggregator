@@ -17,7 +17,8 @@
 class CBufferAggregator
 {
 private:
-	std::unordered_map<uint16_t, std::unordered_map<uint32_t, CCircularBuffer<SPacket>* >> buffers;
+//	sensor id and num encoded into 1st value sensor_id << 16 | sensor_num
+	std::unordered_map<uint32_t, std::unordered_map<uint32_t, CCircularBuffer<SPacket>* >> buffers;
 	AccessList<uint16_t> allowed_id;
 
 public:
@@ -38,7 +39,7 @@ public:
 	void Add(const SPacketExt& ext_packet);
 
 //	Get the \seconds interval data for one sesnor on one node from the buffer
-	SPacket* GetInterval(uint32_t address, uint16_t sensor_id, int from, int upto);
+	SPacket* GetInterval(uint32_t address, uint16_t sensor_id, uint16_t sensor_num, int from, int upto);
 
 	CBufferAggregator()
 	{}

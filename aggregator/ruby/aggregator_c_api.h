@@ -62,7 +62,7 @@ void SetIntervalA(int agg_id, const char* address, int max_interval);
 void SetIntervalS(int agg_id, uint16_t sensor_id, int max_interval);
 void SetInterval(int agg_id, int max_interval);
 
-struct SPacket* GetInterval(int aggr_id, const char* address, uint16_t id, size_t from, size_t upto);
+struct SPacket* GetInterval(int aggr_id, const char* address, uint16_t id, uint16_t num, size_t from, size_t upto);
 
 struct SPacket* GetAllData(int aggr_id, size_t* count);
 

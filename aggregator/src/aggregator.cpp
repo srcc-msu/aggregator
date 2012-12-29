@@ -29,9 +29,12 @@ void CAggregator :: Process()
 	DMSG1("recieved " << bytes_read);
 
 //	we got zero length or wrong messages - skip it
-//	TODO add timeoutto socket
+//	TODO add timeout to socket
 	if(bytes_read < sens_offset)
+	{
+		DMSG1("message ignored, too short");
 		return;
+	}
 
 //	read and convert header
 	nm_data_hdr_t* header = reinterpret_cast<nm_data_hdr_t*> (buffer);
@@ -79,7 +82,11 @@ void CAggregator :: Process()
 
 
 	if(header->strm_num != 1) // some unknown for now message
+	{
+		DMSG1("message ignored, unknown stream");
+
 		return;
+	}
 
 //	get current server time, that wil be written to all packets
 	timeval current_time;

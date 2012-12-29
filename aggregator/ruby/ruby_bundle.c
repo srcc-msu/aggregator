@@ -71,12 +71,13 @@ VALUE rb_GetAllData(VALUE self)
 	return arr;
 }
 
-VALUE rb_GetInterval(VALUE self, VALUE rb_address, VALUE rb_sensor_id, VALUE rb_from, VALUE rb_upto)
+VALUE rb_GetInterval(VALUE self, VALUE rb_address, VALUE rb_sensor_id, VALUE rb_sensor_num, VALUE rb_from, VALUE rb_upto)
 {
 	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
 
 	char* address = StringValueCStr(rb_address);
 	int sensor_id = FIX2INT(rb_sensor_id);
+	int sensor_num = FIX2INT(rb_sensor_id);
 	int from = FIX2INT(rb_from);
 	int upto = FIX2INT(rb_upto);
 	
@@ -84,7 +85,7 @@ VALUE rb_GetInterval(VALUE self, VALUE rb_address, VALUE rb_sensor_id, VALUE rb_
 
 	int count = from - upto;
 
-	struct SPacket* packets = GetInterval(agg_id, address, sensor_id, from, upto);
+	struct SPacket* packets = GetInterval(agg_id, address, sensor_id, sensor_id, from, upto);
 	VALUE arr;
 
 	if(packets == NULL)
@@ -251,7 +252,7 @@ void Init_ruby_aggregator()
 	rb_define_method(agg_class, "Process", rb_Process, 0);
 	rb_define_method(agg_class, "BackgroundProcess", rb_BackgroundProcess, 0);
 	rb_define_method(agg_class, "GetAllData", rb_GetAllData, 0);
-	rb_define_method(agg_class, "GetInterval", rb_GetInterval, 4);
+	rb_define_method(agg_class, "GetInterval", rb_GetInterval, 5);
 	
 	rb_define_method(agg_class, "GlobalBlacklistAddress", rb_GlobalBlacklistAddress, 1);
 

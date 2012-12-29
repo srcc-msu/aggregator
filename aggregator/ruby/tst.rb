@@ -38,12 +38,10 @@ t2 = Thread.new do
 		    end
 		  	puts
 		end
+		sleep(0.1)
 	end
 end
 
-
-
-t1.join
 t2.join
 
 puts "end"

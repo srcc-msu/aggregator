@@ -76,9 +76,7 @@ void CQueueAggregator :: Add(const SPacketExt& ext_packet)
 	}
 	else 
 		queue.Add(ext_packet.packet);
-
 }
-
 
 //---------
 

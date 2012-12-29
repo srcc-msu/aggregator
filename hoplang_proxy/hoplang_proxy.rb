@@ -165,7 +165,7 @@ app = Rack::Builder.new do
 
         $logger.warn "Request #{sensor_id}.#{sensor_num} from #{address} from #{from} up to #{upto}" 
 
-        data = $agg.GetInterval(address, sensor_id, from, upto)
+        data = $agg.GetInterval(address, sensor_id, sensor_num_c, from, upto)
 
         $logger.warn "Buffer fetched: " + data.length.to_s
 

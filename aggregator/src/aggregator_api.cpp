@@ -130,9 +130,9 @@ void SetInterval(int agg_id, int max_interval)
 
 // --------------------------
 
-SPacket* GetInterval(int agg_id, const char* address, uint16_t id, size_t from, size_t upto)
+SPacket* GetInterval(int agg_id, const char* address, uint16_t id, uint16_t num, size_t from, size_t upto)
 {
-	return aggregators[agg_id]->BufferAggregator().GetInterval(inet_addr(address), id, from, upto);
+	return aggregators[agg_id]->BufferAggregator().GetInterval(inet_addr(address), id, num, from, upto);
 }
 
 SPacket* GetAllData(int agg_id, size_t* count)
