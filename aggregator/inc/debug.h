@@ -1,3 +1,6 @@
+#ifndef DEBUG_H
+#define DEBUG_H
+
 #include <iostream>
 
 #define DEBUG 1
@@ -24,3 +27,4 @@
 	#define DBLOCK2(A) A;
 #endif
 
+#endif

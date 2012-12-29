@@ -12,15 +12,15 @@ void SPacketExt :: WriteValueToPacket()
 
 	if(type == INTEGER || type == WIRECOUNTER || type == WIRESMART)
 	{
-		if(msg_length == 1) sprintf(out, "%d", value.b1[0]);
-		if(msg_length == 2) sprintf(out, "%d", value.b2[0]);
-		if(msg_length == 4) sprintf(out, "%d", value.b4[0]);
+		if(msg_length == 1) sprintf(out, "%u", value.b1[0]);
+		if(msg_length == 2) sprintf(out, "%u", value.b2[0]);
+		if(msg_length == 4) sprintf(out, "%u", value.b4[0]);
 		if(msg_length == 8) 
 		{
 			if(value.b4[0] != 0)
-				sprintf(out, "%d%d", value.b4[0], value.b4[1]);
+				sprintf(out, "%u%u", value.b4[0], value.b4[1]);
 			else
-				sprintf(out, "%d", value.b4[0]);
+				sprintf(out, "%u", value.b4[0]);
 		}
 	}
 

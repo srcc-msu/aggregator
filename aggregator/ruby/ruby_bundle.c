@@ -77,7 +77,7 @@ VALUE rb_GetInterval(VALUE self, VALUE rb_address, VALUE rb_sensor_id, VALUE rb_
 
 	char* address = StringValueCStr(rb_address);
 	int sensor_id = FIX2INT(rb_sensor_id);
-	int sensor_num = FIX2INT(rb_sensor_id);
+	int sensor_num = FIX2INT(rb_sensor_num);
 	int from = FIX2INT(rb_from);
 	int upto = FIX2INT(rb_upto);
 	
@@ -85,7 +85,7 @@ VALUE rb_GetInterval(VALUE self, VALUE rb_address, VALUE rb_sensor_id, VALUE rb_
 
 	int count = from - upto;
 
-	struct SPacket* packets = GetInterval(agg_id, address, sensor_id, sensor_id, from, upto);
+	struct SPacket* packets = GetInterval(agg_id, address, sensor_id, sensor_num, from, upto);
 	VALUE arr;
 
 	if(packets == NULL)

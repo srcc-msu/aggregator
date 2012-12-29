@@ -7,6 +7,8 @@
 
 #include <cstring>
 
+#include "debug.h"
+
 const size_t MAX_QUEUE_SIZE = 1024 * 1024;
 
 /**
@@ -139,6 +141,8 @@ public:
 */
 	T* Get(size_t from, size_t upto)
 	{
+        DMSG1(from << " <> " << upto << " requested. current pointer is " << pointer);
+
 		if(from <= upto || upto > size)
 			return nullptr;
 

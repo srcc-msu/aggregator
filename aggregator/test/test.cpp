@@ -34,10 +34,10 @@ int main(int argc, char** argv)
 
 	cout << endl << "buffer" << endl;
 
-	l = GetInterval(agg_id, "192.168.254.248", 2160, 0, 41, 0);
+	l = GetInterval(agg_id, "192.168.254.248", 1051, 1, 300, 0);
 
 	if(l != nullptr)
-		for(size_t i = 0; i < 41; i++)
+		for(size_t i = 0; i < 300; i++)
 			cout << i << " " << l[i].sensor_id << " " << l[i].agent_timestamp << " " << l[i].address << endl;
 	else
 		cout << "no data in buffer" << endl;

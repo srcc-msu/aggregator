@@ -70,6 +70,8 @@ end
 
 #--------------------------------------------
 
+semaphore = Mutex.new
+
 app = Rack::Builder.new do
   map '/new' do
     run lambda { |env|
@@ -165,18 +167,20 @@ app = Rack::Builder.new do
 
         $logger.warn "Request #{sensor_id}.#{sensor_num} from #{address} from #{from} up to #{upto}" 
 
-        data = $agg.GetInterval(address, sensor_id, sensor_num_c, from, upto)
+        semaphore.synchronize {
+          data = $agg.GetInterval(address, sensor_id, sensor_num_c, from, upto)
 
-        $logger.warn "Buffer fetched: " + data.length.to_s
+          $logger.warn "Buffer fetched: " + data.length.to_s
 
-        body << "\{\"#{sensor_id}.#{sensor_num}\":\{\n";
+          body << "\{\"#{sensor_id}.#{sensor_num}\":\{\n";
 
-        data.each_with_index do |num, index|
-          next if sensor_num_c != num[6]
-          iso_time = DateTime.strptime(num[3].to_s, '%s').iso8601(6) 
-          body << "\"#{iso_time}\":" +
-          "#{num[7].to_s}" + num.to_s + (index != data.length - 1 ? ",\n" : "\n")
-        end
+          data.each_with_index do |num, index|
+            next if sensor_num_c != num[6]
+            iso_time = DateTime.strptime(num[3].to_s, '%s').iso8601(6) 
+            body << "\"#{iso_time}\":" +
+            "#{num[7].to_s}" + (index != data.length - 1 ? ",\n" : "\n")
+          end
+        }
 
         body << "}}\n"
         
