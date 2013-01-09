@@ -20,6 +20,8 @@ require_relative 'ruby_aggregator'
 $agg = Aggregator.new
 $subscribers = {}
 
+MAX_QUEUE=100
+
 def Init
   config = YAML.load(File.open('./aggregator.conf', "r"))
   
@@ -47,7 +49,6 @@ def Init
     $agg.BufferAllowId(num)
   end
 
-
 # start backgounrd processing of all packets
   $agg.BackgroundProcess()
 
@@ -56,10 +57,16 @@ def Init
 # fetch the queue and add it to all subscribers
   Thread.new do
     while true
+      GC.start
       data = $agg.GetAllData()
       
       $subscribers.each do |key, queue|
         queue << data
+        
+        if queue.length > MAX_QUEUE
+          queue.clear()
+        end
+
       end
       sleep(0.1)
     end
@@ -73,7 +80,7 @@ end
 semaphore = Mutex.new
 
 app = Rack::Builder.new do
-  map '/new' do
+  map '/session/new' do
     run lambda { |env|
       query = {}
       
