@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#define DEBUG 1
+#define DEBUG 0
 
 #define DMSG1(A) 
 #define DMSG2(A) 

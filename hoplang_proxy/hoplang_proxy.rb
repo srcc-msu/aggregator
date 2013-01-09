@@ -20,7 +20,9 @@ require_relative 'ruby_aggregator'
 $agg = Aggregator.new
 $subscribers = {}
 
-MAX_QUEUE=100
+MAX_QUEUE=100 # max unfetched request in queue for each stream
+
+GC_SLEEP=60 # seconds to sleep untill next GC
 
 def Init
   config = YAML.load(File.open('./aggregator.conf', "r"))
@@ -57,7 +59,6 @@ def Init
 # fetch the queue and add it to all subscribers
   Thread.new do
     while true
-      GC.start
       data = $agg.GetAllData()
       
       $subscribers.each do |key, queue|
@@ -71,7 +72,15 @@ def Init
       sleep(0.1)
     end
   end
-  
+
+# garbage collector thread.. /facepalm
+  Thread.new do
+    while true
+      sleep(GC_SLEEP)
+      GC.start
+    end
+  end
+
   $logger.warn "Data collection started"
 end
 
