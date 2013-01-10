@@ -11,6 +11,9 @@
 
 #include "debug.h"
 
+#include <iostream>
+using std :: cerr;
+using std :: endl;
 
 const size_t MAX_MESSAGE_SIZE = 4096; // TODO check
 
@@ -51,7 +54,7 @@ void CAggregator :: Process()
 	{
 		cerr << "off1 " << sizeof(nm_data_hdr_t) << endl;
 
-	    for(int i = 0; i < bytes_read; i++)
+	    for(size_t i = 0; i < bytes_read; i++)
 		{	
 	    	if(i % 16 == 0 && i > 0) 
 	    		printf ("\n");
