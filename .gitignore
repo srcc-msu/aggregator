@@ -1,5 +1,6 @@
-*.so
-*.log
+*.so*
+*.log*
 *.o
 aggregator/ruby/Makefile
 aggregator/bin/*
+hoplang_proxy/bin/*
