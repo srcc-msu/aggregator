@@ -39,6 +39,9 @@ void SPacketExt :: WriteValueToPacket()
 
 double GetDiv(UValue v1, UValue v2, e_sens_type type, size_t msg_length)
 {
+	if(v1.b8 == v2.b8)
+		return 1.0;
+	
 	double res = 1.0;
 
 	if(type == INTEGER || type == WIRECOUNTER || type == WIRESMART)
