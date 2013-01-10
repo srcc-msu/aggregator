@@ -28,13 +28,22 @@ bool CQueueAggregator :: FilterOut(const SPacketExt& ext_packet)
 	SensorFilterMetainf& last_filter = last_occurance[packet.address][packet.sensor_id];
 
  	if(filters[packet.address].find(packet.sensor_id) != filters[packet.address].end())
+ 	{
+ 		DMSG2(packet.address << " and " << packet.sensor_id << " present in filter")
  		filter = filters[packet.address][packet.sensor_id];
+ 	}
 
  	else if(address_filters.find(packet.address) != address_filters.end())
+	{
+ 		DMSG2(packet.address << " presents in filter")
  		filter = address_filters[packet.address];
+	}
 
  	else if(sensor_id_filters.find(packet.sensor_id) != sensor_id_filters.end())
+ 	{
+ 		DMSG2(packet.sensor_id << " presents in filter")
  		filter = sensor_id_filters[packet.sensor_id];
+	}
 
 //	time diff
 	uint32_t diff = packet.agent_timestamp - last_filter.last.packet.agent_timestamp;
@@ -44,17 +53,13 @@ bool CQueueAggregator :: FilterOut(const SPacketExt& ext_packet)
 		ext_packet.info.type, last_filter.last.info.msg_length) - 1.0);
 	
 	if(diff > filter.max_interval || last_filter.last.packet.agent_timestamp == 0)
-	{
-		DMSG2("diff " << diff << " let it pass! " <<  packet.agent_timestamp << " "  <<  last_filter.last.packet.agent_timestamp);
-
 		filter_out = false;
-	}
 	else if(delta > filter.delta)
-	{
-		DMSG2("delta " << delta << " let it pass! it is > " << filter.delta);
-
 		filter_out = false;
-	}
+
+
+	DMSG2("time diff " << diff << " max_int " << filter.max_interval <<
+		"delta " << delta << " filter.delta " << filter.delta << (filter_out ? " \t\t let it pass!" : " \t\tdrop it!"));
 
 	if(!filter_out)
 	{

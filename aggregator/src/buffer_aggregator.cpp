@@ -3,14 +3,14 @@
 
 void CBufferAggregator :: AllowId(uint16_t sensor_id)
 {
+	DMSG1("sensor " << sensor_id << " will be collected in buffer");
 	allowed_id.Add(sensor_id);
 }
 
 void CBufferAggregator :: DisallowId(uint16_t sensor_id)
 {
+	DMSG1("sensor " << sensor_id << " will not be collected in buffer");
 	allowed_id.Remove(sensor_id);
-	
-	// TODO add memory cleaning
 }
 
 void CBufferAggregator :: Add(const SPacketExt& ext_packet)
@@ -30,8 +30,8 @@ void CBufferAggregator :: Add(const SPacketExt& ext_packet)
 
 	buffers[packet.address][buff_value]->Add(packet);
 
-    DMSG2(packet.sensor_id << "." <<  packet.sensor_num << " aka " << buff_value 
-    	<< "added to circ. buffer, size is now " << buffers.size() << " and " << buffers[packet.address].size());
+    DMSG2(packet.sensor_id << "." << (int)packet.sensor_num << " aka " << buff_value 
+    	<< " added to circ. buffer, size is now " << buffers.size() << " and " << buffers[packet.address].size());
 
 }
 

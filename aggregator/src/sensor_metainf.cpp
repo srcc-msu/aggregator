@@ -14,7 +14,7 @@ void InitMetainf()
 {
 	sensor_metainf[101]  = SSensorMetainf(INTEGER, 4, 1.0);
 	sensor_metainf[110]  = SSensorMetainf(INTEGER, 1, 1.0);
-	sensor_metainf[111]  = SSensorMetainf(BINARY, 0, 1.0);
+	sensor_metainf[111]  = SSensorMetainf(BINARY, 1, 1.0);
 	sensor_metainf[112]  = SSensorMetainf(INTEGER, 1, 1.0);
 	sensor_metainf[1010] = SSensorMetainf(INTEGER, 2, 100.0);
 	sensor_metainf[1018] = SSensorMetainf(INTEGER, 2, 1.0);
@@ -145,7 +145,7 @@ void InitMetainf()
 	sensor_metainf[3029] = SSensorMetainf(WIRECOUNTER, 4, 1.0);
 	sensor_metainf[3030] = SSensorMetainf(WIRECOUNTER, 4, 1.0);
 	sensor_metainf[32001] = SSensorMetainf(INTEGER, 4, 1.0);
-	sensor_metainf[5001] = SSensorMetainf(BINARY, 0, 1.0);
+	sensor_metainf[5001] = SSensorMetainf(BINARY, 1, 1.0);
 	sensor_metainf[5002] = SSensorMetainf(WIRECOUNTER, 8, 1.0);
 	sensor_metainf[5003] = SSensorMetainf(WIRECOUNTER, 8, 1.0);
 	sensor_metainf[5004] = SSensorMetainf(WIRECOUNTER, 8, 1.0);
@@ -234,7 +234,7 @@ void InitMetainf()
 	sensor_metainf[64012] = SSensorMetainf(INTEGER, 12, 1.0);
 	sensor_metainf[64016] = SSensorMetainf(INTEGER, 16, 1.0);
 	sensor_metainf[64032] = SSensorMetainf(INTEGER, 32, 1.0);
-	sensor_metainf[64033] = SSensorMetainf(BINARY, 0, 1.0);
+	sensor_metainf[64033] = SSensorMetainf(BINARY, 1, 1.0);
 	sensor_metainf[64034] = SSensorMetainf(WIRESMART, 12, 1.0);
 	sensor_metainf[64054] = SSensorMetainf(WIREFLOAT, 4, 1.0);
 	sensor_metainf[64064] = SSensorMetainf(WIRECOUNTER, 4, 1.0);

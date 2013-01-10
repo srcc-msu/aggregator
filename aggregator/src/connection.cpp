@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <iostream>
 
+#include "debug.h"
+
 using namespace std;
 
 void CConnectionManager :: Init()
@@ -14,8 +16,10 @@ void CConnectionManager :: Init()
 	data_socket_inf.sin_addr.s_addr = htonl(INADDR_ANY);
 
 	data_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    int ret_val = bind(data_socket, (sockaddr *)&data_socket_inf, sizeof(data_socket_inf));
 
-    bind(data_socket, (sockaddr *)&data_socket_inf, sizeof(data_socket_inf));
+    assert(data_socket != -1); // TODO add normal check
+    assert(ret_val != -1); // TODO add normal check
 
 //	learn what port did we get from OS
     sockaddr_in info;
@@ -62,8 +66,10 @@ void CConnectionManager :: InitAgent(uint32_t address)
 	ctl_socket_inf.sin_addr.s_addr = htonl(INADDR_ANY);
 
 	ctl_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    int ret_val = bind(ctl_socket, (struct sockaddr *)&ctl_socket_inf, sizeof(ctl_socket_inf));
 
-    bind(ctl_socket, (struct sockaddr *)&ctl_socket_inf, sizeof(ctl_socket_inf));
+    assert(ctl_socket != -1); // TODO add normal check
+    assert(ret_val != -1); // TODO add normal check
 
 //	create destionation address
 	sockaddr_in agent_address;
@@ -95,7 +101,10 @@ int CConnectionManager :: GetData(unsigned char* data, int max_count)
 
 // if the address in a global blacklist - skip
 	if(address_blacklist.IsIn(info.sin_addr.s_addr))
+	{
+		DMSG2("address " << info.sin_addr.s_addr << " is in blacklist, ignoring");
 		return 0;
+	}
 
 	return bytes_read;
 }

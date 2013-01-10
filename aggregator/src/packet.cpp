@@ -4,6 +4,9 @@
 
 using std :: sprintf;
 
+static const int INF = 1024; // sensor value was zero, and now - not
+static const int EPS = 1e-5;
+
 void SPacketExt :: WriteValueToPacket()
 {
 	auto type = info.type;
@@ -40,21 +43,21 @@ double GetDiv(UValue v1, UValue v2, e_sens_type type, size_t msg_length)
 
 	if(type == INTEGER || type == WIRECOUNTER || type == WIRESMART)
 	{
-		if(msg_length == 1) res = double(v1.b1[0]) / v2.b1[0];
-		if(msg_length == 2) res = double(v1.b2[0]) / v2.b2[0];
-		if(msg_length == 4) res = double(v1.b4[0]) / v2.b4[0];
-		if(msg_length == 8) res = double(v1.b8[0]) / v2.b8[0];
+		if(msg_length == 1) res = (v2.b1[0] != 0) ? double(v1.b1[0]) / v2.b1[0] : INF;
+		if(msg_length == 2) res = (v2.b2[0] != 0) ? double(v1.b2[0]) / v2.b2[0] : INF;
+		if(msg_length == 4) res = (v2.b4[0] != 0) ? double(v1.b4[0]) / v2.b4[0] : INF;
+		if(msg_length == 8) res = (v2.b8[0] != 0) ? double(v1.b8[0]) / v2.b8[0] : INF;
 	}
 
 	else if(type == BINARY)
 	{
-		assert(false);
+		assert(false); // ??
 	}
 
 	else if(type == WIREFLOAT)
 	{
-		if(msg_length == 4) res = v1.f4[0] / v2.f4[0];
-		if(msg_length == 8) res = v1.f8[0] / v2.f8[0];
+		if(msg_length == 4) res = (fabs(v2.f4[0]) > EPS) ? v1.f4[0] / v2.f4[0] : INF; 
+		if(msg_length == 8) res = (fabs(v2.f8[0]) > EPS) ? v1.f8[0] / v2.f8[0] : INF;
 	}
 
 	return res;
@@ -85,7 +88,6 @@ UValue MultValue(UValue value, e_sens_type type, size_t msg_length, double mult)
 
 	return res;
 }
-
 
 UValue ParseSensValue(unsigned char* buffer, size_t msg_length)
 {

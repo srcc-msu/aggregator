@@ -12,24 +12,24 @@
 #include "debug.h"
 
 
-const size_t MAX_MESSAGE_SIZE = 4096; // TODO check, message size, passed in the message seems to be incorrret
+const size_t MAX_MESSAGE_SIZE = 4096; // TODO check
 
 void CAggregator :: Process()
 {
 	unsigned char buffer[MAX_MESSAGE_SIZE];
 
 //	read sensor values and store them
-	int sens_offset = sizeof(nm_data_hdr_t);
+	size_t sens_offset = sizeof(nm_data_hdr_t);
 	unsigned char* sens_data = buffer + sens_offset; 
 
-	DMSG1("waiting for data");
+//	TODO add timeout to socket
+	size_t bytes_read = connection.GetData(buffer, MAX_MESSAGE_SIZE);
 
-	int bytes_read = connection.GetData(buffer, MAX_MESSAGE_SIZE);
+	assert(bytes_read < MAX_MESSAGE_SIZE);
 
 	DMSG1("recieved " << bytes_read);
 
 //	we got zero length or wrong messages - skip it
-//	TODO add timeout to socket
 	if(bytes_read < sens_offset)
 	{
 		DMSG1("message ignored, too short");
@@ -49,7 +49,7 @@ void CAggregator :: Process()
 	
 	DBLOCK2(
 	{
-		cout << "off1 " << sizeof(nm_data_hdr_t) << endl;
+		cerr << "off1 " << sizeof(nm_data_hdr_t) << endl;
 
 	    for(int i = 0; i < bytes_read; i++)
 		{	
@@ -61,23 +61,23 @@ void CAggregator :: Process()
 
 	    printf("\n");
 
-   		cout << "header   : " << reinterpret_cast<char*> (header->signature) << endl;
+   		cerr << "header   : " << reinterpret_cast<char*> (header->signature) << endl;
 
-		cout << "version  : " <<  header->version << endl;
-		cout << "msg_type : " <<  int(header->msg_type) << endl;
-		cout << "str_num  : " <<  int(header->strm_num) << endl;
-		cout << "flags    : " <<  header->flags << endl;
+		cerr << "version  : " <<  header->version << endl;
+		cerr << "msg_type : " <<  int(header->msg_type) << endl;
+		cerr << "str_num  : " <<  int(header->strm_num) << endl;
+		cerr << "flags    : " <<  header->flags << endl;
 
-		cout << "min  : " <<  header->ts_m << endl;
-		cout << "sec  : " <<  header->ts_sec << endl;
-		cout << "usec : " <<  header->ts_usec << endl;
+		cerr << "min  : " <<  header->ts_m << endl;
+		cerr << "sec  : " <<  header->ts_sec << endl;
+		cerr << "usec : " <<  header->ts_usec << endl;
 
 		for(int i = 0; i < 4; i++)
 		{
-			cout << int(header->client_host.b1[i]) << " ";
+			cerr << int(header->client_host.b1[i]) << " ";
 		}
 
-		cout << endl;
+		cerr << endl;
 	})
 
 
@@ -94,7 +94,7 @@ void CAggregator :: Process()
 
 	for(int cnt = 0; ; )
 	{
-		assert(sens_offset + cnt + 2 < bytes_read);
+		assert(sens_offset + cnt + 4 < bytes_read); // wrong packet - something changed?
 
 		uint16_t size = ntohs(*((uint16_t*)(sens_data + cnt)));
 
@@ -107,42 +107,26 @@ void CAggregator :: Process()
 		size_t val_size = sensor_metainf[id].msg_length;
 
 //	few values are packed into one message, make separate packet for each
-		for(size_t part = 0; part < size/val_size; part++)
-		{
-			SPacket packet;
+		if(sensor_metainf[id].type != BINARY) // TODO check
+			for(size_t part = 0; part < size/val_size; part++)
+			{
+				SPacket packet;
 
-			packet.address = header->client_host.b4[0];
-			packet.agent_timestamp = header->ts_m * 1000000 + header->ts_sec;
-			packet.agent_usec = header->ts_usec;
-			packet.server_timestamp = current_time.tv_sec;
-			packet.server_usec = current_time.tv_usec;
-			packet.sensor_id = id;
-			packet.sensor_num = part;
+				packet.address = header->client_host.b4[0];
+				packet.agent_timestamp = header->ts_m * 1000000 + header->ts_sec;
+				packet.agent_usec = header->ts_usec;
+				packet.server_timestamp = current_time.tv_sec;
+				packet.server_usec = current_time.tv_usec;
+				packet.sensor_id = id;
+				packet.sensor_num = part;
 
-			SPacketExt ext_packet(packet, sens_data + cnt + 4 + val_size * part);
+				SPacketExt ext_packet(packet, sens_data + cnt + 4 + val_size * part);
 
-			queue_aggregator.Add(ext_packet);
-			
-			buffer_aggregator.Add(ext_packet);
-		}
+				queue_aggregator.Add(ext_packet);
+				
+				buffer_aggregator.Add(ext_packet);
+			}
 
 		cnt += size + 4;
 	}
 }
-
-/*			cout << "(" << size << ", " << type << ", " << 
-				sensor_metainf[type].msg_length << ") = " << packet.data_string << endl;
-
-				cout << sizeof(nm_data_hdr_t) << " off2 " << sizeof(nm_strm_buf_t) << endl;
-
-        for(int i = 0; i < sens_offset; i++)
-                printf("%x", buffer[i]);
-        printf("\n");
-
-        for(int i = sens_offset; i < 140; i++)
-                printf("%x", buffer[i]);
-
-        printf("\n");
-
-
-*/

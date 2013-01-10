@@ -2,6 +2,9 @@
 #define PACKET_H
 
 #include <sys/types.h>
+#include <cmath>
+
+using std :: fabs;
 
 #include "sensor_metainf.h"
 
