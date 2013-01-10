@@ -60,7 +60,11 @@ bool CQueueAggregator :: FilterOut(const SPacketExt& ext_packet)
 
 
 	DMSG2("time diff " << diff << " \t max_int " << filter.max_interval <<
-		" \t delta " << delta << " \t filter.delta " << filter.delta << (!filter_out ? " \t let it pass!" : " \t\tdrop it!"));
+		" \t delta " << delta << " \t filter.delta " << filter.delta << 
+		(!filter_out ? " \t let it pass!" : " \t\tdrop it!") <<
+		packet.data_string << " " << last_filter.last.packet.data_string << 
+		" " << (unsigned long long)ext_packet.value.b8[0] << 
+		" " << (unsigned long long)last_filter.last.value.b8[0])
 
 	if(!filter_out)
 	{
