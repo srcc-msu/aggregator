@@ -19,13 +19,14 @@ void CQueueAggregator :: UnblacklistId(uint16_t sensor_id)
 bool CQueueAggregator :: FilterOut(const SPacketExt& ext_packet)
 {
 	const SPacket& packet = ext_packet.packet; // short
-	
+	uint32_t buff_value = packet.sensor_id << 16 | packet.sensor_num;
+
 	bool filter_out = true;
 
 //	get appropriate filter
 	SensorFilterMetainf filter = default_filter;
 
-	SensorFilterMetainf& last_filter = last_occurance[packet.address][packet.sensor_id];
+	SensorFilterMetainf& last_filter = last_occurance[packet.address][buff_value];
 
  	if(filters[packet.address].find(packet.sensor_id) != filters[packet.address].end())
  	{
@@ -58,8 +59,8 @@ bool CQueueAggregator :: FilterOut(const SPacketExt& ext_packet)
 		filter_out = false;
 
 
-	DMSG2("time diff " << diff << " max_int " << filter.max_interval <<
-		"delta " << delta << " filter.delta " << filter.delta << (filter_out ? " \t\t let it pass!" : " \t\tdrop it!"));
+	DMSG2("time diff " << diff << " \t max_int " << filter.max_interval <<
+		" \t delta " << delta << " \t filter.delta " << filter.delta << (!filter_out ? " \t let it pass!" : " \t\tdrop it!"));
 
 	if(!filter_out)
 	{
@@ -77,7 +78,7 @@ void CQueueAggregator :: Add(const SPacketExt& ext_packet)
 	}
 	else if(FilterOut(ext_packet))
 	{
-		DMSG2(ext_packet.packet.sensor_id << " filtered out");
+		;//DMSG2(ext_packet.packet.sensor_id << " filtered out");
 	}
 	else 
 		queue.Add(ext_packet.packet);
