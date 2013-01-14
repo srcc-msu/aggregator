@@ -128,13 +128,14 @@ app = Rack::Builder.new do
           $logger.warn "Queue fetched for " + sessid + " : " + data.length.to_s
 
           data.each do |num|
-            body << 
+            tmp = 
             "[[\"sb\",\"sensor\"],{\"ip\":" + 
             "\"#{num[0]%256}.#{num[0]/256%256}.#{num[0]/256/256%256}.#{num[0]/256/256/256%256}\"" +
             ",\"sensor_id\":[#{num[5].to_s}" +
             ",#{(num[6]+1).to_s}],\"value\":#{num[7].to_s}" +
             ",\"gts\":#{num[3].to_s}" +
             ".#{num[4].to_s}}]\n"
+            body << tmp
           end
 
           sleep(0.1)
@@ -193,13 +194,12 @@ app = Rack::Builder.new do
           data.each_with_index do |num, index|
             next if sensor_num_c != num[6]
             iso_time = DateTime.strptime(num[3].to_s, '%s').iso8601(6) 
+            iso_time.slice!(29)
             body << "\"#{iso_time}\":" +
-            "#{num[7].to_s}" + (index != data.length - 1 ? ",\n" : "\n")
+            "#{num[7].to_s}" + (index != data.length - 1 ? ",\n" : "}}\n")
           end
         }
-
-        body << "}}\n"
-        
+     
         body.finish
       end
       [200, {}, body]

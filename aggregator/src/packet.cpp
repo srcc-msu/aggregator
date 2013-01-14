@@ -21,7 +21,7 @@ void SPacketExt :: WriteValueToPacket()
 		if(msg_length == 8) 
 		{
 			if(value.b4[1] != 0)
-				sprintf(out, "%u%u", value.b4[1], value.b4[0]);
+				sprintf(out, "%u%010u", value.b4[1], value.b4[0]);
 			else
 				sprintf(out, "%u", value.b4[0]);
 		}
