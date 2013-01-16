@@ -63,9 +63,9 @@ void InitMetainf()
 	sensor_metainf[1272] = SSensorMetainf(INTEGER, 4, 1.0);
 	sensor_metainf[1280] = SSensorMetainf(INTEGER, 2, 1.0);
 	sensor_metainf[1281] = SSensorMetainf(INTEGER, 2, 1.0);
-	sensor_metainf[1290] = SSensorMetainf(INTEGER, 4, 100.0);
-	sensor_metainf[1291] = SSensorMetainf(INTEGER, 4, 100.0);
-	sensor_metainf[1292] = SSensorMetainf(INTEGER, 4, 100.0);
+	sensor_metainf[1290] = SSensorMetainf(INTEGER, 4, 1.0);
+	sensor_metainf[1291] = SSensorMetainf(INTEGER, 4, 1.0);
+	sensor_metainf[1292] = SSensorMetainf(INTEGER, 4, 1.0);
 	sensor_metainf[1300] = SSensorMetainf(INTEGER, 2, 10.0);
 	sensor_metainf[1303] = SSensorMetainf(INTEGER, 2, 1.0);
 	sensor_metainf[1310] = SSensorMetainf(INTEGER, 2, 100.0);

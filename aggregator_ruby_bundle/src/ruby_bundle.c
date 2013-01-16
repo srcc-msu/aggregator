@@ -44,14 +44,14 @@ VALUE rb_BackgroundProcess(VALUE self)
 VALUE rb_GetAllData(VALUE self)
 {
 	int agg_id = FIX2INT(rb_ivar_get(self, rb_intern("agg_id")));
+
+	size_t i = 0;
 	
 	size_t count = 0;
 
 	struct SPacket* packets = GetAllData(agg_id, &count);
 
 	VALUE arr = rb_ary_new2(count);
-
-	size_t i = 0;
 	
 	for(i = 0; i < count; i++)
 	{
@@ -81,17 +81,13 @@ VALUE rb_GetInterval(VALUE self, VALUE rb_address, VALUE rb_sensor_id, VALUE rb_
 	int from = FIX2INT(rb_from);
 	int upto = FIX2INT(rb_upto);
 	
-	int i = 0;
+	size_t i = 0;
 
-	int count = from - upto;
+	size_t count = 0;
 
-	struct SPacket* packets = GetInterval(agg_id, address, sensor_id, sensor_num, from, upto);
-	VALUE arr;
-
-	if(packets == NULL)
-		return rb_ary_new2(0);
-
-	arr = rb_ary_new2(count);
+	struct SPacket* packets = GetInterval(agg_id, address, sensor_id, sensor_num, from, upto, &count);
+	
+	VALUE arr = rb_ary_new2(count);
 	
 	for(i = 0; i < count; i++)
 	{

@@ -196,10 +196,10 @@ app = Rack::Builder.new do
             iso_time = DateTime.strptime(num[3].to_s, '%s').iso8601(6) 
             iso_time.slice!(29)
             body << "\"#{iso_time}\":" +
-            "#{num[7].to_s}" + (index != data.length - 1 ? ",\n" : "}}\n")
+            "#{num[7].to_s}" + (index != data.length - 1 ? ",\n" : "")
           end
         }
-     
+        body << "}}\n"
         body.finish
       end
       [200, {}, body]

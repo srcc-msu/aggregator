@@ -35,7 +35,7 @@ void CBufferAggregator :: Add(const SPacketExt& ext_packet)
 
 }
 
-SPacket* CBufferAggregator :: GetInterval(uint32_t address, uint16_t sensor_id, uint16_t sensor_num, int from, int upto)
+SPacket* CBufferAggregator :: GetInterval(uint32_t address, uint16_t sensor_id, uint16_t sensor_num, size_t from, size_t upto, size_t* count)
 {
 	if(!allowed_id.IsIn(sensor_id)) 
 	{
@@ -46,7 +46,7 @@ SPacket* CBufferAggregator :: GetInterval(uint32_t address, uint16_t sensor_id, 
 	uint32_t buff_value = sensor_id << 16 | sensor_num;
 
 	if(buffers[address].count(buff_value) != 0)
-		return buffers[address][buff_value]->Get(from, upto);
+		return buffers[address][buff_value]->Get(from, upto, count);
 
 	DMSG1("circular buffer is empty for sensor " << sensor_id << "." << sensor_num << " aka " << buff_value);
 

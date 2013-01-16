@@ -139,17 +139,22 @@ public:
 	Gets n values from the buffer, n = \from - \upto. If thy were not added yet - 
 	returns default values from \T constructor.
 */
-	T* Get(size_t from, size_t upto)
+	T* Get(size_t from, size_t upto, size_t* count)
 	{
         DMSG1(from << " <> " << upto << " requested. current pointer is " << pointer);
 
 		if(from <= upto || upto > size)
+		{
+			*count = 0;
 			return nullptr;
+		}
 
 		if(from > size)
 			from = size;
 
-		T* res = new T[from - upto];
+		*count = from - upto;
+
+		T* res = new T[*count];
 
 		std::lock_guard<std::mutex> lock(mutex);
 
