@@ -2,11 +2,8 @@
 
 require 'rubygems'
 require 'socket'
-#require 'tempfile'
 
-require 'bundler/setup'
 require 'reel'
-#!require 'simple_uuid'
 require 'thread'
 require 'logger'
 

@@ -1,0 +1,64 @@
+********************
+*** Installation ***
+********************
+
+Must be done after installing Hoplang.
+
+Run next comand from top folder:
+
+$ make install
+
+It installs all required ruby components, assuming that you folowed installaiton steps for other HOPSA parts.
+
+*****************
+*** Compiling ***
+*****************
+
+Requires gcc version, that supports c++11. Tested with gcc version 4.6.3
+
+$ make
+
+It builds required C++ library, build C ruby extension, copies all libraries where needed (only in subfolders, system is not affected)
+
+if you have gcc installed localy, use CXX var to locate it 
+
+$make CXX=~/bin/g++
+
+*********************
+*** Configuration ***
+*********************
+
+All aggregator config is located in hoplang_proxy/aggregator.conf
+Currently part of features (like blacklisting and particular filters) are only availiable from ruby code.
+
+See hoplang_proxy/aggregator.conf for example:
+
+server.address - local address, where aggregator starting. must belong to the same interface, where agents are
+server.queue.delta - how much the sensor must change to show it. 0.1 = 10% change from last value
+server.queue.interval - interval, after which the sensor value will be sent regardless of its value
+server.buffer.sensors - list of sensors, that will be stored in memory for 300 seconds and availiable for \sensorstats request
+
+agents.list - list of agent, that will be inited on loading. adding new agent can be done manually by changes or by restarting the aggregator
+
+***************
+*** Running ***
+***************
+
+$ cd hoplang_proxy
+$ ./holang_proxy.rb
+
+*************
+*** Usage ***
+*************
+
+By defaul server listens on 9293 port
+
+To get data: create new session with any id, for example 123456
+
+$ curl localhost:9293/session/new?sessid=123456
+$ curl localhost:9293/stream?sessid=22
+
+To get data from the buffer:
+ 
+$ curl 'localhost:9293/sensorstats?ip=10.0.0.1&sensor=1053&from=30' # last 30 seconds
+$ curl 'localhost:9293/sensorstats?ip=10.0.0.2&sensor=1051&from=2m' # last 2 mins = 120 seconds

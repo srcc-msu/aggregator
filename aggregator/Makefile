@@ -1,6 +1,5 @@
-CC = g++
-CFLAGS = -Werror -Wall -std=c++0x -O2 -lpthread
-LFLAGS = -shared -fPIC
+CXX_CFLAGS = -Werror -Wall -std=c++0x -O2 -lpthread
+CXX_LFLAGS = -shared -fPIC
 #	g++ -shared -Wl,-soname,libmylib.so -o libmylib.so mylib.o
 
 NAME=aggregator
@@ -18,17 +17,17 @@ TST = test/test.cpp
 
 TGT=$(BIN_DIR)/lib$(NAME).so
 
-LFLAGS := $(LFLAGS) -Wl,-soname,$(TGT)
+CXX_LFLAGS := $(CXX_LFLAGS) -Wl,-soname,$(TGT)
 
 all : $(TGT)
 
 test : $(BIN_DIR)/test
 
 $(BIN_DIR)/test : $(TGT) $(TST)
-	$(CC) $(TST) $(CFLAGS) $(INC_FLAGS) -L$(BIN_DIR) -l$(NAME) -o $(BIN_DIR)/test
+	$(CXX) $(TST) $(CXX_CFLAGS) $(INC_FLAGS) -L$(BIN_DIR) -l$(NAME) -o $(BIN_DIR)/test
 
 $(TGT) : $(SRC) $(INC)
-	$(CC) $(SRC) $(CFLAGS) $(LFLAGS) $(INC_FLAGS) -o $(TGT) 
+	$(CXX) $(SRC) $(CXX_CFLAGS) $(CXX_LFLAGS) $(INC_FLAGS) -o $(TGT) 
 
 .PHONY: clean
 

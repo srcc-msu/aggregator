@@ -1,4 +1,3 @@
-
 all : agg bundle proxy
 
 agg : 
@@ -9,6 +8,9 @@ bundle : agg
 
 proxy : bundle
 	$(MAKE) -C hoplang_proxy
+
+install :
+	./.reel_install
 
 clean :
 	$(MAKE) -C aggregator_ruby_bundle clean
