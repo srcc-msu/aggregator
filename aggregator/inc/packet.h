@@ -10,13 +10,23 @@ using std :: fabs;
 
 #define MAX_LEN 40 // TODO check or change it
 
+
+/**
+	union for ipv4 addresses
+*/
+union UIP
+{
+	uint32_t b4[1];
+	uint8_t b1[4];
+};
+
 /**
 	A base structure, that will be sent to upper level
 	TODO learn if more info needed
 */
 struct SPacket
 {
-	uint32_t address; // IPv4
+	UIP address; // IPv4
 	
 	uint32_t agent_timestamp;
 	uint32_t agent_usec;
@@ -30,14 +40,15 @@ struct SPacket
 	char data_string[MAX_LEN]; // string ??? seems like an easiest way to pass uniform data for now
 
 	SPacket():
-	address(0),
 	agent_timestamp(0),
 	agent_usec(0),
 	server_timestamp(0),
 	server_usec(0),
 	sensor_id(0),
 	sensor_num(0)
-	{}
+	{
+		address.b4[0] = 0;
+	}
 };
 
 

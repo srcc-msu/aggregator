@@ -10,16 +10,19 @@ using std :: stringstream;
 
 int main(int argc, char** argv)
 {
-	int agg_id = InitAggregator("192.168.254.248");
+	int agg_id = InitAggregator("127.0.0.1");
 
 	BufferAllowId(agg_id, 2160);
 	BufferAllowId(agg_id, 1051);
 	BufferAllowId(agg_id, 1052);
 
-	InitAgent(agg_id, "192.168.254.248");
+	SetDeltaS(agg_id, 1053, 0.02);
+	SetIntervalS(agg_id, 1053, 10);
+
+	InitAgent(agg_id, "127.0.0.1");
 
 	BackgroundProcess(agg_id);
-	sleep(5);
+	sleep(30);
 
 	size_t count = 0;
 	SPacket* l = GetAllData(agg_id, &count);
@@ -34,10 +37,10 @@ int main(int argc, char** argv)
 
 	cout << endl << "buffer" << endl;
 
-	l = GetInterval(agg_id, "192.168.254.248", 1051, 1, 300, 0);
+	l = GetInterval(agg_id, "127.0.0.1", 1051, 1, 10, 0, &count);
 
 	if(l != nullptr)
-		for(size_t i = 0; i < 300; i++)
+		for(size_t i = 0; i < count; i++)
 			cout << i << " " << l[i].sensor_id << " " << l[i].agent_timestamp << " " << l[i].address << endl;
 	else
 		cout << "no data in buffer" << endl;

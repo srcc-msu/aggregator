@@ -79,6 +79,9 @@ public:
 	void SetInterval(int max_interval);
 
 	void Add(const SPacketExt& ext_packet);
+	void UncheckedAdd(SPacket* packets, size_t count);
+
+	bool Check(const SPacketExt& ext_packet);
 
 	SPacket* GetAllData(size_t* count) 
 		{ return queue.GetAll(count); }

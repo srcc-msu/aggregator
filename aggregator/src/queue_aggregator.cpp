@@ -26,18 +26,18 @@ bool CQueueAggregator :: FilterOut(const SPacketExt& ext_packet)
 //	get appropriate filter
 	SensorFilterMetainf filter = default_filter;
 
-	SensorFilterMetainf& last_filter = last_occurance[packet.address][buff_value];
+	SensorFilterMetainf& last_filter = last_occurance[packet.address.b4[0]][buff_value];
 
- 	if(filters[packet.address].find(packet.sensor_id) != filters[packet.address].end())
+ 	if(filters[packet.address.b4[0]].find(packet.sensor_id) != filters[packet.address.b4[0]].end())
  	{
- 		DMSG2(packet.address << " and " << packet.sensor_id << " present in filter")
- 		filter = filters[packet.address][packet.sensor_id];
+ 		DMSG2(packet.address.b4[0] << " and " << packet.sensor_id << " present in filter")
+ 		filter = filters[packet.address.b4[0]][packet.sensor_id];
  	}
 
- 	else if(address_filters.find(packet.address) != address_filters.end())
+ 	else if(address_filters.find(packet.address.b4[0]) != address_filters.end())
 	{
- 		DMSG2(packet.address << " presents in filter")
- 		filter = address_filters[packet.address];
+ 		DMSG2(packet.address.b4[0] << " presents in filter")
+ 		filter = address_filters[packet.address.b4[0]];
 	}
 
  	else if(sensor_id_filters.find(packet.sensor_id) != sensor_id_filters.end())
@@ -76,16 +76,29 @@ bool CQueueAggregator :: FilterOut(const SPacketExt& ext_packet)
 
 void CQueueAggregator :: Add(const SPacketExt& ext_packet)
 {
+	if(Check(ext_packet))
+		queue.Add(ext_packet.packet);
+}
+
+bool CQueueAggregator :: Check(const SPacketExt& ext_packet)
+{
 	if(id_blacklist.IsIn(ext_packet.packet.sensor_id))
 	{
 		DMSG2(ext_packet.packet.sensor_id << " is in blacklist");
+		return false;
 	}
 	else if(FilterOut(ext_packet))
 	{
-		;//DMSG2(ext_packet.packet.sensor_id << " filtered out");
+		//DMSG2(ext_packet.packet.sensor_id << " filtered out");
+		return false;
 	}
 	else 
-		queue.Add(ext_packet.packet);
+		return true;
+}
+
+void CQueueAggregator :: UncheckedAdd(SPacket* packets_buffer, size_t count)
+{
+	queue.Add(packets_buffer, count);
 }
 
 //---------

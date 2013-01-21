@@ -38,6 +38,7 @@ private:
 
 public:
 /// Add single value to the queue.
+/// bad function, using mutex on every addition is not efficient in this case 
 	void Add(T value)
 	{
 		std::lock_guard<std::mutex> lock(mutex);
@@ -47,6 +48,22 @@ public:
 
 		queue[pointer] = value;
 		pointer++;
+	}
+
+/// Add few values to the queue.
+	void Add(T* values, size_t count)
+	{
+		std::lock_guard<std::mutex> lock(mutex);
+
+		if(count > MAX_QUEUE_SIZE)
+			count = count % MAX_QUEUE_SIZE;
+
+		if(pointer == MAX_QUEUE_SIZE || pointer + count >= MAX_QUEUE_SIZE)
+			Reinit();
+
+		memcpy(queue + pointer, values, count * sizeof(T));
+
+		pointer += count;
 	}
 
 /** 

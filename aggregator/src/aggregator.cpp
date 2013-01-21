@@ -95,6 +95,11 @@ void CAggregator :: Process()
 	timeval current_time;
 	gettimeofday(&current_time, NULL);
 
+	int packets_count = 0;
+
+// estimated messages count, will be definilty less than MAX_MESSAGE_SIZE
+	static SPacket packets_buffer[MAX_MESSAGE_SIZE];
+
 	for(int cnt = 0; ; )
 	{
 		assert(sens_offset + cnt + 4 < bytes_read); // wrong packet - something changed?
@@ -111,11 +116,12 @@ void CAggregator :: Process()
 
 //	few values are packed into one message, make separate packet for each
 		if(sensor_metainf[id].type != BINARY) // TODO check
+		{
 			for(size_t part = 0; part < size/val_size; part++)
 			{
 				SPacket packet;
 
-				packet.address = header->client_host.b4[0];
+				packet.address.b4[0] = header->client_host.b4[0];
 				packet.agent_timestamp = header->ts_m * 1000000 + header->ts_sec;
 				packet.agent_usec = header->ts_usec;
 				packet.server_timestamp = current_time.tv_sec;
@@ -125,11 +131,15 @@ void CAggregator :: Process()
 
 				SPacketExt ext_packet(packet, sens_data + cnt + 4 + val_size * part);
 
-				queue_aggregator.Add(ext_packet);
-				
+				if(queue_aggregator.Check(ext_packet))
+					packets_buffer[packets_count++] = ext_packet.packet;
+
 				buffer_aggregator.Add(ext_packet);
 			}
+		}
 
 		cnt += size + 4;
 	}
+
+	queue_aggregator.UncheckedAdd(packets_buffer, packets_count);
 }

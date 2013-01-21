@@ -1,10 +1,13 @@
-all : agg bundle proxy
+all : agg bundle c_proxy
 
 agg : 
 	$(MAKE) -C aggregator
 
 bundle : agg
 	$(MAKE) -C aggregator_ruby_bundle
+
+c_proxy :
+	$(MAKE) -C hoplang_c_proxy
 
 proxy : bundle
 	$(MAKE) -C hoplang_proxy

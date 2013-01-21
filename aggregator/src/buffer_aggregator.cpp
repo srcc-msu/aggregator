@@ -22,16 +22,17 @@ void CBufferAggregator :: Add(const SPacketExt& ext_packet)
 	if(!allowed_id.IsIn(packet.sensor_id)) 
 		return;
 
-	if(buffers[packet.address].count(buff_value) == 0)
+	if(buffers[packet.address.b4[0]].count(buff_value) == 0)
 	{
 		CCircularBuffer<SPacket>* buf = new CCircularBuffer<SPacket>;
-		buffers[packet.address][buff_value] = buf;
+		buffers[packet.address.b4[0]][buff_value] = buf;
 	}
 
-	buffers[packet.address][buff_value]->Add(packet);
+	buffers[packet.address.b4[0]][buff_value]->Add(packet);
 
     DMSG2(packet.sensor_id << "." << (int)packet.sensor_num << " aka " << buff_value 
-    	<< " added to circ. buffer, size is now " << buffers.size() << " and " << buffers[packet.address].size());
+    	<< " added to circ. buffer, size is now " << buffers.size() << " and " 
+   		<< buffers[packet.address.b4[0]].size());
 
 }
 
