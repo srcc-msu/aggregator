@@ -1,12 +1,17 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
-#include <unordered_set>
+#include <unordered_map>
+#include <iostream>
+
+using std::cout;
+using std::endl;
 
 #include <sys/socket.h>
 #include <unistd.h>
 
 #include "filter.h"
+#include "debug.h"
 
 /**
 	Manages data flow socket connection and communication with agents
@@ -22,7 +27,7 @@ private:
 	int control_port;
 
 // Stores inited agents addresses
-	std :: unordered_set<uint32_t> agents;
+	std :: unordered_map<uint32_t, long> agents_activity;
 	
 	AccessList<uint32_t> address_blacklist;
 
@@ -32,16 +37,59 @@ private:
 	void Init();
 
 public:
+	void AgentStats()
+	{
+		int not_responding = 0;
+		long sum = 0;
+		long count = 0;
+
+		for(auto it : agents_activity)
+		{
+			if(it.second == 0)
+			{
+				if(not_responding == 0)
+					cout << "Not responding agents: ";
+
+				in_addr address;
+				address.s_addr = it.first;
+
+				cout << inet_ntoa(address) << ", ";
+
+				not_responding ++;
+			}
+			else
+			{
+				sum += it.second;
+				count ++;
+			}
+		}
+
+		cout << endl << "processed " << sum << " packets from " << count << " agents" << endl;
+	}
+
+	void PokeAgents()
+	{
+		for(auto it : agents_activity)
+		{
+			if(it.second == 0)
+			{
+				InitAgent(it.first);
+				DMSG1("agent " << it.first << " is not responding, reiniting");
+				usleep(10000);
+			}
+		}
+	}
+
 /**
 	Adds the \address to the blacklist.	
-	All messages form this address will be ignored.
+	All messages from this address will be ignored.
 */
 	void BlacklistAddress(uint32_t address)
 		{ address_blacklist.Add(address); }
 
 /**
 	Remove the \address from the blacklist.	
-	All messages form this address will not be ignored anymore.
+	All messages from this address will not be ignored anymore.
 */
 	void UnblacklistAddress(uint32_t address)
 		{ address_blacklist.Remove(address); }

@@ -2,6 +2,36 @@
 
 #include "debug.h"
 
+#include <iostream>
+
+void CQueueAggregator :: RegisterAverageId(uint16_t sensor_id)
+{
+	DMSG1("added to the queue average list: " << sensor_id);
+
+	id_average.Add(sensor_id);
+}
+
+bool CQueueAggregator :: IsAverageId(uint16_t sensor_id)
+{
+	return id_average.IsIn(sensor_id);
+}
+
+UValue CQueueAggregator :: CalcAverage(uint32_t address, uint16_t sensor_id, int count)
+{
+	UValue sum;
+
+	SPacketExt packet;
+	for(int i = 0; i < count; i++)
+	{
+		uint32_t buff_value = sensor_id << 16 | (i + 1);
+
+		packet = last_occurance[address][buff_value].last;
+		sum = GetSum(sum, packet.value, packet.info.type, packet.info.msg_length);
+	}
+
+	return MultValue(sum, packet.info.type, packet.info.msg_length, double(1) / count);
+}
+
 void CQueueAggregator :: BlacklistId(uint16_t sensor_id)
 {
 	DMSG1("added to the queue blacklist: " << sensor_id);
@@ -16,12 +46,12 @@ void CQueueAggregator :: UnblacklistId(uint16_t sensor_id)
 	id_blacklist.Remove(sensor_id); 
 }
 
-bool CQueueAggregator :: FilterOut(const SPacketExt& ext_packet)
+int CQueueAggregator :: Filter(const SPacketExt& ext_packet)
 {
 	const SPacket& packet = ext_packet.packet; // short
 	uint32_t buff_value = packet.sensor_id << 16 | packet.sensor_num;
 
-	bool filter_out = true;
+	int allow_res = 0;
 
 //	get appropriate filter
 	SensorFilterMetainf filter = default_filter;
@@ -54,46 +84,39 @@ bool CQueueAggregator :: FilterOut(const SPacketExt& ext_packet)
 		ext_packet.info.type, last_filter.last.info.msg_length) - 1.0);
 	
 	if(diff > filter.max_interval || last_filter.last.packet.agent_timestamp == 0)
-		filter_out = false;
-	else if(delta > filter.delta)
-		filter_out = false;
+		allow_res = 1;
 
+	else if(delta > filter.delta)
+		allow_res = 2;
 
 	DMSG2("time diff " << diff << " \t max_int " << filter.max_interval <<
 		" \t delta " << delta << " \t filter.delta " << filter.delta << 
-		(!filter_out ? " \t let it pass!" : " \t\tdrop it!") <<
+		(allow_res ? " \t let it pass!" : " \t\tdrop it!") <<
 		packet.data_string << " " << last_filter.last.packet.data_string << 
 		" " << (unsigned long long)ext_packet.value.b8[0] << 
 		" " << (unsigned long long)last_filter.last.value.b8[0])
 
-	if(!filter_out)
-	{
+	if(allow_res)
 		last_filter.last = ext_packet;
-	}
 
-	return filter_out;
+	return allow_res;
 }
 
 void CQueueAggregator :: Add(const SPacketExt& ext_packet)
 {
-	if(Check(ext_packet))
+	if(Check(ext_packet) > 0)
 		queue.Add(ext_packet.packet);
 }
 
-bool CQueueAggregator :: Check(const SPacketExt& ext_packet)
+int CQueueAggregator :: Check(const SPacketExt& ext_packet)
 {
 	if(id_blacklist.IsIn(ext_packet.packet.sensor_id))
 	{
 		DMSG2(ext_packet.packet.sensor_id << " is in blacklist");
-		return false;
+		return -1;
 	}
-	else if(FilterOut(ext_packet))
-	{
-		//DMSG2(ext_packet.packet.sensor_id << " filtered out");
-		return false;
-	}
-	else 
-		return true;
+	else
+		return Filter(ext_packet);
 }
 
 void CQueueAggregator :: UncheckedAdd(SPacket* packets_buffer, size_t count)

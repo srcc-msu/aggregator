@@ -56,6 +56,9 @@ void BackgroundProcess(int agg_id)
     std::thread t1(BackgroundProcessHelper, agg_id);
 
     t1.detach();
+
+    aggregators[agg_id]->BackgroundAgentsStat(60);
+    aggregators[agg_id]->BackgroundStat(10);
 }
 
 void GlobalBlacklistAddress(int agg_id, const char* address)
@@ -63,25 +66,30 @@ void GlobalBlacklistAddress(int agg_id, const char* address)
 	aggregators[agg_id]->Connection().BlacklistAddress(inet_addr(address));
 }
 
-
-void QueueBlacklistId(int agg_id, uint16_t id)
+void QueueBlacklistId(int agg_id, uint16_t sensor_id)
 {
-	aggregators[agg_id]->QueueAggregator().BlacklistId(id);
+	aggregators[agg_id]->QueueAggregator().BlacklistId(sensor_id);
 }
 
-void QueueUnblacklistId(int agg_id, uint16_t id)
+void QueueUnblacklistId(int agg_id, uint16_t sensor_id)
 {
-	aggregators[agg_id]->QueueAggregator().UnblacklistId(id);
+	aggregators[agg_id]->QueueAggregator().UnblacklistId(sensor_id);
 }
 
-void BufferAllowId(int agg_id, uint16_t id)
+
+void QueueRegisterAverageId(int agg_id, uint16_t sensor_id)
 {
-	aggregators[agg_id]->BufferAggregator().AllowId(id);
+	aggregators[agg_id]->QueueAggregator().RegisterAverageId(sensor_id);
 }
 
-void BufferDisallowId(int agg_id, uint16_t id)
+void BufferAllowId(int agg_id, uint16_t sensor_id)
 {
-	aggregators[agg_id]->BufferAggregator().DisallowId(id);
+	aggregators[agg_id]->BufferAggregator().AllowId(sensor_id);
+}
+
+void BufferDisallowId(int agg_id, uint16_t sensor_id)
+{
+	aggregators[agg_id]->BufferAggregator().DisallowId(sensor_id);
 }
 
 // --------------------------
@@ -130,9 +138,9 @@ void SetInterval(int agg_id, int max_interval)
 
 // --------------------------
 
-SPacket* GetInterval(int agg_id, const char* address, uint16_t id, uint16_t num, size_t from, size_t upto, size_t* count)
+SPacket* GetInterval(int agg_id, const char* address, uint16_t sensor_id, uint16_t num, size_t from, size_t upto, size_t* count)
 {
-	return aggregators[agg_id]->BufferAggregator().GetInterval(inet_addr(address), id, num, from, upto, count);
+	return aggregators[agg_id]->BufferAggregator().GetInterval(inet_addr(address), sensor_id, num, from, upto, count);
 }
 
 SPacket* GetAllData(int agg_id, size_t* count)

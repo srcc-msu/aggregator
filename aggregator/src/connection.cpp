@@ -78,7 +78,7 @@ void CConnectionManager :: InitAgent(uint32_t address)
 	agent_address.sin_addr.s_addr = address;
 
 //	register agent
-	agents.insert(agent_address.sin_addr.s_addr);
+	agents_activity[agent_address.sin_addr.s_addr] = 0;
 
 //	form and send V1 control message
 
@@ -105,6 +105,8 @@ int CConnectionManager :: GetData(unsigned char* data, int max_count)
 		DMSG2("address " << info.sin_addr.s_addr << " is in blacklist, ignoring");
 		return 0;
 	}
+
+	agents_activity[info.sin_addr.s_addr]++;
 
 	return bytes_read;
 }

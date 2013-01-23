@@ -51,6 +51,8 @@ VALUE rb_GetAllData(VALUE self)
 
 	struct SPacket* packets = GetAllData(agg_id, &count);
 
+	printf("got from queue %d\n", count);
+	
 	VALUE arr = rb_ary_new2(count);
 	
 	for(i = 0; i < count; i++)

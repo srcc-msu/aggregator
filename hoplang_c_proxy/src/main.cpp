@@ -6,15 +6,20 @@
 #include "aggregator_api.h"
 #include <json/json.h>
 
+#include <thread>
+
+#include <unordered_map>
+
 using namespace std;
 
 #include "mongoose.h"
 
 int agg_id = -1;
 
-static const unsigned int MIN_SLEEP_TIME = 10;
+static const unsigned int MIN_SLEEP_TIME = 8;
+static const unsigned int MAX_SLEEP_TIME = 1000000;
 
-int i = 0;
+std::unordered_map<uint16_t, string> id_to_name;
 
 /**
     get \sess_id from \query_string
@@ -35,8 +40,11 @@ static void* callback(mg_event event, mg_connection *conn)
         cout << request_info->request_method << endl;
         cout << request_info->query_string << endl;
 
-        if(request_info->query_string == nullptr)
-            return nullptr;
+        if (strcmp(request_info->uri, "/subscribe") == 0)
+        {
+            printf("done %d\n",  mg_printf(conn, "done\n"));
+            return (void*) 1;
+        }
 
         if (strcmp(request_info->uri, "/session/new") == 0) 
         {
@@ -53,7 +61,6 @@ static void* callback(mg_event event, mg_connection *conn)
             return (void*) 1;
         }
 
-
         else if (strcmp(request_info->uri, "/stream") == 0) 
         {
             char sess_id[128] = "";
@@ -65,48 +72,73 @@ static void* callback(mg_event event, mg_connection *conn)
                 return nullptr;
             }
 
+            size_t count = 0;
+
             cout << "new connection " << sess_id << endl;
+
+            GetAllData(agg_id, &count);
 
             unsigned int sleep_time = MIN_SLEEP_TIME;
 
             while(1)
             {
-                size_t count = 0;
                 SPacket* l = GetAllData(agg_id, &count);
 
                 if(count != 0)
-                    cout << "fetched for " << sess_id << " " << count << ", sleep_time " << sleep_time << endl;
+                    cout << "fetched for \"" << sess_id << "\" " << count << ", sleep_time " << sleep_time << endl;
+
+                static char buffer[30000];
+                int offset = 0;
 
                 for(size_t i = 0; i < count; i++)
                 {
                     SPacket& p = l[i];
 
-                    int printed = mg_printf(conn, 
+                    int printed = sprintf(buffer + offset,
+                        "[\"lap2\","
+                        "{\"addr\":\"node-%03u-%02u\","
+                        "\"name\":\"%s\","
+                        "\"n\":\"%u\","
+                        "\"val\":\"%s\","
+                        "\"gts\":\"%u.%u\"}]\n",
+                        p.address.b1[2], p.address.b1[3],
+                        id_to_name[p.sensor_id].c_str(),
+                        int(p.sensor_num),
+                        p.data_string,
+                        p.server_timestamp, p.server_usec);
+
+/*                    int printed = sprintf(buffer + offset,
                         "[[\"sb\",\"sensor\"],"
                         "{\"ip\":\"%u.%u.%u.%u\","
-                        "\"sensor_id\":[%u,%u],"
+                        "\"sensor_id\":[%s,%u],"
                         "\"value\":%s,"
                         "\"gts\":%u.%u}]\n", 
                         p.address.b1[0], p.address.b1[1], p.address.b1[2], p.address.b1[3], 
-                        p.sensor_id, p.sensor_num, p.data_string,
-                        p.server_timestamp, p.server_usec);
+                        id_to_name[p.sensor_id].c_str(), int(p.sensor_num), p.data_string,
+                        p.server_timestamp, p.server_usec);*/
 
-                    if(printed == 0)
+                    offset += printed;
+                    assert(offset < 30000);
+
+                    if(offset >= 30000 - 1000 || (printed == 0 && offset > 0) || i == count - 1)
                     {
-                        cout << "connection closed " << sess_id << endl;
-                        return (void*) 1;
+                        int streamed = mg_printf(conn, "%s", buffer);
+                        offset = 0;
+
+                        if(streamed == 0)
+                        {
+                            cout << "connection closed " << sess_id << endl;
+                            return (void*) 1;
+                        }
                     }
                 }
 
-                // to sleep or not to sleep? TODO check
+//  to sleep or not to sleep? TODO check
 
-                if(count == 0)
+                if(count <= 1000 && sleep_time < MAX_SLEEP_TIME)
                     sleep_time *= 2;
-                else
+                else if(sleep_time > MIN_SLEEP_TIME)
                     sleep_time /= 2;
-
-                if(sleep_time < MIN_SLEEP_TIME)
-                    sleep_time = MIN_SLEEP_TIME;
 
                 usleep(sleep_time);
             }
@@ -118,6 +150,32 @@ static void* callback(mg_event event, mg_connection *conn)
     } 
     else 
         return nullptr;
+}
+
+void BackgroundInitHelper(int agg_id, Json::Value agents)
+{
+    for(size_t i = 0; i < agents.size(); i++)
+    {
+        const char* agent = agents[i][1].asCString();
+
+        InitAgent(agg_id, agent);
+        cout << "agent " << agent << " added" << endl;
+	usleep(10000);
+    }
+}
+
+void BackgroundInit(int agg_id, Json::Value agents)
+{
+	static bool started = false;
+
+	if(started == true)
+		return;
+
+	started = true;
+
+    std::thread t1(BackgroundInitHelper, agg_id, agents);
+
+    t1.detach();
 }
 
 bool ConfigAggregator(const string config_file)
@@ -163,16 +221,45 @@ bool ConfigAggregator(const string config_file)
         cout << "sensor " << sensor << " will be collected in buffer" << endl;
     }
 
+// names
+    const Json::Value names = root["server"]["sensor_names"];
+
+    for(size_t i = 0; i < names.size(); i++)
+    {
+        Json::Value sensor = names[i];
+
+        id_to_name[sensor[0u].asInt()] = sensor[1u].asString();
+
+        cout << "name for " << sensor[0u].asInt() << " is " << sensor[1u].asString() << endl;
+    }
+
+// average
+    const Json::Value average = root["server"]["queue"]["average"];
+
+    for(size_t i = 0; i < average.size(); i++)
+    {
+        int sensor = average[i].asInt();
+        QueueRegisterAverageId(agg_id, sensor);
+
+        cout << "average will be calculated for " << sensor << endl;
+    }
+
+// blacklist
+    const Json::Value blacklist = root["server"]["queue"]["blacklist"];
+
+    for(size_t i = 0; i < blacklist.size(); i++)
+    {
+        int sensor = blacklist[i].asInt();
+        QueueBlacklistId(agg_id, sensor);
+
+        cout << "sensor " << sensor << " will be ignored" << endl;
+    }
+
+    BackgroundProcess(agg_id);
 // agents
     const Json::Value agents = root["agents"]["list"];
-    
-    for(size_t i = 0; i < agents.size(); i++)
-    {
-        const char* agent = agents[i][1].asCString();
 
-        InitAgent(agg_id, agent);
-        cout << "agent " << agent << " added" << endl;
-    }
+    BackgroundInit(agg_id, agents);
 
     return true;
 }
@@ -193,12 +280,9 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    BackgroundProcess(agg_id);
-
-
 //  running webserver
     mg_context* ctx;
-    const char *options[] = {"listening_ports", "9294", NULL};
+    const char *options[] = {"listening_ports", "9293", NULL};
 
     ctx = mg_start(&callback, NULL, options);
 

@@ -12,6 +12,7 @@
 #include "debug.h"
 
 #include <iostream>
+
 using std :: cerr;
 using std :: endl;
 
@@ -114,9 +115,11 @@ void CAggregator :: Process()
 
 		size_t val_size = sensor_metainf[id].msg_length;
 
-//	few values are packed into one message, make separate packet for each
 		if(sensor_metainf[id].type != BINARY) // TODO check
 		{
+			int any_changed = -1;
+
+//	few values are packed into one message, make separate packet for each
 			for(size_t part = 0; part < size/val_size; part++)
 			{
 				SPacket packet;
@@ -127,14 +130,43 @@ void CAggregator :: Process()
 				packet.server_timestamp = current_time.tv_sec;
 				packet.server_usec = current_time.tv_usec;
 				packet.sensor_id = id;
-				packet.sensor_num = part;
+				packet.sensor_num = part+1;
 
 				SPacketExt ext_packet(packet, sens_data + cnt + 4 + val_size * part);
 
-				if(queue_aggregator.Check(ext_packet))
-					packets_buffer[packets_count++] = ext_packet.packet;
+				int res = queue_aggregator.Check(ext_packet);
+				DMSG2("res" << res);
+				if(res > 0)
+				{
+					packets_buffer[packets_count] = ext_packet.packet;
+					stat_added ++;
+					any_changed = packets_count;
+					packets_count++;
+				}
+
+				if(res == 0)
+					stat_filtered_out ++;
+				else if(res == 1)
+					stat_allow_time ++;
+				else if(res == 2)
+					stat_allow_val ++;
+				else if(res == -1)
+				{
+					stat_filtered_blacklist += size/val_size;
+					break;
+				}
 
 				buffer_aggregator.Add(ext_packet);
+			}
+
+//	add average
+			if(any_changed != -1 && queue_aggregator.IsAverageId(id))
+			{
+				SPacket packet = packets_buffer[any_changed];
+				UValue value = queue_aggregator.CalcAverage(packet.address.b4[0], packet.sensor_id, size/val_size);
+
+				packet.sensor_num = 0;
+				packets_buffer[packets_count++] = SPacketExt(packet, value).packet;
 			}
 		}
 
@@ -142,4 +174,22 @@ void CAggregator :: Process()
 	}
 
 	queue_aggregator.UncheckedAdd(packets_buffer, packets_count);
+}
+
+void BackgroundStatHelper(CAggregator* agg, int sleep_time)
+{
+    while(1)
+    {
+		sleep(sleep_time);
+		agg->Stat();
+    }
+}
+
+void BackgroundAgentHelper(CAggregator* agg, int sleep_time)
+{
+    while(1)
+    {
+		sleep(sleep_time);
+		agg->AgentsStat();
+    }
 }

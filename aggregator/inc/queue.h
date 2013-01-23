@@ -25,14 +25,15 @@ private:
 	size_t pointer;
 	T* old;
 
-	void Reinit()
+	void Reinit() // TODO renaem something
 	{
-		if(old != nullptr)
-			delete[] old;
+		if(old == nullptr)
+			old = new T[MAX_QUEUE_SIZE];
 
-		old = queue;
+		T* tmp = queue;
+		queue = old;
+		old = tmp;
 
-		queue = new T[MAX_QUEUE_SIZE];
 		pointer = 0;
 	}
 

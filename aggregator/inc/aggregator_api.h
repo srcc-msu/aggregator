@@ -51,6 +51,13 @@ void QueueBlacklistId(int agg_id, uint16_t id);
 void QueueUnblacklistId(int agg_id, uint16_t id);
 
 /**
+	average values will be recalculated for \sensor_id
+	when any of single values change
+	TODO chekc, may be very time consuming
+*/
+void QueueRegisterAverageId(int agg_id, uint16_t sensor_id);
+
+/**
 	Allos/disallow the sensor \id to be collected in 300s buffer.
 	By default all sensors are disallowed.
 */

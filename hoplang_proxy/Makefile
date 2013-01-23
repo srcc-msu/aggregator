@@ -5,4 +5,4 @@ all :
 clean : 
 	rm -f bin/*
 	rm -f ruby_aggregator.so
-	rm -f *.log
+	rm -f _*

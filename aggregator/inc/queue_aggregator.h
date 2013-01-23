@@ -61,10 +61,16 @@ private:
 	SensorFilterMetainf default_filter;
 
 	AccessList<uint16_t> id_blacklist;
+	AccessList<uint16_t> id_average;
 
-	bool FilterOut(const SPacketExt& ext_packet);
+	int Filter(const SPacketExt& ext_packet);
+
+	void Add(const SPacketExt& ext_packet);
 
 public:
+	void RegisterAverageId(uint16_t sensor_id);
+	bool IsAverageId(uint16_t sensor_id);
+
 	void BlacklistId(uint16_t sensor_id);
 	void UnblacklistId(uint16_t sensor_id);
 	
@@ -78,10 +84,11 @@ public:
 	void SetInterval(uint16_t sensor_id, int max_interval);
 	void SetInterval(int max_interval);
 
-	void Add(const SPacketExt& ext_packet);
 	void UncheckedAdd(SPacket* packets, size_t count);
 
-	bool Check(const SPacketExt& ext_packet);
+	UValue CalcAverage(uint32_t address, uint16_t sensor_id, int count);
+
+	int Check(const SPacketExt& ext_packet);
 
 	SPacket* GetAllData(size_t* count) 
 		{ return queue.GetAll(count); }

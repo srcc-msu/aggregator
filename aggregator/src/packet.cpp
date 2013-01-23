@@ -4,7 +4,7 @@
 
 using std :: sprintf;
 
-static const int INF = 1024; // sensor value was zero, and now - not
+static const double INF = 1024; // sensor value was zero, and now - not
 static const int EPS = 1e-5;
 
 void SPacketExt :: WriteValueToPacket()
@@ -37,7 +37,7 @@ void SPacketExt :: WriteValueToPacket()
 		assert(false);
 }
 
-double GetDiv(UValue v1, UValue v2, e_sens_type type, size_t msg_length)
+double GetDiv(const UValue& v1, const UValue& v2, e_sens_type type, size_t msg_length)
 {
 	if(v1.b8[0] == v2.b8[0])
 		return 1.0;
@@ -66,7 +66,33 @@ double GetDiv(UValue v1, UValue v2, e_sens_type type, size_t msg_length)
 	return res;
 }
 
-UValue MultValue(UValue value, e_sens_type type, size_t msg_length, double mult)
+UValue GetSum(const UValue& v1, const UValue& v2, e_sens_type type, size_t msg_length)
+{
+	UValue res;
+
+	if(type == INTEGER || type == WIRECOUNTER || type == WIRESMART)
+	{
+		if(msg_length == 1) res.b1[0] = v1.b1[0] + v2.b1[0];
+		if(msg_length == 2) res.b2[0] = v1.b2[0] + v2.b2[0];
+		if(msg_length == 4) res.b4[0] = v1.b4[0] + v2.b4[0];
+		if(msg_length == 8) res.b8[0] = v1.b8[0] + v2.b8[0];
+	}
+
+	else if(type == BINARY)
+	{
+		assert(false); // ??
+	}
+
+	else if(type == WIREFLOAT)
+	{
+		if(msg_length == 4) res.f4[0] = v2.f4[0] + v2.f4[0]; 
+		if(msg_length == 8) res.f8[0] = v2.f8[0] + v2.f8[0];
+	}
+
+	return res;
+}
+
+UValue MultValue(const UValue& value, e_sens_type type, size_t msg_length, double mult)
 {
 	UValue res;
 

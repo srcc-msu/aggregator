@@ -4,3 +4,6 @@
 aggregator/ruby/Makefile
 aggregator/bin/*
 hoplang_proxy/bin/*
+hoplang_c_proxy/bin/*
+hoplang_c_proxy/jsoncpp/*
+hoplang_c_proxy/mongoose/*

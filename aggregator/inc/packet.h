@@ -61,6 +61,11 @@ union UValue
 
 	float  f4[2];
 	double f8[1];
+
+	UValue()
+	{
+		b8[0] = 0;
+	}
 };
 
 UValue ParseSensValue(unsigned char* buffer, size_t msg_length);
@@ -68,8 +73,9 @@ UValue ParseSensValue(unsigned char* buffer, size_t msg_length);
 /**
 	TODO check div zero
 */
-double GetDiv(UValue v1, UValue v2, e_sens_type type, size_t msg_length);
-UValue MultValue(UValue value, e_sens_type type, size_t msg_length, double mult);
+double GetDiv(const UValue& v1, const UValue& v2, e_sens_type type, size_t msg_length);
+UValue GetSum(const UValue& v1, const UValue& v2, e_sens_type type, size_t msg_length);
+UValue MultValue(const UValue& value, e_sens_type type, size_t msg_length, double mult);
 
 /**
 	Packet structure with extended info that will be used for filtering.
@@ -81,7 +87,7 @@ struct SPacketExt
 	
 	UValue value;
 
-	SSensorMetainf info;
+	SSensorMetainf info; // TODO const ref
 
 private:
 	void WriteValueToPacket();
@@ -96,12 +102,20 @@ public:
 	TODO: make it more clear
 */
 	SPacketExt(SPacket packet, unsigned char* raw_buffer):
-	packet(packet)
+	packet(packet),
+	info(sensor_metainf[packet.sensor_id])
 	{
-		info = sensor_metainf[packet.sensor_id];
 		value = ParseSensValue(raw_buffer, info.msg_length);
 		value = MultValue(value, info.type, info.msg_length, info.scale);
 
+		WriteValueToPacket();
+	}
+
+	SPacketExt(SPacket packet, UValue value):
+	packet(packet),
+	value(value),
+	info(sensor_metainf[packet.sensor_id])
+	{
 		WriteValueToPacket();
 	}
 };
