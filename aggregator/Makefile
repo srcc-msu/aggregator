@@ -1,5 +1,5 @@
 CXX_CFLAGS = -Werror -Wall -std=c++0x -O2 -pthread
-CXX_LFLAGS = -shared -fPIC
+CXX_LFLAGS = -shared -fpic
 #	g++ -shared -Wl,-soname,libmylib.so -o libmylib.so mylib.o
 
 NAME=aggregator
@@ -17,7 +17,7 @@ TST = test/test.cpp
 
 TGT=$(BIN_DIR)/lib$(NAME).so
 
-CXX_LFLAGS := $(CXX_LFLAGS) -Wl,-soname,$(TGT)
+CXX_LFLAGS := $(CXX_LFLAGS) -Wl,-soname,lib$(NAME).so
 
 all : $(TGT)
 

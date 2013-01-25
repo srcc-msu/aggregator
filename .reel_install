@@ -1,6 +1,0 @@
-git clone https://github.com/celluloid/reel.git reel
-cd reel
-
-bundle install
-rake install
-

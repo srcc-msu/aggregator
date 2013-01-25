@@ -1,19 +1,13 @@
-all : agg bundle c_proxy
+all : aggregator proxy
 
-agg : 
+aggregator : 
 	$(MAKE) -C aggregator
 
-bundle : agg
-	$(MAKE) -C aggregator_ruby_bundle
+proxy : aggregator
+	$(MAKE) -C proxy
 
-c_proxy :
-	$(MAKE) -C hoplang_c_proxy
-
-proxy : bundle
-	$(MAKE) -C hoplang_proxy
-
-install :
-	./.reel_install
+csv_writer : 
+	$(MAKE) -C csv_writer
 
 clean :
 	$(MAKE) -C aggregator_ruby_bundle clean

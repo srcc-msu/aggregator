@@ -1,15 +1,3 @@
-********************
-*** Installation ***
-********************
-
-Must be done after installing Hoplang.
-
-Run next comand from top folder:
-
-$ make install
-
-It installs all required ruby components, assuming that you folowed installaiton steps for other HOPSA parts.
-
 *****************
 *** Compiling ***
 *****************
@@ -18,7 +6,7 @@ Requires gcc version, that supports c++11. Tested with gcc version 4.6.3
 
 $ make
 
-It builds required C++ library, build C ruby extension, copies all libraries where needed (only in subfolders, system is not affected)
+It builds required agregator library, builds proxy and csv_writer component
 
 if you have gcc installed localy, use CXX var to locate it 
 
@@ -28,10 +16,7 @@ $make CXX=~/bin/g++
 *** Configuration ***
 *********************
 
-All aggregator config is located in hoplang_proxy/aggregator.conf
-Currently part of features (like blacklisting and particular filters) are only availiable from ruby code.
-
-See hoplang_proxy/aggregator.conf for example:
+All aggregator config is located in proxy/aggregator.conf
 
 server.address - local address, where aggregator starting. must belong to the same interface, where agents are
 server.queue.delta - how much the sensor must change to show it. 0.1 = 10% change from last value
@@ -44,8 +29,8 @@ agents.list - list of agent, that will be inited on loading. adding new agent ca
 *** Running ***
 ***************
 
-$ cd hoplang_proxy
-$ ./holang_proxy.rb
+$ cd proxy
+$ bin/holang_proxy.rb
 
 *************
 *** Usage ***
@@ -56,7 +41,14 @@ By defaul server listens on 9293 port
 To get data: create new session with any id, for example 123456
 
 $ curl localhost:9293/session/new?sessid=123456
-$ curl localhost:9293/stream?sessid=22
+$ curl localhost:9293/stream?sessid=123456
+
+!!! only id is allowed for now and currently checked to be registered earlier ^^
+
+
+!!!
+!!! next section is not wroking in current release:
+!!!
 
 To get data from the buffer:
  

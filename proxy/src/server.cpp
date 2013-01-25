@@ -5,7 +5,6 @@
 
 using std::cout;
 using std::endl;
-        FILE* f = fopen("out", "w");
 
 /**
     reads data from the aggregator \agg_id and stream it by chunks to \conn
