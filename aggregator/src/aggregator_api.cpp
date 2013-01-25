@@ -4,8 +4,8 @@
 #include <vector>
 #include <thread>
 
-using std :: cout;
-using std :: endl;
+using std::cout;
+using std::endl;
 
 #include "queue.h"
 #include "aggregator.h"
@@ -17,7 +17,7 @@ void __aggregator()
 	cout << "peace and love, bro!" << endl;
 }
 
-std :: vector<CAggregator*> aggregators;
+std::vector<CAggregator*> aggregators;
 
 int InitAggregator(const char* address)
 {
@@ -112,6 +112,27 @@ void SetDeltaA(int agg_id, const char* address, double delta)
 void SetDelta(int agg_id, double delta)
 {
 	aggregators[agg_id]->QueueAggregator().SetDelta(delta);
+}
+// --------------------------
+
+void SetAbsDeltaAS(int agg_id, const char* address, uint16_t sensor_id, double abs_delta)
+{
+	aggregators[agg_id]->QueueAggregator().SetAbsDelta(inet_addr(address), sensor_id, abs_delta);
+}
+
+void SetAbsDeltaS(int agg_id, uint16_t sensor_id, double abs_delta)
+{
+	aggregators[agg_id]->QueueAggregator().SetAbsDelta(sensor_id, abs_delta);
+}
+
+void SetAbsDeltaA(int agg_id, const char* address, double abs_delta)
+{
+	aggregators[agg_id]->QueueAggregator().SetAbsDelta(inet_addr(address), abs_delta);
+}
+
+void SetAbsDelta(int agg_id, double abs_delta)
+{
+	aggregators[agg_id]->QueueAggregator().SetAbsDelta(abs_delta);
 }
 
 // --------------------------

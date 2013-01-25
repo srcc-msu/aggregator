@@ -11,9 +11,9 @@
 #include <algorithm>
 #include <thread>
 
-using std :: string;
-using std :: cout;
-using std :: endl;
+using std::string;
+using std::cout;
+using std::endl;
 
 #include "queue.h"
 #include "sensor_metainf.h"
@@ -44,50 +44,19 @@ private:
 
 public:
 	long stat_allow_time;
-	long stat_allow_val;
+	long stat_allow_delta;
+	long stat_allow_abs_delta;
 	long stat_filtered_out;
 	long stat_filtered_blacklist;
 	long stat_added;
 
-	void Stat()
-	{
-		cout << endl << " ---- Aggregator stat ---- " << endl;
+	void Stat();
 
-		cout << "blacklisted  : " << stat_filtered_blacklist << endl;
-		cout << "filtered out : " << stat_filtered_out << endl;
-		cout << "added        : " << stat_added << " = time : " <<
-			stat_allow_time << " + val : " << stat_allow_val << endl;
+	void AgentsStat();
 
-		cout << " ------------------------- " << endl << endl;
+	void BackgroundAgentsStat(int sleep_time);
 
-		stat_filtered_blacklist = 0;
-		stat_filtered_out = 0;
-		stat_allow_time = 0;
-		stat_allow_val = 0;
-		stat_added = 0;
-	}
-
-	void AgentsStat()
-	{
-		cout << endl << " ---- Agents stat ---- " << endl;
-
-		connection.AgentStats();
-		connection.PokeAgents();
-
-		cout << " --------------------- " << endl << endl;
-	}
-
-	void BackgroundAgentsStat(int sleep_time)
-	{
-	    std::thread t(BackgroundAgentHelper, this, sleep_time);
-	    t.detach();
-	}
-
-	void BackgroundStat(int sleep_time)
-	{
-	    std::thread t(BackgroundStatHelper, this, sleep_time);
-	    t.detach();
-	}
+	void BackgroundStat(int sleep_time);
 
 	CConnectionManager& Connection()
 		{ return connection; }

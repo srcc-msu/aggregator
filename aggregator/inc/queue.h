@@ -76,7 +76,8 @@ public:
 	{
 		std::lock_guard<std::mutex> lock(mutex);
 		
-		*count = pointer;
+		if(count)
+			*count = pointer;
 
 		Reinit();
 		return old;

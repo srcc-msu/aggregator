@@ -26,7 +26,7 @@ struct SSensorMetainf
 	{}
 };
 
-extern std :: unordered_map<int, SSensorMetainf> sensor_metainf;
+extern std::unordered_map<int, SSensorMetainf> sensor_metainf;
 /**
 	All metainformation is here.
 	Must be updated, if something changes
@@ -42,32 +42,3 @@ void InitMetainf();
 void ParseSensValue(char* out, unsigned char* buffer, int id);
 
 #endif
-
-
-/*
-UValue GetDiff(UValue v1, UValue v2, e_sens_type type, size_t msg_length)
-{
-	UValue res;
-
-	if(type == INTEGER || type == WIRECOUNTER || type == WIRESMART)
-	{
-		if(msg_length == 1) res.b   = v1.b   - v2.b;
-		if(msg_length == 2) res.w   = v1.w   - v2.w;
-		if(msg_length == 4) res.dw  = v1.dw  - v2.dw;
-		if(msg_length == 8) res.ddw = v1.ddw - v2.ddw;
-	}
-
-	else if(type == BINARY)
-	{
-		assert(false);
-	}
-
-	else if(type == WIREFLOAT)
-	{
-		if(msg_length == 4) res.dw  = uint32_t(float (v1.dw)  - float (v2.dw));
-		if(msg_length == 8) res.ddw = uint64_t(double(v1.ddw) - double(v2.ddw));
-	}
-
-	return res;
-}
-*/

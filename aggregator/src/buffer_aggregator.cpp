@@ -38,6 +38,8 @@ void CBufferAggregator :: Add(const SPacketExt& ext_packet)
 
 SPacket* CBufferAggregator :: GetInterval(uint32_t address, uint16_t sensor_id, uint16_t sensor_num, size_t from, size_t upto, size_t* count)
 {
+	assert(false); // wrong data_string
+	
 	if(!allowed_id.IsIn(sensor_id)) 
 	{
 		DMSG1("requested sensor" << sensor_id << " is not collected to circular buffer ");

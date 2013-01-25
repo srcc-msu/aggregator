@@ -4,7 +4,7 @@
 #include <sys/types.h>
 #include <cmath>
 
-using std :: fabs;
+using std::fabs;
 
 #include "sensor_metainf.h"
 
@@ -74,6 +74,8 @@ UValue ParseSensValue(unsigned char* buffer, size_t msg_length);
 	TODO check div zero
 */
 double GetDiv(const UValue& v1, const UValue& v2, e_sens_type type, size_t msg_length);
+double GetDiff(const UValue& v1, const UValue& v2, e_sens_type type, size_t msg_length);
+
 UValue GetSum(const UValue& v1, const UValue& v2, e_sens_type type, size_t msg_length);
 UValue MultValue(const UValue& value, e_sens_type type, size_t msg_length, double mult);
 
@@ -90,9 +92,10 @@ struct SPacketExt
 	SSensorMetainf info; // TODO const ref
 
 private:
-	void WriteValueToPacket();
 
 public:
+	void WriteValueToPacket();
+
 	SPacketExt()
 	{}
 
@@ -107,17 +110,13 @@ public:
 	{
 		value = ParseSensValue(raw_buffer, info.msg_length);
 		value = MultValue(value, info.type, info.msg_length, info.scale);
-
-		WriteValueToPacket();
 	}
 
 	SPacketExt(SPacket packet, UValue value):
 	packet(packet),
 	value(value),
 	info(sensor_metainf[packet.sensor_id])
-	{
-		WriteValueToPacket();
-	}
+	{}
 };
 
 #endif

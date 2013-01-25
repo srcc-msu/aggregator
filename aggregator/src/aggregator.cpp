@@ -13,8 +13,8 @@
 
 #include <iostream>
 
-using std :: cerr;
-using std :: endl;
+using std::cerr;
+using std::endl;
 
 const size_t MAX_MESSAGE_SIZE = 4096; // TODO check
 
@@ -135,9 +135,17 @@ void CAggregator :: Process()
 				SPacketExt ext_packet(packet, sens_data + cnt + 4 + val_size * part);
 
 				int res = queue_aggregator.Check(ext_packet);
-				DMSG2("res" << res);
+				DMSG2("res for " << packet.sensor_id << "." << int(packet.sensor_num) << " is: " << res);
+
+				DBLOCK1(
+				{
+					if(res > 0)
+						DMSG1("res for allowing " << packet.sensor_id << "." << int(packet.sensor_num) << " is: " << res);
+				})
+
 				if(res > 0)
 				{
+					ext_packet.WriteValueToPacket();
 					packets_buffer[packets_count] = ext_packet.packet;
 					stat_added ++;
 					any_changed = packets_count;
@@ -149,7 +157,9 @@ void CAggregator :: Process()
 				else if(res == 1)
 					stat_allow_time ++;
 				else if(res == 2)
-					stat_allow_val ++;
+					stat_allow_delta ++;
+				else if(res == 3)
+					stat_allow_abs_delta ++;
 				else if(res == -1)
 				{
 					stat_filtered_blacklist += size/val_size;
@@ -174,6 +184,49 @@ void CAggregator :: Process()
 	}
 
 	queue_aggregator.UncheckedAdd(packets_buffer, packets_count);
+}
+
+void CAggregator :: Stat()
+{
+	cout << endl << " ---- Aggregator stat ---- " << endl;
+
+	cout << "blacklisted  : " << stat_filtered_blacklist << endl;
+	cout << "filtered out : " << stat_filtered_out << endl;
+	cout << "added        : " << stat_added	<< endl <<
+		"\ttime      : " << stat_allow_time << endl <<
+		"\tdelta     : " << stat_allow_delta << endl <<
+		"\tabs delta : " << stat_allow_abs_delta << endl;
+
+	cout << " ------------------------- " << endl << endl;
+
+	stat_filtered_blacklist = 0;
+	stat_filtered_out = 0;
+	stat_allow_time = 0;
+	stat_allow_delta = 0;
+	stat_allow_abs_delta = 0;
+	stat_added = 0;
+}
+
+void CAggregator :: AgentsStat()
+{
+	cout << endl << " ---- Agents stat ---- " << endl;
+
+	connection.AgentStats();
+	connection.PokeAgents();
+
+	cout << " --------------------- " << endl << endl;
+}
+
+void CAggregator :: BackgroundAgentsStat(int sleep_time)
+{
+    std::thread t(BackgroundAgentHelper, this, sleep_time);
+    t.detach();
+}
+
+void CAggregator :: BackgroundStat(int sleep_time)
+{
+    std::thread t(BackgroundStatHelper, this, sleep_time);
+    t.detach();
 }
 
 void BackgroundStatHelper(CAggregator* agg, int sleep_time)

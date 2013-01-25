@@ -8,7 +8,7 @@
 #include "packet.h"
 #include "sensor_metainf.h"
 
-std :: unordered_map<int, SSensorMetainf> sensor_metainf;
+std::unordered_map<int, SSensorMetainf> sensor_metainf;
 
 void InitMetainf()
 {

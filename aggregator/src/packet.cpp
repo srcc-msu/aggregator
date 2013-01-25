@@ -2,7 +2,7 @@
 
 #include <cstdio>
 
-using std :: sprintf;
+using std::sprintf;
 
 static const double INF = 1024; // sensor value was zero, and now - not
 static const int EPS = 1e-5;
@@ -52,16 +52,41 @@ double GetDiv(const UValue& v1, const UValue& v2, e_sens_type type, size_t msg_l
 		if(msg_length == 8) res = (v2.b8[0] != 0) ? double(v1.b8[0]) / v2.b8[0] : INF;
 	}
 
-	else if(type == BINARY)
+	else if(type == WIREFLOAT)
 	{
+		if(msg_length == 4) res = (fabs(v2.f4[0]) > EPS) ? v1.f4[0] / v2.f4[0] : INF;
+		if(msg_length == 8) res = (fabs(v2.f8[0]) > EPS) ? v1.f8[0] / v2.f8[0] : INF;
+	}
+
+	else if(type == BINARY)
 		assert(false); // ??
+
+	return res;
+}
+
+double GetDiff(const UValue& v1, const UValue& v2, e_sens_type type, size_t msg_length)
+{
+	if(v1.b8[0] == v2.b8[0])
+		return 1.0;
+
+	double res = 1.0;
+
+	if(type == INTEGER || type == WIRECOUNTER || type == WIRESMART)
+	{
+		if(msg_length == 1) res = double(v1.b1[0]) - v2.b1[0];
+		if(msg_length == 2) res = double(v1.b2[0]) - v2.b2[0];
+		if(msg_length == 4) res = double(v1.b4[0]) - v2.b4[0];
+		if(msg_length == 8) res = double(v1.b8[0]) - v2.b8[0];
 	}
 
 	else if(type == WIREFLOAT)
 	{
-		if(msg_length == 4) res = (fabs(v2.f4[0]) > EPS) ? v1.f4[0] / v2.f4[0] : INF; 
-		if(msg_length == 8) res = (fabs(v2.f8[0]) > EPS) ? v1.f8[0] / v2.f8[0] : INF;
+		if(msg_length == 4) res = v1.f4[0] - v2.f4[0]; 
+		if(msg_length == 8) res = v1.f8[0] - v2.f8[0];
 	}
+
+	else if(type == BINARY)
+		assert(false); // ??
 
 	return res;
 }
@@ -78,15 +103,15 @@ UValue GetSum(const UValue& v1, const UValue& v2, e_sens_type type, size_t msg_l
 		if(msg_length == 8) res.b8[0] = v1.b8[0] + v2.b8[0];
 	}
 
-	else if(type == BINARY)
-	{
-		assert(false); // ??
-	}
-
 	else if(type == WIREFLOAT)
 	{
 		if(msg_length == 4) res.f4[0] = v2.f4[0] + v2.f4[0]; 
 		if(msg_length == 8) res.f8[0] = v2.f8[0] + v2.f8[0];
+	}
+
+	else if(type == BINARY)
+	{
+		assert(false); // ??
 	}
 
 	return res;

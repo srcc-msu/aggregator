@@ -1,4 +1,4 @@
-CXX_CFLAGS := -Werror -Wall -std=c++0x -O2 -lpthread
+CXX_CFLAGS := -Werror -Wall -std=c++0x -O2 -pthread
 
 SRC_DIR = src
 INC_DIR = inc

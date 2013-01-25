@@ -17,7 +17,7 @@ template <class T>
 class AccessList
 {
 private:
-	std :: unordered_set<T> access_list;
+	std::unordered_set<T> access_list;
 
 public:
 	void Add(T value)

@@ -27,7 +27,7 @@ private:
 	int control_port;
 
 // Stores inited agents addresses
-	std :: unordered_map<uint32_t, long> agents_activity;
+	std::unordered_map<uint32_t, long> agents_activity;
 	
 	AccessList<uint32_t> address_blacklist;
 

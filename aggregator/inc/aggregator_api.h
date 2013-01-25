@@ -74,6 +74,15 @@ void SetDeltaA(int agg_id, const char* address, double delta);
 void SetDelta(int agg_id, double delta);
 
 /**
+	Set the absolute threshold \abs_delta, when new sensor value will be added to the queue.
+	Proirity of filters comes as follow:
+*/
+void SetAbsDeltaAS(int agg_id, const char* address, uint16_t sensor_id, double delta);
+void SetAbsDeltaS(int agg_id, uint16_t sensor_id, double delta);
+void SetAbsDeltaA(int agg_id, const char* address, double delta);
+void SetAbsDelta(int agg_id, double delta);
+
+/**
 	Set the time threshold \max_interval, when new sensor value will be added to the queue.
 	Proirity of filters comes as follow:
 */

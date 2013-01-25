@@ -10,26 +10,40 @@
 #include "filter.h"
 #include "packet.h"
 
-const double DEFAULT_DELTA = 0.01;
-const double DEFAULT_MAX_INTERVAL = 30;
+static const double DEFAULT_DELTA = 0.01;
+static const double DEFAULT_ABS_DELTA = 100000.0;
+static const int DEFAULT_MAX_INTERVAL = 30;
 
 /**
 	stores metainformation about each sensor on each address
 */
 struct SensorFilterMetainf
 {
+/**	
+	max relative value change, bypassing that new packet will be sent
+	if less than 0 - not used
+*/
 	double delta;
 
-/*NIY*/
-	//int abs_delta; // should be used if \delta == 0
+/**	
+	max absolute value change, bypassing that new packet will be sent
+	if less than 0 - not used
+*/
+	double abs_delta;
 
-	uint32_t max_interval; // interval in seconds, when new packet will be sent regardless anyting
+/**	
+	interval in seconds, when new packet will be sent regardless of anyting
+	if less than 0 - not used
+*/
+	int max_interval; 
 
-	SPacketExt last;
+	SPacketExt last; // last packet, stored to compare
 
-	SensorFilterMetainf(double delta = DEFAULT_DELTA, int max_interval = DEFAULT_MAX_INTERVAL):
-	delta(delta),
-	max_interval(max_interval)
+	SensorFilterMetainf(double _delta = DEFAULT_DELTA, double _abs_delta = DEFAULT_ABS_DELTA,
+		int _max_interval = DEFAULT_MAX_INTERVAL):
+	delta(_delta),
+	abs_delta(_abs_delta),
+	max_interval(_max_interval)
 	{}
 };
 
@@ -78,6 +92,11 @@ public:
 	void SetDelta(uint32_t address, double delta);
 	void SetDelta(uint16_t sensor_id, double delta);
 	void SetDelta(double delta);
+
+	void SetAbsDelta(uint32_t address, uint16_t sensor_id, double delta);
+	void SetAbsDelta(uint32_t address, double delta);
+	void SetAbsDelta(uint16_t sensor_id, double delta);
+	void SetAbsDelta(double delta);
 
 	void SetInterval(uint32_t address, uint16_t sensor_id, int max_interval);
 	void SetInterval(uint32_t address, int max_interval);

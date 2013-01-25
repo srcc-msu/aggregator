@@ -77,20 +77,28 @@ int CQueueAggregator :: Filter(const SPacketExt& ext_packet)
 	}
 
 //	time diff
-	uint32_t diff = packet.agent_timestamp - last_filter.last.packet.agent_timestamp;
+	int interval = packet.agent_timestamp - last_filter.last.packet.agent_timestamp;
 
-//	change diff
-	double delta = fabs(GetDiv(ext_packet.value, last_filter.last.value, 
+//	rel delta
+	double delta = fabs(GetDiv(ext_packet.value, last_filter.last.value,
+		ext_packet.info.type, last_filter.last.info.msg_length) - 1.0);
+
+//	abs delta
+	double abs_delta = fabs(GetDiff(ext_packet.value, last_filter.last.value, 
 		ext_packet.info.type, last_filter.last.info.msg_length) - 1.0);
 	
-	if(diff > filter.max_interval || last_filter.last.packet.agent_timestamp == 0)
+	if(filter.max_interval > 0 && (interval > filter.max_interval || last_filter.last.packet.agent_timestamp == 0))
 		allow_res = 1;
 
-	else if(delta > filter.delta)
+	else if(filter.delta > 0 && delta > filter.delta)
 		allow_res = 2;
 
-	DMSG2("time diff " << diff << " \t max_int " << filter.max_interval <<
+	else if(filter.abs_delta > 0 && abs_delta > filter.abs_delta)
+		allow_res = 3;
+
+	DMSG2("time diff " << interval << " \t max_int " << filter.max_interval <<
 		" \t delta " << delta << " \t filter.delta " << filter.delta << 
+		" \t abs_delta " << abs_delta << " \t filter.abs_delta " << filter.abs_delta <<
 		(allow_res ? " \t let it pass!" : " \t\tdrop it!") <<
 		packet.data_string << " " << last_filter.last.packet.data_string << 
 		" " << (unsigned long long)ext_packet.value.b8[0] << 
@@ -144,6 +152,28 @@ void CQueueAggregator :: SetDelta(uint32_t address, double delta)
 void CQueueAggregator :: SetDelta(double delta)
 { 
 	default_filter.delta = delta;
+}
+
+//---------
+
+void CQueueAggregator :: SetAbsDelta(uint32_t address, uint16_t sensor_id, double abs_delta)
+{
+	filters[address][sensor_id].abs_delta = abs_delta;
+}
+
+void CQueueAggregator :: SetAbsDelta(uint16_t sensor_id, double abs_delta)
+{
+	sensor_id_filters[sensor_id].abs_delta = abs_delta;
+}
+
+void CQueueAggregator :: SetAbsDelta(uint32_t address, double abs_delta)
+{
+	address_filters[address].abs_delta = abs_delta;
+}
+
+void CQueueAggregator :: SetAbsDelta(double abs_delta)
+{
+	default_filter.abs_delta = abs_delta;
 }
 
 //---------
