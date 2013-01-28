@@ -17,7 +17,7 @@ all : $(TGT)
 $(TGT) : $(SRC) $(INC)
 	cp ../aggregator/bin/libaggregator.so bin/
 
-	$(CXX) $(SRC) $(CXX_CFLAGS) $(INC_FLAGS) -Lbin/ -lmongoose -laggregator -ljson_linux-gcc-4.6.3_libmt -L./  -o $(TGT) 
+	$(CXX) $(SRC) $(CXX_CFLAGS) $(INC_FLAGS) -Lbin/ -lmongoose -laggregator -ljson_linux-gcc-4.6.3_libmt -o $(TGT)
 
 .PHONY: clean
 

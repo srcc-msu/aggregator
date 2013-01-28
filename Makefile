@@ -1,9 +1,9 @@
-all : aggregator proxy
+all : aggregator proxy csv_writer
 
 aggregator : 
 	$(MAKE) -C aggregator
 
-proxy : aggregator
+proxy :
 	$(MAKE) -C proxy
 
 csv_writer : 
