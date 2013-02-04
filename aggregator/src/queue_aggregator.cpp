@@ -2,7 +2,7 @@
 
 #include "debug.h"
 
-#include <iostream>
+// ------------------- 
 
 void CQueueAggregator :: RegisterAverageId(uint16_t sensor_id)
 {
@@ -15,6 +15,22 @@ bool CQueueAggregator :: IsAverageId(uint16_t sensor_id)
 {
 	return id_average.IsIn(sensor_id);
 }
+
+// ------------------- 
+
+void CQueueAggregator :: RegisterSpeedId(uint16_t sensor_id)
+{
+	DMSG1("added to the queue speed list: " << sensor_id);
+
+	id_speed.Add(sensor_id);
+}
+
+bool CQueueAggregator :: IsSpeedId(uint16_t sensor_id)
+{
+	return id_speed.IsIn(sensor_id);
+}
+
+// ------------------- 
 
 UValue CQueueAggregator :: CalcAverage(uint32_t address, uint16_t sensor_id, int count)
 {
@@ -32,6 +48,8 @@ UValue CQueueAggregator :: CalcAverage(uint32_t address, uint16_t sensor_id, int
 	return MultValue(sum, packet.info.type, packet.info.msg_length, double(1) / count);
 }
 
+// ------------------- 
+
 void CQueueAggregator :: BlacklistId(uint16_t sensor_id)
 {
 	DMSG1("added to the queue blacklist: " << sensor_id);
@@ -45,6 +63,8 @@ void CQueueAggregator :: UnblacklistId(uint16_t sensor_id)
 
 	id_blacklist.Remove(sensor_id); 
 }
+
+// ------------------- 
 
 int CQueueAggregator :: Filter(const SPacketExt& ext_packet)
 {
@@ -97,11 +117,11 @@ int CQueueAggregator :: Filter(const SPacketExt& ext_packet)
 		allow_res = 3;
 
 	DMSG2("time diff " << interval << " \t max_int " << filter.max_interval <<
-		" \t delta " << delta << " \t filter.delta " << filter.delta << 
+		" \t delta " << delta << " \t filter.delta " << filter.delta <<
 		" \t abs_delta " << abs_delta << " \t filter.abs_delta " << filter.abs_delta <<
 		(allow_res ? " \t let it pass!" : " \t\tdrop it!") <<
-		packet.data_string << " " << last_filter.last.packet.data_string << 
-		" " << (unsigned long long)ext_packet.value.b8[0] << 
+		packet.data_string << " " << last_filter.last.packet.data_string <<
+		" " << (unsigned long long)ext_packet.value.b8[0] <<
 		" " << (unsigned long long)last_filter.last.value.b8[0])
 
 	if(allow_res)

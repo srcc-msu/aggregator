@@ -79,7 +79,7 @@ std::string outputConfig = writer.write( root );
 std::cin >> root["subtree"];
 
 // And you can write to a stream, using the StyledWriter automatically.
-std::cout << root;
+std::printf(root;
 \endcode
 
 \section _plinks Build instructions

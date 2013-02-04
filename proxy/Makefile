@@ -4,7 +4,7 @@ SRC_DIR = src
 INC_DIR = inc
 BIN_DIR = bin
 
-INC_FLAGS = -I$(INC_DIR) -I ../side_libs/mongoose -I ../aggregator/inc -I ../side_libs/jsoncpp/include
+INC_FLAGS = -I$(INC_DIR) -I ../aggregator/inc -I ../utils/inc -I ../side_libs/jsoncpp/include
 
 SRC = $(wildcard $(SRC_DIR)/*.cpp)
 INC = $(wildcard $(INC_DIR)/*.h)
@@ -17,7 +17,7 @@ all : $(TGT)
 $(TGT) : $(SRC) $(INC)
 	cp ../aggregator/bin/libaggregator.so bin/
 
-	$(CXX) $(SRC) $(CXX_CFLAGS) $(INC_FLAGS) -Lbin/ -lmongoose -laggregator -ljson_linux-gcc-4.6.3_libmt -o $(TGT)
+	$(CXX) $(SRC) $(CXX_CFLAGS) $(INC_FLAGS) -Lbin/ -lmongoose -laggregator -ljson_linux-gcc-4.6.3_libmt -o $(TGT) 
 
 .PHONY: clean
 

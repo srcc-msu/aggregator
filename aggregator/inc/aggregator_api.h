@@ -53,9 +53,14 @@ void QueueUnblacklistId(int agg_id, uint16_t id);
 /**
 	average values will be recalculated for \sensor_id
 	when any of single values change
-	TODO chekc, may be very time consuming
+	TODO check, may be very time consuming
 */
 void QueueRegisterAverageId(int agg_id, uint16_t sensor_id);
+
+/**
+	speed values will be calculated for \sensor_id
+*/
+void QueueRegisterSpeedId(int agg_id, uint16_t sensor_id);
 
 /**
 	Allos/disallow the sensor \id to be collected in 300s buffer.

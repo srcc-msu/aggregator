@@ -21,6 +21,6 @@ void BackgroundInitHelper(int agg_id, Json::Value agents);
 	to prevent flooding network and synchronous mesыage sending
 */
 void BackgroundInit(int agg_id, Json::Value agents);
-int ConfigAggregator(const string config_file, std::unordered_map<uint16_t, string>& id_to_name);
+int ConfigAggregator(const string& config_file, std::unordered_map<uint16_t, string>& id_to_name);
 
 #endif

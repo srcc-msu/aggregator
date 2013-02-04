@@ -10,7 +10,6 @@ using std::fabs;
 
 #define MAX_LEN 40 // TODO check or change it
 
-
 /**
 	union for ipv4 addresses
 */
@@ -51,7 +50,9 @@ struct SPacket
 	}
 };
 
-
+/**
+	union for easier parsing different types
+*/
 union UValue
 {
 	uint64_t b8[1];
@@ -68,20 +69,37 @@ union UValue
 	}
 };
 
+/**
+	parse UValue from \buffer according to msg_length 
+	converts network byte order to normal
+*/
+
 UValue ParseSensValue(unsigned char* buffer, size_t msg_length);
 
+
 /**
-	TODO check div zero
+	self explaining
 */
 double GetDiv(const UValue& v1, const UValue& v2, e_sens_type type, size_t msg_length);
+
+/**
+	self explaining
+*/
 double GetDiff(const UValue& v1, const UValue& v2, e_sens_type type, size_t msg_length);
 
+/**
+	self explaining
+*/
 UValue GetSum(const UValue& v1, const UValue& v2, e_sens_type type, size_t msg_length);
+
+/**
+	self explaining
+*/
 UValue MultValue(const UValue& value, e_sens_type type, size_t msg_length, double mult);
 
 /**
 	Packet structure with extended info that will be used for filtering.
-	Currently copies and modifies the packet
+	Currently copies and modifies the packet  int internal \packet
 */
 struct SPacketExt
 {
@@ -100,9 +118,8 @@ public:
 	{}
 
 /**
-	wheh this class is constucted - it fills data_string field of packet
-	and stores modified copy inside himself. Old packet should not be used.
-	TODO: make it more clear
+	parses UValue to \value
+	and provide scaling, basing on \sensor_metainf
 */
 	SPacketExt(SPacket packet, unsigned char* raw_buffer):
 	packet(packet),

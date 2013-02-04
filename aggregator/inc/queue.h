@@ -3,13 +3,12 @@
 
 #include <mutex>
 #include <assert.h>
-#include <iostream>
 
 #include <cstring>
 
 #include "debug.h"
 
-const size_t MAX_QUEUE_SIZE = 1024 * 1024;
+const size_t MAX_QUEUE_SIZE = 16 * 1024;
 
 /**
 	Thread safe sensor queue. (ORLY?)
@@ -23,23 +22,25 @@ private:
 
 	T* queue;
 	size_t pointer;
-	T* old;
 
-	void Reinit() // TODO renaem something
+/**
+	creates new queuq, return old
+*/
+	T* Reinit() // TODO renaem something
 	{
-		if(old == nullptr)
-			old = new T[MAX_QUEUE_SIZE];
-
-		T* tmp = queue;
-		queue = old;
-		old = tmp;
+		T* old = queue;
+		queue = new T[MAX_QUEUE_SIZE];
 
 		pointer = 0;
+
+		return old;
 	}
 
 public:
-/// Add single value to the queue.
-/// bad function, using mutex on every addition is not efficient in this case 
+/** 
+	Add single value to the queue.
+	bad function, using mutex on every addition is not efficient
+*/
 	void Add(T value)
 	{
 		std::lock_guard<std::mutex> lock(mutex);
@@ -51,7 +52,9 @@ public:
 		pointer++;
 	}
 
-/// Add few values to the queue.
+/** 
+	Add few values to the queue.
+*/
 	void Add(T* values, size_t count)
 	{
 		std::lock_guard<std::mutex> lock(mutex);
@@ -79,42 +82,18 @@ public:
 		if(count)
 			*count = pointer;
 
-		Reinit();
-		return old;
-	}
-
-/** 
-	Purge old pointer, if needed. 
-	This function is called automatically on each new data request.
-*/
-	void RemoveOld()
-	{
-		std::lock_guard<std::mutex> lock(mutex);
-
-		if(old != nullptr)
-			delete[] old;
-
-		old = nullptr;
+		return Reinit();
 	}
 
 	CSensorQueue():
 	queue(nullptr),
-	pointer(0),
-	old(nullptr)
+	pointer(0)
 	{
 		Reinit();
 	}
 
 	~CSensorQueue()
-	{
-		if(old != nullptr)
-			delete[] old;
-
-		old = nullptr;
-
-		delete[] queue;
-		queue = nullptr;
-	}
+	{}
 };
 
 
@@ -131,7 +110,6 @@ class CCircularBuffer
 private:
 	mutable std::mutex mutex;
 	T* buffer;
-	T* old;
 	
 	size_t size;
 	size_t pointer;
@@ -196,10 +174,6 @@ public:
 			std::memcpy(res, buffer + size + start, (end-start) * sizeof(T));
 		}
 
-		if(old != nullptr)
-			delete[] old;
-		old = res;
-
 		return res;
 	}
 
@@ -222,7 +196,6 @@ public:
 
 	CCircularBuffer(size_t size = DEFAULT_BUFF_SIZE):
 	buffer(nullptr),
-	old(nullptr),
 	size(0),
 	pointer(0)
 	{
@@ -233,11 +206,6 @@ public:
 	{
 		delete[] buffer;
 		buffer = nullptr;
-
-		if(old != nullptr)
-			delete[] old;
-		old = nullptr;
-
 	}
 };
 

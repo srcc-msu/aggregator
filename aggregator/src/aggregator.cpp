@@ -3,7 +3,7 @@
 #include <sys/time.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <stdio.h>
+#include <cstdio>
 #include <assert.h>
 
 #include "nm_control.h"
@@ -53,7 +53,7 @@ void CAggregator :: Process()
 	
 	DBLOCK2(
 	{
-		cerr << "off1 " << sizeof(nm_data_hdr_t) << endl;
+		fprintf(stderr,  "off1 " << sizeof(nm_data_hdr_t) );
 
 	    for(size_t i = 0; i < bytes_read; i++)
 		{	
@@ -65,23 +65,23 @@ void CAggregator :: Process()
 
 	    printf("\n");
 
-   		cerr << "header   : " << reinterpret_cast<char*> (header->signature) << endl;
+   		fprintf(stderr,  "header   : " << reinterpret_cast<char*> (header->signature) );
 
-		cerr << "version  : " <<  header->version << endl;
-		cerr << "msg_type : " <<  int(header->msg_type) << endl;
-		cerr << "str_num  : " <<  int(header->strm_num) << endl;
-		cerr << "flags    : " <<  header->flags << endl;
+		fprintf(stderr,  "version  : " <<  header->version );
+		fprintf(stderr,  "msg_type : " <<  int(header->msg_type) );
+		fprintf(stderr,  "str_num  : " <<  int(header->strm_num) );
+		fprintf(stderr,  "flags    : " <<  header->flags );
 
-		cerr << "min  : " <<  header->ts_m << endl;
-		cerr << "sec  : " <<  header->ts_sec << endl;
-		cerr << "usec : " <<  header->ts_usec << endl;
+		fprintf(stderr,  "min  : " <<  header->ts_m );
+		fprintf(stderr,  "sec  : " <<  header->ts_sec );
+		fprintf(stderr,  "usec : " <<  header->ts_usec );
 
 		for(int i = 0; i < 4; i++)
 		{
-			cerr << int(header->client_host.b1[i]) << " ";
+			fprintf(stderr,  int(header->client_host.b1[i]) << " ";
 		}
 
-		cerr << endl;
+		cerr );
 	})
 
 
@@ -188,16 +188,16 @@ void CAggregator :: Process()
 
 void CAggregator :: Stat()
 {
-	cout << endl << " ---- Aggregator stat ---- " << endl;
+	printf("\n --- aggregator stat ---\n");
 
-	cout << "blacklisted  : " << stat_filtered_blacklist << endl;
-	cout << "filtered out : " << stat_filtered_out << endl;
-	cout << "added        : " << stat_added	<< endl <<
-		"\ttime      : " << stat_allow_time << endl <<
-		"\tdelta     : " << stat_allow_delta << endl <<
-		"\tabs delta : " << stat_allow_abs_delta << endl;
+	printf("blacklisted  : %ld\n", stat_filtered_blacklist);
+	printf("filtered out : %ld\n", stat_filtered_out);
+	printf("added        : %ld\n", stat_added);
+	printf("\ttime      : %ld\n", stat_allow_time);
+	printf("\tdelta     : %ld\n", stat_allow_delta);
+	printf("\tabs delta : %ld\n", stat_allow_abs_delta);
 
-	cout << " ------------------------- " << endl << endl;
+	printf(" ---------------------\n\n");
 
 	stat_filtered_blacklist = 0;
 	stat_filtered_out = 0;
@@ -209,12 +209,12 @@ void CAggregator :: Stat()
 
 void CAggregator :: AgentsStat()
 {
-	cout << endl << " ---- Agents stat ---- " << endl;
+	printf("\n --- agents stat --- \n");
 
 	connection.AgentStats();
 	connection.PokeAgents();
 
-	cout << " --------------------- " << endl << endl;
+	printf(" ------------------- \n\n");
 }
 
 void CAggregator :: BackgroundAgentsStat(int sleep_time)

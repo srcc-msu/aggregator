@@ -8,7 +8,7 @@ SRC_DIR=src
 INC_DIR=inc
 BIN_DIR=bin
 
-INC_FLAGS = -I$(INC_DIR)
+INC_FLAGS = -I$(INC_DIR) -I ../utils/inc
 
 SRC = $(wildcard $(SRC_DIR)/*.cpp)
 INC = $(wildcard $(INC_DIR)/*.h)

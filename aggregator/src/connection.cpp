@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 
 #include "debug.h"

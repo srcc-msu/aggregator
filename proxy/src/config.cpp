@@ -5,8 +5,9 @@
 #include <fstream>
 #include <sstream>
 
-using std::cout;
-using std::endl;
+using namespace std;
+
+#include "error.h"
 
 void BackgroundInitHelper(int agg_id, Json::Value agents)
 {
@@ -15,8 +16,8 @@ void BackgroundInitHelper(int agg_id, Json::Value agents)
         const char* agent = agents[i][1].asCString();
 
         InitAgent(agg_id, agent);
-        cout << "agent " << agent << " added" << endl;
-        usleep(10000);
+        printf("agent %s added\n", agent);
+        usleep(1000);
     }
 }
 
@@ -34,9 +35,9 @@ void BackgroundInit(int agg_id, Json::Value agents)
     t1.detach();
 }
 
-int ConfigAggregator(const string config_file, std::unordered_map<uint16_t, string>& id_to_name)
+int ConfigAggregator(const string& config_fname, std::unordered_map<uint16_t, string>& id_to_name)
 {
-    std::ifstream tmp(config_file);
+    std::ifstream tmp(config_fname);
     std::stringstream buffer;
     buffer << tmp.rdbuf();
 
@@ -45,31 +46,30 @@ int ConfigAggregator(const string config_file, std::unordered_map<uint16_t, stri
 
     if(!reader.parse(buffer.str(), root))
     {
-        std::cout  << "failed to parse configuration" << endl 
-            << reader.getFormatedErrorMessages () << endl;
-
-        return -1;
+        fprintf(stderr, "failed to parse configuration: %s\n", reader.getFormatedErrorMessages ().c_str());
+            
+        throw CException("json parser failed");
     }
 
 //  aggregator addres
     const char* address = root["server"]["address"].asCString();
     int agg_id = InitAggregator(address);
-    cout << "Aggregator on " << address << " started" << endl;
+    printf("Aggregator on %s\n", address);
 
 //  default delta
     double delta = root["server"]["queue"]["delta"].asDouble();
     SetDelta(agg_id, delta);
-    cout << "delta set to " << delta << endl;
+    printf("delta set to %lg\n", delta);
 
 //  default abs_delta
     double abs_delta = root["server"]["queue"]["abs_delta"].asDouble();
     SetAbsDelta(agg_id, abs_delta);
-    cout << "abs_delta set to " << abs_delta << endl;
+    printf("abs_delta set to %lg\n", abs_delta);
 
 //  default interval
     int interval = root["server"]["queue"]["interval"].asInt();
     SetInterval(agg_id, interval);
-    cout << "time interval set to " << interval << endl;
+    printf("time interval set to %d\n", interval);
 
 //  person interval filters for sensos
     const Json::Value sensors_interval = root["server"]["queue"]["sensors_interval"];
@@ -77,7 +77,7 @@ int ConfigAggregator(const string config_file, std::unordered_map<uint16_t, stri
     for(size_t i = 0; i < sensors_interval.size(); i++)
     {
         SetIntervalS(agg_id, sensors_interval[i][0u].asInt(), sensors_interval[i][1u].asInt());
-        cout << "sensor " << sensors_interval[i][0u].asInt() << " has personal interval " << sensors_interval[i][1u].asInt() << endl;
+        printf("sensor %d has personal interval %d\n", sensors_interval[i][0u].asInt(), sensors_interval[i][1u].asInt());
     }
 
 //  person delta filters for sensos
@@ -86,7 +86,7 @@ int ConfigAggregator(const string config_file, std::unordered_map<uint16_t, stri
     for(size_t i = 0; i < sensors_delta.size(); i++)
     {
         SetDeltaS(agg_id, sensors_delta[i][0u].asInt(), sensors_delta[i][1u].asDouble());
-        cout << "sensor " << sensors_delta[i][0u].asInt() << " has personal delta " << sensors_delta[i][1u].asDouble() << endl;
+        printf("sensor %d has personal delta %lg\n", sensors_delta[i][0u].asInt(), sensors_delta[i][1u].asDouble());
     }
 
 //  person abs_delta filters for sensos
@@ -95,7 +95,7 @@ int ConfigAggregator(const string config_file, std::unordered_map<uint16_t, stri
     for(size_t i = 0; i < sensors_abs_delta.size(); i++)
     {
         SetAbsDeltaS(agg_id, sensors_abs_delta[i][0u].asInt(), sensors_abs_delta[i][1u].asDouble());
-        cout << "sensor " << sensors_abs_delta[i][0u].asInt() << " has personal abs_delta " << sensors_abs_delta[i][1u].asDouble() << endl;
+        printf("sensor %d has personal abs_delta %lg\n", sensors_abs_delta[i][0u].asInt(), sensors_abs_delta[i][1u].asDouble());
     }
 
 //  sensors to be collected in the buffer
@@ -106,7 +106,7 @@ int ConfigAggregator(const string config_file, std::unordered_map<uint16_t, stri
         int sensor = sensors[i].asInt();
 
         BufferAllowId(agg_id, sensor);
-        cout << "sensor " << sensor << " will be collected in buffer" << endl;
+        printf("sensor %d will be collected in buffer\n", sensor);
     }
 
 // names
@@ -118,7 +118,7 @@ int ConfigAggregator(const string config_file, std::unordered_map<uint16_t, stri
 
         id_to_name[sensor[0u].asInt()] = sensor[1u].asString();
 
-        cout << "name for " << sensor[0u].asInt() << " is " << sensor[1u].asString() << endl;
+        printf("name for %d is %s\n", sensor[0u].asInt(), sensor[1u].asCString());
     }
 
 // average
@@ -129,7 +129,18 @@ int ConfigAggregator(const string config_file, std::unordered_map<uint16_t, stri
         int sensor = average[i].asInt();
         QueueRegisterAverageId(agg_id, sensor);
 
-        cout << "average will be calculated for " << sensor << endl;
+        printf("average will be calculated for %d\n", sensor);
+    }
+
+// speed
+    const Json::Value speed = root["server"]["queue"]["speed"];
+
+    for(size_t i = 0; i < speed.size(); i++)
+    {
+        int sensor = speed[i].asInt();
+        QueueRegisterSpeedId(agg_id, sensor);
+
+        printf("speed will be calculated for %d\n", sensor);
     }
 
 // blacklist
@@ -140,7 +151,7 @@ int ConfigAggregator(const string config_file, std::unordered_map<uint16_t, stri
         int sensor = blacklist[i].asInt();
         QueueBlacklistId(agg_id, sensor);
 
-        cout << "sensor " << sensor << " will be ignored" << endl;
+        printf("sensor %d will be ignored\n", sensor);
     }
 
 // agents

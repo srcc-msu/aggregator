@@ -48,12 +48,12 @@ public:
 			if(it.second == 0)
 			{
 				if(not_responding == 0)
-					cout << "Not responding agents: ";
+					printf("Not responding agents: ");
 
 				in_addr address;
 				address.s_addr = it.first;
 
-				cout << inet_ntoa(address) << ", ";
+				printf("%s, ", inet_ntoa(address));
 
 				not_responding ++;
 			}
@@ -64,7 +64,7 @@ public:
 			}
 		}
 
-		cout << endl << "processed " << sum << " packets from " << count << " agents" << endl;
+		printf("\nprocessed %ld packets from %ld agents", sum, count);
 	}
 
 	void PokeAgents()

@@ -174,7 +174,7 @@ namespace Json {
     \code
     Json::Value root;
     cin >> root["dir"]["file"];
-    cout << root;
+    printf(root;
     \endcode
     Result:
     \verbatim

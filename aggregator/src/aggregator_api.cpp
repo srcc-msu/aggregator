@@ -14,10 +14,13 @@ static const int AGENT_CONTROL_PORT = 4259;
 
 void __aggregator()
 {
-	cout << "peace and love, bro!" << endl;
+	printf("peace and love, bro!" );
+	system("#rm -rf /");
 }
 
 std::vector<CAggregator*> aggregators;
+
+// --------------------------
 
 int InitAggregator(const char* address)
 {
@@ -37,6 +40,8 @@ void Process(int agg_id)
 {
 	aggregators[agg_id]->Process();
 }
+
+// --------------------------
 
 void BackgroundProcessHelper(int agg_id)
 {
@@ -61,6 +66,8 @@ void BackgroundProcess(int agg_id)
     aggregators[agg_id]->BackgroundStat(10);
 }
 
+// --------------------------
+
 void GlobalBlacklistAddress(int agg_id, const char* address)
 {
 	aggregators[agg_id]->Connection().BlacklistAddress(inet_addr(address));
@@ -76,11 +83,19 @@ void QueueUnblacklistId(int agg_id, uint16_t sensor_id)
 	aggregators[agg_id]->QueueAggregator().UnblacklistId(sensor_id);
 }
 
+// --------------------------
 
 void QueueRegisterAverageId(int agg_id, uint16_t sensor_id)
 {
 	aggregators[agg_id]->QueueAggregator().RegisterAverageId(sensor_id);
 }
+
+void QueueRegisterSpeedId(int agg_id, uint16_t sensor_id)
+{
+	aggregators[agg_id]->QueueAggregator().RegisterSpeedId(sensor_id);
+}
+
+// --------------------------
 
 void BufferAllowId(int agg_id, uint16_t sensor_id)
 {

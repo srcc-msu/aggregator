@@ -76,6 +76,7 @@ private:
 
 	AccessList<uint16_t> id_blacklist;
 	AccessList<uint16_t> id_average;
+	AccessList<uint16_t> id_speed;
 
 	int Filter(const SPacketExt& ext_packet);
 
@@ -84,6 +85,9 @@ private:
 public:
 	void RegisterAverageId(uint16_t sensor_id);
 	bool IsAverageId(uint16_t sensor_id);
+
+	void RegisterSpeedId(uint16_t sensor_id);
+	bool IsSpeedId(uint16_t sensor_id);
 
 	void BlacklistId(uint16_t sensor_id);
 	void UnblacklistId(uint16_t sensor_id);

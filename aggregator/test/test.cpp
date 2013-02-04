@@ -3,14 +3,13 @@
 
 using std :: cout;
 using std :: endl;
-using std :: stringstream;
 
 #include "aggregator_api.h"
 #include "connection.h"
 
 int main(int argc, char** argv)
 {
-	int agg_id = InitAggregator("127.0.0.1");
+	int agg_id = InitAggregator("10.0.248.2");
 
 	BufferAllowId(agg_id, 2160);
 	BufferAllowId(agg_id, 1051);
@@ -19,31 +18,31 @@ int main(int argc, char** argv)
 	SetDeltaS(agg_id, 1053, 0.02);
 	SetIntervalS(agg_id, 1053, 10);
 
-	InitAgent(agg_id, "127.0.0.1");
-
 	BackgroundProcess(agg_id);
-	sleep(30);
+	InitAgent(agg_id, "10.0.80.19");
+
+	sleep(10);
 
 	size_t count = 0;
 	SPacket* l = GetAllData(agg_id, &count);
 
-	cout << "Got " << count << endl;
+	printf("Got " << count );
 
-	cout << "First " << l[0].address << endl;
+	printf("First " << (l[0].address.b4[0]) );
 
 	if(l != nullptr)
 		for(size_t i = 0; i < count; i++)
-			cout << l[i].sensor_id << " " << l[i].address << " " << l[i].data_string << endl;
+			printf((l[i].sensor_id), " " << (l[i].address.b4[0]) << " ", (l[i].data_string) );
 
-	cout << endl << "buffer" << endl;
+	printf(endl << "buffer" );
 
 	l = GetInterval(agg_id, "127.0.0.1", 1051, 1, 10, 0, &count);
 
 	if(l != nullptr)
 		for(size_t i = 0; i < count; i++)
-			cout << i << " " << l[i].sensor_id << " " << l[i].agent_timestamp << " " << l[i].address << endl;
+			printf(i, " " << l[i].sensor_id << " " << l[i].agent_timestamp << " ", l[i].address.b4[0] );
 	else
-		cout << "no data in buffer" << endl;
+		printf("no data in buffer" );
 
 	return 0;
 }
