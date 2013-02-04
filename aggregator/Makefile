@@ -19,19 +19,17 @@ TGT=$(BIN_DIR)/lib$(NAME).so
 
 CXX_LFLAGS := $(CXX_LFLAGS) -Wl,-soname,lib$(NAME).so
 
-all : $(TGT)
+all: $(TGT)
 
-test : $(BIN_DIR)/test
+test: $(BIN_DIR)/test
 
-$(BIN_DIR)/test : $(TGT) $(TST)
+$(BIN_DIR)/test: $(TGT) $(TST)
 	$(CXX) $(TST) $(CXX_CFLAGS) $(INC_FLAGS) -L$(BIN_DIR) -l$(NAME) -o $(BIN_DIR)/test
 
-$(TGT) : $(SRC) $(INC)
+$(TGT): $(SRC) $(INC)
 	$(CXX) $(SRC) $(CXX_CFLAGS) $(CXX_LFLAGS) $(INC_FLAGS) -o $(TGT) 
 
 .PHONY: clean
 
 clean:
-	rm -f $(BIN_DIR)/*.so
-	rm -f bin/test
-	rm -f ruby/Makefile
+	rm -f bin/*

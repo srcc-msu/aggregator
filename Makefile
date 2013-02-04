@@ -1,15 +1,20 @@
-all : aggregator proxy csv_writer
+all: aggregator proxy csv_writer
 
-aggregator : 
+aggregator:
 	$(MAKE) -C aggregator
 
-proxy :
+proxy:
 	$(MAKE) -C proxy
 
-csv_writer : 
+csv_writer:
 	$(MAKE) -C csv_writer
 
+jsoncpp:
+	$(MAKE) -C side_libs
+
+.PHONY: clean aggregator proxy csv_writer jsoncpp
+
 clean :
-	$(MAKE) -C aggregator_ruby_bundle clean
 	$(MAKE) -C aggregator clean
-	$(MAKE) -C hoplang_proxy clean
+	$(MAKE) -C proxy clean
+	$(MAKE) -C csv_writer clean

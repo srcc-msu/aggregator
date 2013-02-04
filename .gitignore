@@ -1,8 +1,0 @@
-*.so*
-*.log*
-*.o
-aggregator/ruby/Makefile
-aggregator/bin/*
-proxy/bin/*
-proxy/jsoncpp/*
-proxy/mongoose/*

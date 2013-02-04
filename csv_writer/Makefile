@@ -12,13 +12,12 @@ INC = $(wildcard $(INC_DIR)/*.h)
 NAME = csv_writer
 TGT = $(BIN_DIR)/$(NAME)
 
-all : $(TGT)
+all: $(TGT)
 
-$(TGT) : $(SRC) $(INC)
-	$(CXX) $(SRC) $(CXX_CFLAGS) $(INC_FLAGS) -Lbin/ -ljson_linux-gcc-4.6.3_libmt -o $(TGT)
+$(TGT): $(SRC) $(INC)
+	$(CXX) $(SRC) $(CXX_CFLAGS) $(INC_FLAGS) -Lbin/ -ljson -o $(TGT)
 
 .PHONY: clean
 
 clean:
-	rm -f $(TGT)
-
+	rm -f bin/*

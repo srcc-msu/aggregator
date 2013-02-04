@@ -12,15 +12,14 @@ INC = $(wildcard $(INC_DIR)/*.h)
 NAME = proxy
 TGT = $(BIN_DIR)/$(NAME)
 
-all : $(TGT)
+all: $(TGT)
 
-$(TGT) : $(SRC) $(INC)
+$(TGT): $(SRC) $(INC)
 	cp ../aggregator/bin/libaggregator.so bin/
 
-	$(CXX) $(SRC) $(CXX_CFLAGS) $(INC_FLAGS) -Lbin/ -lmongoose -laggregator -ljson_linux-gcc-4.6.3_libmt -o $(TGT) 
+	$(CXX) $(SRC) $(CXX_CFLAGS) $(INC_FLAGS) -Lbin/ -laggregator -ljson -o $(TGT) 
 
 .PHONY: clean
 
 clean:
-	rm -f $(TGT)
-
+	rm -f bin/*
