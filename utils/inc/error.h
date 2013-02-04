@@ -11,6 +11,10 @@ using namespace std;
 
 const int MAX_ERR_STR = 256;
 
+/**
+    exception, caused by some error, that may happen and 
+    should be checked (TODO: not always true)
+*/
 class CException : public exception
 {
 private:
@@ -27,6 +31,10 @@ public:
     {}
 };
 
+/**
+    exception, caused by linux system call failure,
+    stores and prints errno
+*/
 class CSyscallException : public exception
 {
 private:

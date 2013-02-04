@@ -21,6 +21,8 @@ void BackgroundInitHelper(int agg_id, Json::Value agents)
     }
 }
 
+// -----------------------
+
 void BackgroundInit(int agg_id, Json::Value agents)
 {
 	static bool started = false;
@@ -34,6 +36,8 @@ void BackgroundInit(int agg_id, Json::Value agents)
 
     t1.detach();
 }
+
+// -----------------------
 
 int ConfigAggregator(const string& config_fname, std::unordered_map<uint16_t, string>& id_to_name)
 {

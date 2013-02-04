@@ -1,9 +1,9 @@
+#include <cassert>
+#include <unordered_map>
+
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
-#include <assert.h>
-
-#include <unordered_map>
 
 #include "packet.h"
 #include "sensor_metainf.h"

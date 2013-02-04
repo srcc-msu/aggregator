@@ -12,15 +12,21 @@ using std::string;
 #include "aggregator_api.h"
 
 /**
-	service function, init agents with delay
+	service function, init agents with delay in separate thread
 */
 void BackgroundInitHelper(int agg_id, Json::Value agents);
 
 /**
-	runs agent initialisation in separate thread with sleep, 
-	to prevent flooding network and synchronous mesыage sending
+	run agent initialisation in separate thread with sleep, 
+	to prevent flooding network and synchronous message sending
 */
 void BackgroundInit(int agg_id, Json::Value agents);
-int ConfigAggregator(const string& config_file, std::unordered_map<uint16_t, string>& id_to_name);
+
+/**
+	read config from JSON /fname and fill \id_to_name: sensor_id -> "human name" map
+	JSON is temporary
+	TODO: move to YAML, check that all fields are filled
+*/
+int ConfigAggregator(const string& fname, std::unordered_map<uint16_t, string>& id_to_name);
 
 #endif

@@ -14,7 +14,7 @@ const size_t MAX_QUEUE_SIZE = 16 * 1024;
 	Thread safe sensor queue. (ORLY?)
 	accumulates single values and return them all by request.
 */
-template<class T>
+template<typename T>
 class CSensorQueue
 {
 private:
@@ -104,7 +104,7 @@ const size_t DEFAULT_BUFF_SIZE = 300;
 	Accumulates single values, rotating them over time.
 	Returns data from requested interval.
 */
-template<class T>
+template<typename T>
 class CCircularBuffer
 {
 private:

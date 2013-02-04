@@ -6,15 +6,20 @@
 
 using namespace std;
 
-int main()
+int main(int argc, char** argv)
 {
 	printf("\n --- starting db writer --- \n\n");
 
+    string config_fname = "csv_writer.conf";
+
+    if(argc == 2)
+        config_fname = string(argv[1]);
+
 	try
 	{
-		int fd = ConnectSocket("/tmp/agg_socket");
+		int fd = ConnectSocket("/tmp/agg_socket"); // TODO: change
 
-		CCsvWriter writer("csv_writer.conf");
+		CCsvWriter writer(config_fname);
 
 		writer.FromBin(fd);
 	}

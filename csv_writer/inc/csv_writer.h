@@ -3,70 +3,53 @@
 
 #include <string>
 #include <unordered_map>
+#include <memory>
 
 using namespace std;
 
-#include "error.h"
+#include "fwrap.h"
+
+#include "aggregator_api.h"
 
 /**
-	wrapper for usual FILE*, stores how many lines were written
-	TODO: make normal class?
-*/
-struct SFWrap
-{
-	FILE* f;
-	int written;
-	string dir;
-
-	void Wipe()
-	{
-		if(f)
-			fclose(f);
-		f = nullptr;
-		written = 0;
-	}
-
-	SFWrap(string _dir = "", FILE* _f = nullptr, int _written = 0):
-	f(_f),
-	written(_written),
-	dir(_dir)
-	{}
-};
-
-/**
-	stores \SPacket's from the stream and stores them in set of files
-	rotates files basing on \max_line and \max_time
+	get \SPacket's from the stream and store them in set of files
+	rotate files basing on \max_line and \max_time
 */
 class CCsvWriter
 {
 private:
-	std::unordered_map<uint16_t, SFWrap> files;
-	string base_dir;
-
-	int max_lines;
-	int max_time; // TODO: NIY
-	int chunk;
-
-	void Config(const string& config_fname);
+    unordered_map<uint16_t, shared_ptr<CFWrap<SPacket>>> files;
+    
+    string base_dir;
+    
+    int max_lines;
+    int max_time;
+    
+/**
+	read config from JSON /config_fname
+	JSON is temporary
+	TODO: move to YAML, check that all fields are configured
+*/
+    void Config(const string& config_fname);
 
 public:
-	void FromBin(int fd);
+/**
+	parse \SPacket's from linux file descriptor \fd and route them to apropriated files
+*/
+    void FromBin(int fd);
 
-	CCsvWriter(const string& config_fname):
-	max_lines(-1),
-	max_time(-1),
-	chunk(-1)
+    CCsvWriter(const string& config_fname):
+    max_lines(-1),
+    max_time(-1)
 	{
 		Config(config_fname);
 	}
 
-	~CCsvWriter()
-	{
-		for(auto& i : files)
-		{
-			i.second.Wipe();
-		}
-	}
+    ~CCsvWriter() // TODO: ???
+    {
+//    	for(auto& i : files)
+//    		i.second->Wipe();
+    }
 };
 
 #endif
