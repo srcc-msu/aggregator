@@ -36,8 +36,9 @@ public:
 /**
 	parse \SPacket's from linux file descriptor \fd and route
     them to apropriate files
+    mem_chunk - count of packets from one message
 */
-    void FromBin(int fd);
+    void FromBin(int fd, size_t mem_chunk);
 
     CCsvWriter(const string& config_fname):
     max_lines(-1),

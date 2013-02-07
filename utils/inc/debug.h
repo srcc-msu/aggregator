@@ -2,6 +2,7 @@
 #define DEBUG_H
 
 #include <cstdio>
+#include <iostream>
 
 #define DEBUG 0
 

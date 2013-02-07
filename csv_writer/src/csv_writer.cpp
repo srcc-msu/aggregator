@@ -49,25 +49,30 @@ void CCsvWriter :: Config(const string& config_fname)
     }
 }
 
-void CCsvWriter :: FromBin(int fd)
+void CCsvWriter :: FromBin(int fd, size_t mem_chunk)
 {
-	SPacket packet;
+	SPacket* packets = new SPacket[mem_chunk];
 
     int bytes_read = 0;
 	int total = 0;
 
-    while((bytes_read = read(fd, &packet, sizeof(SPacket))) == sizeof(SPacket))
+    while((bytes_read = read(fd, packets, sizeof(SPacket) * mem_chunk)) == sizeof(SPacket) * mem_chunk)
 	{
-		auto it = files.find(packet.sensor_id);
+        for(size_t i = 0; i < mem_chunk; i++)
+        {
+    		auto it = files.find(packets[i].sensor_id);
 
-		if(it != files.end())
-		{
-			shared_ptr<CFWrap<SPacket>> fwrap = it->second;
-			fwrap->AddPacket(packet);
-		}
+    		if(it != files.end())
+    		{
+    			shared_ptr<CFWrap<SPacket>> fwrap = it->second;
+    			fwrap->AddPacket(packets[i]);
+    		}
 
-        total += bytes_read;
+            total += bytes_read;
+        }
 	}
 
-    fprintf(stderr, "read %d/%d, not match to %d\n", bytes_read, total, (int)sizeof(SPacket));
+    fprintf(stderr, "read %d/%d, not match to %zu\n", bytes_read, total, sizeof(SPacket) * mem_chunk);
+
+    delete[] packets;
 }

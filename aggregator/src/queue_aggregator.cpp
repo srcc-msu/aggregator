@@ -44,17 +44,27 @@ UValue CQueueAggregator :: CalcAverage(uint32_t address
 
 //--------------------------------
 
-void CQueueAggregator :: AddSpeed(SPacketExt& ext_packet) const
+void CQueueAggregator :: AddSpeed(SPacketExt& ext_packet, double diff, int interval) const
 {
 	if(!IsSpeedId(ext_packet.packet.sensor_id))
 		return;
 
+	ext_packet.packet.speed = (interval != 0) ? diff / interval : 0;
+}
+
+void CQueueAggregator :: AddSpeed(SPacketExt& ext_packet) const
+{
+	if(!IsSpeedId(ext_packet.packet.sensor_id))
+		return;
+	
 	auto it_add = last_occurance.find(ext_packet.packet.address.b4[0]);
 	
 	if(it_add == last_occurance.end())
 		return;
 
-	auto it_sens = it_add->second.find(ext_packet.packet.sensor_num);
+	uint32_t buff_value = ext_packet.packet.sensor_id << 16 | ext_packet.packet.sensor_num;
+
+	auto it_sens = it_add->second.find(buff_value);
 
 	if(it_sens == it_add->second.end())
 		return;
@@ -89,7 +99,7 @@ void CQueueAggregator :: UnblacklistId(uint16_t sensor_id)
 
 //--------------------------------
 
-int CQueueAggregator :: Filter(const SPacketExt& ext_packet)
+int CQueueAggregator :: Filter(SPacketExt& ext_packet)
 {
 	const SPacket& packet = ext_packet.packet; // short
 	uint32_t buff_value = packet.sensor_id << 16 | packet.sensor_num;
@@ -136,7 +146,7 @@ int CQueueAggregator :: Filter(const SPacketExt& ext_packet)
 //	abs delta
 	double abs_delta = fabs(diff);
 	
-	if(filter.max_interval > 0 && (interval > filter.max_interval
+	if(filter.max_interval > 0 && (interval >= filter.max_interval
 		|| last_filter.last.packet.agent_timestamp == 0))
 		allow_res = 1;
 
@@ -155,18 +165,21 @@ int CQueueAggregator :: Filter(const SPacketExt& ext_packet)
 		" " << (unsigned long long)last_filter.last.value.b8[0])
 
 	if(allow_res)
+	{
+		AddSpeed(ext_packet, diff, interval);
 		last_filter.last = ext_packet;
+	}
 
 	return allow_res;
 }
 
-void CQueueAggregator :: Add(const SPacketExt& ext_packet)
+void CQueueAggregator :: Add(SPacketExt& ext_packet)
 {
 	if(Check(ext_packet) > 0)
 		queue.Add(ext_packet.packet);
 }
 
-int CQueueAggregator :: Check(const SPacketExt& ext_packet)
+int CQueueAggregator :: Check(SPacketExt& ext_packet)
 {
 	return Filter(ext_packet);
 }

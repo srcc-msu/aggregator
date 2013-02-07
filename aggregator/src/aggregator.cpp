@@ -71,10 +71,7 @@ void CAggregator :: ProcessSensor(unsigned int sensor_id, nm_data_hdr_t* header,
 			{
 // fill the \data_string filed in it
 				ext_packet.WriteValueToPacket();
-
-// add speed to the packet, TODO: may be slow
-				queue_aggregator.AddSpeed(ext_packet);
-				
+	
 // and store for addition			
 				packets_buffer[packets_count] = ext_packet.packet;
 				any_changed = packets_count;
@@ -165,11 +162,12 @@ void CAggregator :: Process()
 		if(sensor_id == 0) break; // it was last
 
 		size_t val_size = sensor_metainf[sensor_id].msg_length;
+		size_t count = size / val_size;
 
 		if(sensor_metainf[sensor_id].type != BINARY) // TODO check
 		{
-			ProcessSensor(sensor_id, header, sens_data + cnt + 4, val_size, size,
-				current_time, packets_buffer, packets_count);
+			ProcessSensor(sensor_id, header, sens_data + cnt + 4, val_size
+				, count, current_time, packets_buffer, packets_count);
 		}
 
 		cnt += size + 4;

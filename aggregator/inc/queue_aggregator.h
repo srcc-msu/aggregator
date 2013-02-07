@@ -78,9 +78,12 @@ private:
 	AccessList<uint16_t> id_average;
 	AccessList<uint16_t> id_speed;
 
-	int Filter(const SPacketExt& ext_packet);
 
-	void Add(const SPacketExt& ext_packet);
+// TODO: there must be 2*const
+	int Filter(SPacketExt& ext_packet);
+
+	void Add(SPacketExt& ext_packet);
+	void AddSpeed(SPacketExt& ext_packet, double diff, int interval) const;
 
 public:
 	void RegisterAverageId(uint16_t sensor_id);
@@ -125,7 +128,7 @@ public:
 
 	UValue CalcAverage(uint32_t address, uint16_t sensor_id, int count);
 
-	int Check(const SPacketExt& ext_packet);
+	int Check(SPacketExt& ext_packet);
 
 	SPacket* GetAllData(size_t* count)
 		{ return queue.GetAll(count); }

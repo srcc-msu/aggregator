@@ -6,6 +6,7 @@
 using namespace std;
 
 #include "error.h"
+
 /**
     threadsafe duplicator for \T type messages to all subscirbers
 
@@ -25,7 +26,16 @@ private:
     size_t max_queue;
 
 public:
-    typedef T (*mult_duplicator)(const T, size_t);
+    typedef T (*mult_duplicator)(const T, size_t&);
+
+    void CheckQueue(size_t i)
+    {
+        if(subscribers[i].size() > max_queue)
+        {
+            subscribers[i].pop(); // TODO memory leak here
+            fprintf(stderr, "message for %zu droppe, queueu is full\n", i);
+        }
+    }
 
 /**
     duplicate and add message to all subscribers
@@ -35,23 +45,26 @@ public:
         lock_guard<mutex> lock_add(mutex_add);
 
 //  duplicate and add \msg to everyone except 1st
-        if(subscribers.size() > 1)
-            for(size_t i = 1; i < subscribers.size(); i++)
+//        if(subscribers.size() > 1)
+            for(size_t i = 0; i < subscribers.size(); i++)
             {
                 lock_guard<mutex> lock(*subscriber_mutex[i]);
 
-                if(subscribers[i].size() < max_queue)
-                    subscribers[i].push(make_pair(DupFunc(msg, count), count));
-            }
+                CheckQueue(i);
 
+                auto dup = DupFunc(msg, count); // count changes
+                subscribers[i].push(make_pair(dup, count));
+            }
+/*
 //  add original pointer to first: serve it last to keep pointer alive
         if(subscribers.size() > 0)
         {
             lock_guard<mutex> lock(*subscriber_mutex[0]);
 
-            if(subscribers[0].size() < max_queue)
-                subscribers[0].push(make_pair(msg, count));
-        }
+            CheckQueue(0);
+
+            subscribers[0].push(make_pair(msg, count));
+        }*/
     };
 
 /**

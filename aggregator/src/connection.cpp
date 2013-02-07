@@ -13,7 +13,7 @@ using namespace std;
 void CConnectionManager :: Init()
 {
 	data_socket_inf.sin_family = AF_INET;
-    data_socket_inf.sin_port = htons(55555);
+    data_socket_inf.sin_port = htons(0);
 	data_socket_inf.sin_addr.s_addr = htonl(INADDR_ANY);
 
 	data_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);

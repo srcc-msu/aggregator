@@ -64,7 +64,7 @@ public:
 			}
 		}
 
-		printf("\nprocessed %ld packets from %ld agents", sum, count);
+		printf("\nprocessed %ld packets from %ld agents\n", sum, count);
 	}
 
 	void PokeAgents()

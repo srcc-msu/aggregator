@@ -10,7 +10,8 @@
 
 using namespace std;
 
-const int MAX_STREAMS = 10;
+const int MAX_QUEUE = 16;
+const int MEM_CHUNK = 128;
 
 class CProxyManager
 {
@@ -50,7 +51,7 @@ public:
 */
     void AddBinaryStream(int fd)
     {
-        BackgroundStream(new CBinaryFdWriter(fd), duplicator.Subscribe());
+        BackgroundStream(new CBinaryFdWriter(fd, MEM_CHUNK), duplicator.Subscribe());
     }
 
 /**
@@ -80,7 +81,7 @@ public:
     void BackgroundDispatch();
 
     CProxyManager(string config_fname):
-    duplicator(MAX_STREAMS)
+    duplicator(MAX_QUEUE)
     {
         Config(config_fname);
     }

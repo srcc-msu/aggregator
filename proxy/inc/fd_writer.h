@@ -18,18 +18,32 @@ public:
     {}
 };
 
+/**
+    big \mem_chunk = more transfer per one write, but more useless values
+*/
 class CBinaryFdWriter : public CFdWriter
 {
 private:
+    int mem_chunk;
 
 public:
+
+/**
+    
+*/
 	int Write(const SPacket* p, int count) const
     {
+        if(count % mem_chunk)
+        {
+            fprintf(stderr, "attempt to write memory chunk with wrong size %d\n", count);
+            throw CException("CFdWriter :: Write failed");
+        }
+
         int total_bytes_write = 0;
 
-        for(int i = 0; i < count; i++)
+        for(int i = 0; i < count; i += mem_chunk)
         {
-            int bytes_write = write(fd, p+i, sizeof(SPacket));
+            int bytes_write = write(fd, p+i, sizeof(SPacket)*mem_chunk);
 
             if(bytes_write == -1)
             {
@@ -46,8 +60,9 @@ public:
 		return total_bytes_write;
     }
 
-    CBinaryFdWriter(int _fd):
-    CFdWriter(_fd)
+    CBinaryFdWriter(int _fd, int _mem_chunk):
+    CFdWriter(_fd),
+    mem_chunk(_mem_chunk)
     {}
 };
 

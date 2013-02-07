@@ -23,10 +23,10 @@ void SPacketExt :: WriteValueToPacket()
 		if(msg_length == 4) sprintf(out, "%u", value.b4[0]);
 		if(msg_length == 8)
 		{
-			if(value.b4[1] != 0)
-				sprintf(out, "%u%010u", value.b4[1], value.b4[0]);
-			else
-				sprintf(out, "%u", value.b4[0]);
+//			if(value.b4[1] != 0)
+				sprintf(out, "%lu", value.b8[0]);
+//			else
+//				sprintf(out, "%u", value.b4[0]);
 		}
 	}
 	else if(type == WIREFLOAT)

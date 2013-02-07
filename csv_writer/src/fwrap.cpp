@@ -6,7 +6,6 @@
 template <typename T>
 void CFWrap<T> :: ReinitQueue()
 {
-
 	queue = make_shared<vector<T>>();
 	queue->reserve(max_lines+1);
 }
@@ -32,11 +31,11 @@ void CFWrap<T> :: WriteHelper(shared_ptr<vector<T>> queue_dump)
 		throw CSyscallException("fopen failed");
 	}
 
-	printf("Writing file to disk: %s\n", fname);
+	printf("Writing file to disk: %s ... ", fname);
 
 	for(auto& it : *queue_dump)
 	{
-		fprintf(f, "%u%06u;node-%02u-%02u;%s;%u;%.3lg\n"
+		fprintf(f, "%u%06u;node-%02u-%02u;%s;%u;%.3f\n"
 			, it.server_timestamp, it.server_usec
 			, it.address.b1[2], it.address.b1[3], it.data_string
 			, it.sensor_num, it.speed);
@@ -44,7 +43,7 @@ void CFWrap<T> :: WriteHelper(shared_ptr<vector<T>> queue_dump)
 
 	fclose(f);
 
-	printf("Writing finished\n");
+	printf("done\n");
 }
 
 //--------------------------------
@@ -67,7 +66,6 @@ template <typename T>
 void CFWrap<T> :: AddPacket(const T& p)
 {
 	queue->push_back(p);
-
 
 	if(queue->size() >= max_lines)
 	{

@@ -8,7 +8,7 @@
 #include "debug.h"
 #include "error.h"
 
-const size_t MAX_QUEUE_SIZE = 16 * 1024;
+const size_t MAX_QUEUE_SIZE = 8 * 1024;
 
 /**
 	Thread safe sensor queue. (ORLY?)

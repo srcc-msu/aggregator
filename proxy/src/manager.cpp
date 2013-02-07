@@ -7,16 +7,25 @@ using namespace std;
 
 #include "config.h"
 
-const SPacket* DupPacket(const SPacket* val, size_t count)
+const SPacket* DupPacket(const SPacket* val, size_t& count)
 {
-    SPacket* t = new SPacket[count];
+    int addition = 0;
+
+    if(count % MEM_CHUNK) // make \mem_size % \MEM_CHUNK == 0
+        addition = MEM_CHUNK - count % MEM_CHUNK;
+
+    int mem_size = count + addition;
+
+    SPacket* t = new SPacket[mem_size];
 
     memcpy(t, val, sizeof(SPacket) * count);
 
+    memset(t + count, 0, addition * sizeof(SPacket));
+
+    count = mem_size;
+    
     return t;
 }
-
-static const int MAX_SEND = 1024;
 
 void CProxyManager :: BackgroundStreamHelper(CFdWriter* writer
     , size_t subscriber_id)
@@ -72,7 +81,7 @@ void CProxyManager :: BackgroundDispatchHelper()
         printf("duplicated   %5zu      ; sleeping %8d\n"
             , count, sleeper.GetTime());
 
-        sleeper.Sleep(count < 1000);
+        sleeper.Sleep(count < 1024);
     }
 }
 
@@ -91,6 +100,8 @@ int CProxyManager :: Dispatch()
         return count;
 
     duplicator.Add(packets, count, DupPacket);
+
+    delete[] packets;
 
     return count;
 }

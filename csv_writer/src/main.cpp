@@ -21,7 +21,7 @@ int main(int argc, char** argv)
 
 		CCsvWriter writer(config_fname);
 
-		writer.FromBin(fd);
+		writer.FromBin(fd, 128); // mem chunk
 	}
 	catch(const CSyscallException& e)
 	{
