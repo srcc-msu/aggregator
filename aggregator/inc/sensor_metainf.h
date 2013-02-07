@@ -4,7 +4,6 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
-#include <assert.h>
 
 #include <unordered_map>
 
@@ -35,7 +34,7 @@ extern std::unordered_map<int, SSensorMetainf> sensor_metainf;
 void InitMetainf();
 
 /**
-	Parses the raw \buffer, according to provided \id and 
+	Parses the raw \buffer, according to provided \id and
 	writes the result to \out string
 */
 

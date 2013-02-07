@@ -7,18 +7,23 @@ using namespace std;
 
 #include "config.h"
 
-SPacket* DupPacket(SPacket* val, size_t count)
+const SPacket* DupPacket(const SPacket* val, size_t count)
 {
     SPacket* t = new SPacket[count];
-    
+
     memcpy(t, val, sizeof(SPacket) * count);
-    
+
     return t;
 }
 
-void CProxyManager ::BackgroundStreamHelper(CFdWriter* writer, size_t subscriber_id)
+static const int MAX_SEND = 1024;
+
+void CProxyManager :: BackgroundStreamHelper(CFdWriter* writer
+    , size_t subscriber_id)
 {
     CDynSleeper sleeper;
+
+    printf("new subscriber %zu\n", subscriber_id);
 
     while(1)
     {
@@ -27,11 +32,9 @@ void CProxyManager ::BackgroundStreamHelper(CFdWriter* writer, size_t subscriber
 
         if(count > 0)
         {
-            int bs = writer->Write(msg, count);
+            int bytes_send = writer->Write(msg, count);
 
-            delete[] msg;
-
-            if(bs == -1)
+            if(bytes_send == -1)
             {
                 printf("subscriber %zu disconnected\n", subscriber_id);
                 delete writer;
@@ -39,12 +42,16 @@ void CProxyManager ::BackgroundStreamHelper(CFdWriter* writer, size_t subscriber
                 return;
             }
 
-            printf("streamed     %5zu to %2zu; sleeping         %8d\n", 
-                count, subscriber_id, sleeper.GetTime());
+            printf("streamed     %5zu to %2zu; sleeping         %8d  (%d bytes)\n",
+                count, subscriber_id, sleeper.GetTime(), bytes_send);
+
+            delete[] msg;
         }
 
         sleeper.Sleep(count == 0);
     }
+
+    printf("end\n");
 }
 
 void CProxyManager :: BackgroundStream(CFdWriter* writer, size_t subscriber_id)
@@ -62,8 +69,8 @@ void CProxyManager :: BackgroundDispatchHelper()
     {
         size_t count = Dispatch();
 
-        printf("duplicated   %5zu      ; sleeping %8d\n",
-            count, sleeper.GetTime());
+        printf("duplicated   %5zu      ; sleeping %8d\n"
+            , count, sleeper.GetTime());
 
         sleeper.Sleep(count < 1000);
     }
@@ -78,15 +85,15 @@ void CProxyManager :: Config(const string& config_fname)
 int CProxyManager :: Dispatch()
 {
     size_t count = 0;
-    auto packets = GetAllData(agg_id, &count);
-    
+    const SPacket* packets = GetAllData(agg_id, &count);
+
     if(count == 0)
         return count;
 
     duplicator.Add(packets, count, DupPacket);
-    
+
     return count;
-}  
+}
 
 void CProxyManager :: BackgroundDispatch()
 {

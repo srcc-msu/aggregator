@@ -10,7 +10,7 @@ using namespace std;
 
 /**
 	provide buffering, name rotating and writing on timeout
-	writing to disk is asynchronous, only one file(across all instances) 
+	writing to disk is asynchronous, only one file(across all instances)
 	will be written on disk at any moment
 */
 template<typename T>
@@ -18,10 +18,10 @@ class CFWrap
 {
 private:
 /// only one instance of this class will write to disk at single moment	
-	static mutex global_write_mutex; 
+	static mutex global_write_mutex;
 
 /// full directory for file
-    string dir; 
+    string dir;
 
     shared_ptr<vector<T>> queue;
 

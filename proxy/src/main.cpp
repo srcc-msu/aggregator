@@ -23,11 +23,11 @@ int main(int argc, char** argv)
 
     proxy.BackgroundDispatch();
 
-    int fd = CreateSocket("/tmp/agg_socket");
+    int fd = ConnectUDSocket("/tmp/agg_socket");
 
-    int reader = ListenSocket(fd);
+//    int reader = ListenTCPSocket(fd);
 
-    proxy.AddBinaryStream(reader);
+    proxy.AddBinaryStream(fd);
 
     while(1)
     {

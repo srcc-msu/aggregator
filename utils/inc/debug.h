@@ -5,11 +5,11 @@
 
 #define DEBUG 0
 
-#define DMSG1(A) 
-#define DMSG2(A) 
+#define DMSG1(A)
+#define DMSG2(A)
 
-#define DBLOCK1(A) 
-#define DBLOCK2(A) 
+#define DBLOCK1(A)
+#define DBLOCK2(A)
 
 #if DEBUG >= 1
 	#undef DMSG1

@@ -1,19 +1,17 @@
 #ifndef AGGREGATOR_H
 #define AGGREGATOR_H
 
-#include <sys/socket.h>
-#include <sys/types.h>
-
 #include <unordered_map>
-
-#include <iostream>
 #include <string>
 #include <algorithm>
 #include <thread>
 
-using std::string;
-using std::cout;
-using std::endl;
+using namespace std;
+
+#include <sys/socket.h>
+#include <sys/types.h>
+
+#include "nm_control.h"
 
 #include "queue.h"
 #include "sensor_metainf.h"
@@ -66,6 +64,16 @@ public:
 
 	CQueueAggregator& QueueAggregator()
 		{ return queue_aggregator; }
+
+	void AccumulateStat(int res);
+
+/**
+	some terrible function, that adds form \packets_buffer from incoming \sans_data
+	extracting it from \Process did not go well...	
+*/
+	void ProcessSensor(unsigned int sensor_id, nm_data_hdr_t* header,
+		unsigned char* sens_data, size_t val_size, size_t count,
+		const timeval& current_time, SPacket* packets_buffer, int& packets_count);
 
 /**
 	Recieve one message from the socket, converts it as needed

@@ -9,11 +9,6 @@
 extern "C" {
 
 /**
-	dummy function
-*/
-void __aggregator();
-	
-/**
 	Inits a new agregator, returns the aggregator handle
 	it is used in all functions to specify the aggregator
 */
@@ -103,7 +98,7 @@ void SetInterval(int agg_id, int max_interval);
 SPacket* GetInterval(int agg_id, const char* address, uint16_t id, uint16_t num, size_t from, size_t upto, size_t* count);
 
 /**
-	Returns pointer to collected data. And they will not be availiable throught 
+	Returns pointer to collected data. And they will not be availiable throught
 	this function, anymore.
 	(!) When you call this 2nd time, data from previous call are deleted.
 	(!) Also they will be deleted, when the librarys is unloaded.

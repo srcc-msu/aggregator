@@ -12,7 +12,7 @@ using namespace std;
 const int MAX_ERR_STR = 256;
 
 /**
-    exception, caused by some error, that may happen and 
+    exception, caused by some error, that may happen and
     should be checked (TODO: not always true)
 */
 class CException : public exception
@@ -34,6 +34,7 @@ public:
 /**
     exception, caused by linux system call failure,
     stores and prints errno
+    TODO forbid copy
 */
 class CSyscallException : public exception
 {
@@ -44,11 +45,7 @@ private:
 public:
     const char* what() const throw()
     {
-    	static char error[MAX_ERR_STR] = "";
-    	strerror_r(errno, buffer, MAX_ERR_STR);
-
-
-	  	sprintf(buffer, "%s\n[ errno = %2d ]: %s", str, errno, error);
+    	sprintf(buffer, "%s\n[ errno = %2d ]: %s\n", str, errno, strerror(errno));
 
     	return buffer;
     }

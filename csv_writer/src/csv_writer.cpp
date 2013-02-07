@@ -21,8 +21,10 @@ void CCsvWriter :: Config(const string& config_fname)
 
     if(!reader.parse(buffer.str(), root))
     {
-        fprintf(stderr, "failed to parse configuration: %s\n", reader.getFormatedErrorMessages ().c_str());
-            
+        fprintf(stderr, "failed to parse configuration: %s\n"
+
+            , reader.getFormatedErrorMessages ().c_str());
+
         throw CException("json parser failed");
     }
 
@@ -39,8 +41,11 @@ void CCsvWriter :: Config(const string& config_fname)
 
     for(size_t i = 0; i < dirs.size(); i++)
     {
-    	files[dirs[i][0u].asInt()] = make_shared<CFWrap<SPacket>>(base_dir + dirs[i][1u].asString(), max_lines, max_time);
-        printf("dir for sensor %d is %s\n", dirs[i][0u].asInt(), dirs[i][1u].asCString());
+    	files[dirs[i][0u].asInt()] = make_shared<CFWrap<SPacket>>(
+            base_dir + dirs[i][1u].asString(), max_lines, max_time);
+
+        printf("dir for sensor %d is %s\n"
+            , dirs[i][0u].asInt(), dirs[i][1u].asCString());
     }
 }
 
@@ -48,7 +53,10 @@ void CCsvWriter :: FromBin(int fd)
 {
 	SPacket packet;
 
-	while(read(fd, &packet, sizeof(SPacket)) == sizeof(SPacket))
+    int bytes_read = 0;
+	int total = 0;
+
+    while((bytes_read = read(fd, &packet, sizeof(SPacket))) == sizeof(SPacket))
 	{
 		auto it = files.find(packet.sensor_id);
 
@@ -57,5 +65,9 @@ void CCsvWriter :: FromBin(int fd)
 			shared_ptr<CFWrap<SPacket>> fwrap = it->second;
 			fwrap->AddPacket(packet);
 		}
+
+        total += bytes_read;
 	}
+
+    fprintf(stderr, "read %d/%d, not match to %d\n", bytes_read, total, (int)sizeof(SPacket));
 }

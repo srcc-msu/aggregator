@@ -30,6 +30,14 @@ public:
 	void AllowId(uint16_t sensor_id);
 
 /**
+	check if sensor_id was allowed
+*/
+	bool IsAllowed(uint16_t sensor_id)
+	{
+		return allowed_id.IsIn(sensor_id);
+	}
+
+/**
 	Disallows packets with such \sensor_id to be stored in circualr buffers.
 	If buffer exists - delete the buffer.
 */

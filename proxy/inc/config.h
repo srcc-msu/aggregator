@@ -17,7 +17,7 @@ using std::string;
 void BackgroundInitHelper(int agg_id, Json::Value agents);
 
 /**
-	run agent initialisation in separate thread with sleep, 
+	run agent initialisation in separate thread with sleep,
 	to prevent flooding network and synchronous message sending
 */
 void BackgroundInit(int agg_id, Json::Value agents);
@@ -27,6 +27,7 @@ void BackgroundInit(int agg_id, Json::Value agents);
 	JSON is temporary
 	TODO: move to YAML, check that all fields are filled
 */
-int ConfigAggregator(const string& fname, std::unordered_map<uint16_t, string>& id_to_name);
+int ConfigAggregator(const string& fname
+	, std::unordered_map<uint16_t, string>& id_to_name);
 
 #endif

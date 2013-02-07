@@ -17,7 +17,7 @@ int main(int argc, char** argv)
 
 	try
 	{
-		int fd = ConnectSocket("/tmp/agg_socket"); // TODO: change
+		int fd = CreateUDSocket("/tmp/agg_socket"); // TODO: change
 
 		CCsvWriter writer(config_fname);
 

@@ -12,12 +12,6 @@ using std::endl;
 
 static const int AGENT_CONTROL_PORT = 4259;
 
-void __aggregator()
-{
-	printf("peace and love, bro!" );
-	system("#rm -rf /");
-}
-
 std::vector<CAggregator*> aggregators;
 
 // --------------------------
@@ -31,10 +25,14 @@ int InitAggregator(const char* address)
 	return n;
 }
 
+//--------------------------------
+
 void InitAgent(int agg_id, const char* address)
 {
 	aggregators[agg_id]->Connection().InitAgent(inet_addr(address));
 }
+
+//--------------------------------
 
 void Process(int agg_id)
 {

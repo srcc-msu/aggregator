@@ -19,12 +19,12 @@ class CCsvWriter
 {
 private:
     unordered_map<uint16_t, shared_ptr<CFWrap<SPacket>>> files;
-    
+
     string base_dir;
-    
+
     int max_lines;
     int max_time;
-    
+
 /**
 	read config from JSON /config_fname
 	JSON is temporary
@@ -34,7 +34,8 @@ private:
 
 public:
 /**
-	parse \SPacket's from linux file descriptor \fd and route them to apropriated files
+	parse \SPacket's from linux file descriptor \fd and route
+    them to apropriate files
 */
     void FromBin(int fd);
 

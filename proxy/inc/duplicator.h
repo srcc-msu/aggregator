@@ -3,10 +3,9 @@
 #include <mutex>
 #include <memory>
 
-#include <cassert>
-
 using namespace std;
 
+#include "error.h"
 /**
     threadsafe duplicator for \T type messages to all subscirbers
 
@@ -22,11 +21,11 @@ private:
 
     mutex mutex_add;
     mutex mutex_get;
-   
+
     size_t max_queue;
 
 public:
-    typedef T (*mult_duplicator)(T, size_t);
+    typedef T (*mult_duplicator)(const T, size_t);
 
 /**
     duplicate and add message to all subscribers
@@ -35,7 +34,7 @@ public:
     {
         lock_guard<mutex> lock_add(mutex_add);
 
-//  duplicate and add \msg to everyone except 1st      
+//  duplicate and add \msg to everyone except 1st
         if(subscribers.size() > 1)
             for(size_t i = 1; i < subscribers.size(); i++)
             {
@@ -60,7 +59,8 @@ public:
 */
     T Get(size_t subscriber_id, size_t* count)
     {
-        assert(subscriber_id < subscribers.size());
+        if(subscriber_id >= subscribers.size())
+            throw CException("attempt to get data from unknown subscriber");
 
         lock_guard<mutex> lock_get(mutex_get);
 
@@ -82,14 +82,17 @@ public:
 /**
     delete subscriber
 */
-    size_t DeleteSubscriber(size_t subscriber_id)
+    void DeleteSubscriber(size_t subscriber_id)
     {
-        assert(subscriber_id > subscribers.size());
+        throw CException("NIY");
+
+        if(subscriber_id >= subscribers.size())
+            throw CException("attempt to delete unknown subscriber");
 
         lock_guard<mutex> lock_add(mutex_add);
         lock_guard<mutex> lock_get(mutex_get);
 
-        subscribers.erase(subscribers.begin + subscriber_id);
+//        subscribers.erase(subscribers.begin + subscriber_id);
     }
 
 /**

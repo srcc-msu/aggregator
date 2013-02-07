@@ -35,7 +35,7 @@ struct SensorFilterMetainf
 	interval in seconds, when new packet will be sent regardless of anyting
 	if less than 0 - not used
 */
-	int max_interval; 
+	int max_interval;
 
 	SPacketExt last; // last packet, stored to compare
 
@@ -84,13 +84,27 @@ private:
 
 public:
 	void RegisterAverageId(uint16_t sensor_id);
-	bool IsAverageId(uint16_t sensor_id);
-
 	void RegisterSpeedId(uint16_t sensor_id);
-	bool IsSpeedId(uint16_t sensor_id);
+
+	bool IsAverageId(uint16_t sensor_id) const
+	{
+		return id_average.IsIn(sensor_id);
+	}
+
+	bool IsSpeedId(uint16_t sensor_id) const
+	{
+		return id_speed.IsIn(sensor_id);
+	}
+
+	void AddSpeed(SPacketExt& ext_packet) const;
 
 	void BlacklistId(uint16_t sensor_id);
 	void UnblacklistId(uint16_t sensor_id);
+	
+	bool IsAllowed(uint16_t sensor_id) const
+	{
+		return !id_blacklist.IsIn(sensor_id);
+	}
 	
 	void SetDelta(uint32_t address, uint16_t sensor_id, double delta);
 	void SetDelta(uint32_t address, double delta);
@@ -113,7 +127,7 @@ public:
 
 	int Check(const SPacketExt& ext_packet);
 
-	SPacket* GetAllData(size_t* count) 
+	SPacket* GetAllData(size_t* count)
 		{ return queue.GetAll(count); }
 
 	CQueueAggregator()

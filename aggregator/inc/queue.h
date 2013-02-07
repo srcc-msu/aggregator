@@ -2,11 +2,11 @@
 #define QUEUE_H
 
 #include <mutex>
-#include <assert.h>
 
 #include <cstring>
 
 #include "debug.h"
+#include "error.h"
 
 const size_t MAX_QUEUE_SIZE = 16 * 1024;
 
@@ -37,7 +37,7 @@ private:
 	}
 
 public:
-/** 
+/**
 	Add single value to the queue.
 	bad function, using mutex on every addition is not efficient
 */
@@ -52,7 +52,7 @@ public:
 		pointer++;
 	}
 
-/** 
+/**
 	Add few values to the queue.
 */
 	void Add(T* values, size_t count)
@@ -70,9 +70,9 @@ public:
 		pointer += count;
 	}
 
-/** 
+/**
 	Get all data from the queue.
-	Current pointer will be returned and new one will be allocated - 
+	Current pointer will be returned and new one will be allocated -
 	old one will be purged on next request. Also it can be purged manually.
 */
 	T* GetAll(size_t* count)
@@ -133,7 +133,7 @@ public:
 	}
 
 /**
-	Gets n values from the buffer, n = \from - \upto. If thy were not added yet - 
+	Gets n values from the buffer, n = \from - \upto. If thy were not added yet -
 	returns default values from \T constructor.
 */
 	T* Get(size_t from, size_t upto, size_t* count)
@@ -184,7 +184,8 @@ public:
 		if(buffer != nullptr)
 			delete[] buffer;
 
-		assert(new_size > 0);
+		if(new_size == 0)
+			throw CException("can not init circualr buffer with 0 size");
 
 		size = new_size;
 		pointer = 0;

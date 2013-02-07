@@ -95,13 +95,13 @@ public:
 		{ address_blacklist.Remove(address); }
 
 /**
-	Form a control message, that sets an angent him to send data 
+	Form a control message, that sets an angent him to send data
 	to \recv_socket.address:\recv_socket.port.
 */
 	int FormV1RedirectMessage(unsigned char* msg, uint32_t address) const;
 
 /**
-	Sends the control message to the agent on \address:\control_port. 
+	Sends the control message to the agent on \address:\control_port.
 */
 	void InitAgent(uint32_t address);
 

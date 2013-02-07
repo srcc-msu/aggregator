@@ -27,7 +27,7 @@ $(BIN_DIR)/test: $(TGT) $(TST)
 	$(CXX) $(TST) $(CXX_CFLAGS) $(INC_FLAGS) -L$(BIN_DIR) -l$(NAME) -o $(BIN_DIR)/test
 
 $(TGT): $(SRC) $(INC)
-	$(CXX) $(SRC) $(CXX_CFLAGS) $(CXX_LFLAGS) $(INC_FLAGS) -o $(TGT) 
+	$(CXX) $(SRC) $(CXX_CFLAGS) $(CXX_LFLAGS) $(INC_FLAGS) -o $(TGT)
 
 .PHONY: clean
 

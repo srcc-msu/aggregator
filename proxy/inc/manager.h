@@ -18,7 +18,7 @@ private:
     int agg_id;
     unordered_map<uint16_t, string> id_to_name;
 
-    CDuplicator<SPacket*> duplicator;
+    CDuplicator<const SPacket*> duplicator;
 
 /**
    service function, to be run in separate thread
@@ -73,7 +73,7 @@ public:
 	get one packet from aggregator and send it to duplicator
 */
     int Dispatch();
-   
+
 /**
 	starts background dispatch, call \BackgroundDispatchHelper in separate thread
 */

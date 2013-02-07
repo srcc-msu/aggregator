@@ -21,7 +21,7 @@ void BackgroundInitHelper(int agg_id, Json::Value agents)
     }
 }
 
-// -----------------------
+//--------------------------------
 
 void BackgroundInit(int agg_id, Json::Value agents)
 {
@@ -37,9 +37,10 @@ void BackgroundInit(int agg_id, Json::Value agents)
     t1.detach();
 }
 
-// -----------------------
+//--------------------------------
 
-int ConfigAggregator(const string& config_fname, std::unordered_map<uint16_t, string>& id_to_name)
+int ConfigAggregator(const string& config_fname
+    , std::unordered_map<uint16_t, string>& id_to_name)
 {
     std::ifstream tmp(config_fname);
     std::stringstream buffer;
@@ -51,7 +52,7 @@ int ConfigAggregator(const string& config_fname, std::unordered_map<uint16_t, st
     if(!reader.parse(buffer.str(), root))
     {
         fprintf(stderr, "failed to parse configuration: %s\n", reader.getFormatedErrorMessages ().c_str());
-            
+
         throw CException("json parser failed");
     }
 
@@ -80,8 +81,10 @@ int ConfigAggregator(const string& config_fname, std::unordered_map<uint16_t, st
 
     for(size_t i = 0; i < sensors_interval.size(); i++)
     {
-        SetIntervalS(agg_id, sensors_interval[i][0u].asInt(), sensors_interval[i][1u].asInt());
-        printf("sensor %d has personal interval %d\n", sensors_interval[i][0u].asInt(), sensors_interval[i][1u].asInt());
+        SetIntervalS(agg_id, sensors_interval[i][0u].asInt()
+            , sensors_interval[i][1u].asInt());
+        printf("sensor %d has personal interval %d\n"
+            , sensors_interval[i][0u].asInt(), sensors_interval[i][1u].asInt());
     }
 
 //  person delta filters for sensos
@@ -89,8 +92,10 @@ int ConfigAggregator(const string& config_fname, std::unordered_map<uint16_t, st
 
     for(size_t i = 0; i < sensors_delta.size(); i++)
     {
-        SetDeltaS(agg_id, sensors_delta[i][0u].asInt(), sensors_delta[i][1u].asDouble());
-        printf("sensor %d has personal delta %lg\n", sensors_delta[i][0u].asInt(), sensors_delta[i][1u].asDouble());
+        SetDeltaS(agg_id, sensors_delta[i][0u].asInt()
+            , sensors_delta[i][1u].asDouble());
+        printf("sensor %d has personal delta %lg\n"
+            , sensors_delta[i][0u].asInt(), sensors_delta[i][1u].asDouble());
     }
 
 //  person abs_delta filters for sensos
@@ -98,8 +103,10 @@ int ConfigAggregator(const string& config_fname, std::unordered_map<uint16_t, st
 
     for(size_t i = 0; i < sensors_abs_delta.size(); i++)
     {
-        SetAbsDeltaS(agg_id, sensors_abs_delta[i][0u].asInt(), sensors_abs_delta[i][1u].asDouble());
-        printf("sensor %d has personal abs_delta %lg\n", sensors_abs_delta[i][0u].asInt(), sensors_abs_delta[i][1u].asDouble());
+        SetAbsDeltaS(agg_id, sensors_abs_delta[i][0u].asInt()
+            , sensors_abs_delta[i][1u].asDouble());
+        printf("sensor %d has personal abs_delta %lg\n"
+            , sensors_abs_delta[i][0u].asInt(), sensors_abs_delta[i][1u].asDouble());
     }
 
 //  sensors to be collected in the buffer

@@ -6,28 +6,36 @@
 #include <iostream>
 
 #include "debug.h"
+#include "error.h"
 
 using namespace std;
 
 void CConnectionManager :: Init()
 {
 	data_socket_inf.sin_family = AF_INET;
-    data_socket_inf.sin_port = htons(0);
+    data_socket_inf.sin_port = htons(55555);
 	data_socket_inf.sin_addr.s_addr = htonl(INADDR_ANY);
 
 	data_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    int ret_val = bind(data_socket, (sockaddr *)&data_socket_inf, sizeof(data_socket_inf));
+	
+	if(data_socket == -1)
+		throw CSyscallException("socket() creation failed");
 
-    assert(data_socket != -1); // TODO add normal check
-    assert(ret_val != -1); // TODO add normal check
+    int ret_val = bind(data_socket, (sockaddr *)&data_socket_inf
+    	, sizeof(data_socket_inf));
+
+	if(ret_val == -1)
+		throw CSyscallException("bind() socket failed");
 
 //	learn what port did we get from OS
     sockaddr_in info;
-	socklen_t info_len = sizeof(info);    
+	socklen_t info_len = sizeof(info);
 
     getsockname(data_socket, (sockaddr *)&info, &info_len);
     aggr_port = info.sin_port;
 }
+
+//--------------------------------
 
 unsigned char* write_str(unsigned char* dst, unsigned char* str, int count = 0)
 {
@@ -36,24 +44,33 @@ unsigned char* write_str(unsigned char* dst, unsigned char* str, int count = 0)
 	return dst + l;
 }
 
-int CConnectionManager :: FormV1RedirectMessage(unsigned char* msg, uint32_t address) const
+//--------------------------------
+
+int CConnectionManager :: FormV1RedirectMessage(unsigned char* msg
+	, uint32_t address) const
 {
-	unsigned char* ptr = write_str(msg, (unsigned char*)"MMCS.ACF\x00\x01\x00\x00", 12);
+	unsigned char* ptr = write_str(msg
+		, (unsigned char*)"MMCS.ACF\x00\x01\x00\x00", 12);
 	
 	uint32_t zero = 0;
 
 	ptr = write_str(ptr, (unsigned char*) &address, 4); // pretend address
 
-	for(int i = 0; i < 4; i++) ptr = write_str(ptr, (unsigned char*) &zero, 3); // address field filler
+	for(int i = 0; i < 4; i++)
+		ptr = write_str(ptr, (unsigned char*) &zero, 3); // address field filler
 
 	ptr = write_str(ptr, (unsigned char*) &aggr_address, 4); // agrhost
-	for(int i = 0; i < 4; i++) ptr = write_str(ptr, (unsigned char*) &zero, 3); // address field filler
+	
+	for(int i = 0; i < 4; i++)
+		ptr = write_str(ptr, (unsigned char*) &zero, 3); // address field filler
 
 	ptr = write_str(ptr, (unsigned char*) &aggr_port, 2); // agrport
 	ptr = write_str(ptr, (unsigned char*) &zero, 4); // cookie
 
 	return ptr - msg;
 }
+
+//--------------------------------
 
 void CConnectionManager :: InitAgent(uint32_t address)
 {
@@ -66,10 +83,15 @@ void CConnectionManager :: InitAgent(uint32_t address)
 	ctl_socket_inf.sin_addr.s_addr = htonl(INADDR_ANY);
 
 	ctl_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    int ret_val = bind(ctl_socket, (struct sockaddr *)&ctl_socket_inf, sizeof(ctl_socket_inf));
 
-    assert(ctl_socket != -1); // TODO add normal check
-    assert(ret_val != -1); // TODO add normal check
+	if(ctl_socket == -1)
+		throw CSyscallException("socket() creation failed");
+
+    int ret_val = bind(ctl_socket, (struct sockaddr *)&ctl_socket_inf
+    	, sizeof(ctl_socket_inf));
+
+	if(ret_val == -1)
+		throw CSyscallException("bind() socket failed");
 
 //	create destionation address
 	sockaddr_in agent_address;
@@ -86,23 +108,33 @@ void CConnectionManager :: InitAgent(uint32_t address)
 	
 	int len = FormV1RedirectMessage(msg, address);
   	
-  	sendto(ctl_socket, msg, len, 0, (sockaddr*) &agent_address, sizeof(agent_address));
+  	int bytes_send = sendto(ctl_socket, msg, len, 0
+  		, (sockaddr*) &agent_address, sizeof(agent_address));
+
+	if(bytes_send == -1)
+		throw CSyscallException("sendto() socket failed");
 
   	close(ctl_socket);
 }
 
+//--------------------------------
 
 int CConnectionManager :: GetData(unsigned char* data, int max_count)
 {
     sockaddr_in info;
-	socklen_t info_len = sizeof(info);    
+	socklen_t info_len = sizeof(info);
 
- 	int bytes_read = recvfrom(data_socket, data, max_count, 0, (struct sockaddr*)&info, (socklen_t*)&info_len);
+ 	int bytes_read = recvfrom(data_socket, data, max_count, 0
+ 		, (struct sockaddr*)&info, (socklen_t*)&info_len);
+
+	if(bytes_read == -1)
+		throw CSyscallException("sendto() socket failed");
 
 // if the address in a global blacklist - skip
 	if(address_blacklist.IsIn(info.sin_addr.s_addr))
 	{
-		DMSG2("address " << info.sin_addr.s_addr << " is in blacklist, ignoring");
+		DMSG2("address " << info.sin_addr.s_addr
+			<< " is in blacklist, ignoring");
 		return 0;
 	}
 

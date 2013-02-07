@@ -32,25 +32,12 @@ agents.list - list of agent, that will be inited on loading. adding new agent ca
 $ cd proxy
 $ bin/holang_proxy.rb
 
+...
+
+$ cd csv_writer
+$ bin/holang_proxy.rb
+
 *************
 *** Usage ***
 *************
 
-By defaul server listens on 9293 port
-
-To get data: create new session with any id, for example 123456
-
-$ curl localhost:9293/session/new?sessid=123456
-$ curl localhost:9293/stream?sessid=123456
-
-!!! only id is allowed for now and currently checked to be registered earlier ^^
-
-
-!!!
-!!! next section is not wroking in current release:
-!!!
-
-To get data from the buffer:
- 
-$ curl 'localhost:9293/sensorstats?ip=10.0.0.1&sensor=1053&from=30' # last 30 seconds
-$ curl 'localhost:9293/sensorstats?ip=10.0.0.2&sensor=1051&from=2m' # last 2 mins = 120 seconds
