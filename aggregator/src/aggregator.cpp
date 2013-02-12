@@ -21,11 +21,11 @@ void CAggregator :: AccumulateStat(int res)
 	switch(res)
 	{
 		case 0: stat_filtered_out    ++; break;
-		
+
 		case 1: stat_allow_time      ++; break;
 		case 2: stat_allow_delta     ++; break;
 		case 3: stat_allow_abs_delta ++; break;
-		
+
 		default: throw CException("unknown packet filtering result");
 	}
 }
@@ -46,7 +46,7 @@ void CAggregator :: ProcessSensor(unsigned int sensor_id, nm_data_hdr_t* header,
 
 	SPacket packet;
 
-// next fileds are the same for all this packets
+//	next fileds are the same for all this packets
 	packet.address.b4[0] = header->client_host.b4[0];
 	packet.agent_timestamp = header->ts_m * 1000000 + header->ts_sec;
 	packet.agent_usec = header->ts_usec;
@@ -71,8 +71,8 @@ void CAggregator :: ProcessSensor(unsigned int sensor_id, nm_data_hdr_t* header,
 			{
 // fill the \data_string filed in it
 				ext_packet.WriteValueToPacket();
-	
-// and store for addition			
+
+// and store for addition
 				packets_buffer[packets_count] = ext_packet.packet;
 				any_changed = packets_count;
 				packets_count++;
@@ -80,8 +80,8 @@ void CAggregator :: ProcessSensor(unsigned int sensor_id, nm_data_hdr_t* header,
 
 			AccumulateStat(res);
 		}
-		
-		if(buffer_allow)	
+
+		if(buffer_allow)
 			buffer_aggregator.Add(ext_packet);
 	}
 
@@ -89,7 +89,7 @@ void CAggregator :: ProcessSensor(unsigned int sensor_id, nm_data_hdr_t* header,
 	if(any_changed != -1 && queue_aggregator.IsAverageId(sensor_id))
 	{
 		SPacket packet = packets_buffer[any_changed];
-		
+
 		UValue value = queue_aggregator.CalcAverage(packet.address.b4[0], packet.sensor_id, count);
 
 		packet.sensor_num = 0;
@@ -131,7 +131,7 @@ void CAggregator :: Process()
 	header->ts_m    = ntohl(header->ts_m);
 	header->ts_sec  = ntohl(header->ts_sec);
 	header->ts_usec = ntohl(header->ts_usec);
-	
+
 	if(header->strm_num != 1) // some unknown for now message
 	{
 		DMSG1("message ignored, unknown stream");
@@ -156,7 +156,7 @@ void CAggregator :: Process()
 		uint16_t size = ntohs(*((uint16_t*)(sens_data + cnt)));
 
 		uint16_t sensor_id = ntohs(*((uint16_t*)(sens_data + cnt + 2)));
-		
+
 		DMSG2(size << " " << sensor_id);
 
 		if(sensor_id == 0) break; // it was last

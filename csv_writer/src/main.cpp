@@ -1,10 +1,12 @@
 #include "aggregator_api.h"
 
+#include <memory>
+
+using namespace std;
+
 #include "csv_writer.h"
 #include "socket.h"
 #include "error.h"
-
-using namespace std;
 
 int main(int argc, char** argv)
 {
@@ -17,11 +19,9 @@ int main(int argc, char** argv)
 
 	try
 	{
-		int fd = CreateUDSocket("/tmp/agg_socket"); // TODO: change
-
 		CCsvWriter writer(config_fname);
 
-		writer.FromBin(fd, 128); // mem chunk
+		writer.FromBin(dynamic_pointer_cast<CSocket>(make_shared<CUDSocket>("/tmp/agg_socket", CSocket :: CREATE)), 128); // mem chunk
 	}
 	catch(const CSyscallException& e)
 	{

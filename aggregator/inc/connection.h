@@ -28,7 +28,7 @@ private:
 
 // Stores inited agents addresses
 	std::unordered_map<uint32_t, long> agents_activity;
-	
+
 	AccessList<uint32_t> address_blacklist;
 
 /**
@@ -81,14 +81,14 @@ public:
 	}
 
 /**
-	Adds the \address to the blacklist.	
+	Adds the \address to the blacklist.
 	All messages from this address will be ignored.
 */
 	void BlacklistAddress(uint32_t address)
 		{ address_blacklist.Add(address); }
 
 /**
-	Remove the \address from the blacklist.	
+	Remove the \address from the blacklist.
 	All messages from this address will not be ignored anymore.
 */
 	void UnblacklistAddress(uint32_t address)

@@ -78,7 +78,7 @@ public:
 	T* GetAll(size_t* count)
 	{
 		std::lock_guard<std::mutex> lock(mutex);
-		
+
 		if(count)
 			*count = pointer;
 
@@ -110,7 +110,7 @@ class CCircularBuffer
 private:
 	mutable std::mutex mutex;
 	T* buffer;
-	
+
 	size_t size;
 	size_t pointer;
 
@@ -168,7 +168,7 @@ public:
 			std::memcpy(res, buffer + size + start, (-start) * sizeof(T));
 			std::memcpy(res + (-start), buffer, end * sizeof(T));
 		}
-		
+
 		else if(end <= 0)
 		{
 			std::memcpy(res, buffer + size + start, (end-start) * sizeof(T));

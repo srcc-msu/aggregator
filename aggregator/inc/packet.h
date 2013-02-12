@@ -17,6 +17,11 @@ union UIP
 };
 
 /**
+    not type safe... hope it will be used correctly :)
+*/
+#define SENS_UID(sensor_id, sensor_num) ((sensor_id) << 16 | (sensor_num))
+
+/**
     A base structure, that will be sent to upper level
     TODO learn if more info needed
 */

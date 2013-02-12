@@ -27,7 +27,7 @@ void CFWrap<T> :: WriteHelper(shared_ptr<vector<T>> queue_dump)
 	if(!f)
 	{
 		fprintf(stderr, "can not open file: %s\n", fname);
-		
+
 		throw CSyscallException("fopen failed");
 	}
 

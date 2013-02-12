@@ -13,7 +13,7 @@ extern "C" {
 	it is used in all functions to specify the aggregator
 */
 int InitAggregator(const char* address);
-	
+
 /**
 	Configures the agent on \addres to send data to this aggregator
 */
@@ -65,43 +65,48 @@ void BufferAllowId(int agg_id, uint16_t id);
 void BufferDisallowId(int agg_id, uint16_t id);
 
 /**
-	Set the change threshold \delta, when new sensor value will be added to the queue.
+	Set the change threshold \delta, when new sensor value will be
+	added to the queue.
 	Proirity of filters comes as follow:
 */
-void SetDeltaAS(int agg_id, const char* address, uint16_t sensor_id, double delta);
+void SetDeltaAS(int agg_id, const char* address, uint16_t sensor_id
+	, double delta);
 void SetDeltaS(int agg_id, uint16_t sensor_id, double delta);
 void SetDeltaA(int agg_id, const char* address, double delta);
 void SetDelta(int agg_id, double delta);
 
 /**
-	Set the absolute threshold \abs_delta, when new sensor value will be added to the queue.
+	Set the absolute threshold \abs_delta, when new sensor value will be
+	added to the queue.
 	Proirity of filters comes as follow:
 */
-void SetAbsDeltaAS(int agg_id, const char* address, uint16_t sensor_id, double delta);
+void SetAbsDeltaAS(int agg_id, const char* address, uint16_t sensor_id
+	, double delta);
 void SetAbsDeltaS(int agg_id, uint16_t sensor_id, double delta);
 void SetAbsDeltaA(int agg_id, const char* address, double delta);
 void SetAbsDelta(int agg_id, double delta);
 
 /**
-	Set the time threshold \max_interval, when new sensor value will be added to the queue.
+	Set the time threshold \max_interval, when new sensor value will be
+	added to the queue.
 	Proirity of filters comes as follow:
 */
-void SetIntervalAS(int agg_id, const char* address, uint16_t sensor_id, int max_interval);
+void SetIntervalAS(int agg_id, const char* address, uint16_t sensor_id
+	, int max_interval);
 void SetIntervalA(int agg_id, const char* address, int max_interval);
 void SetIntervalS(int agg_id, uint16_t sensor_id, int max_interval);
 void SetInterval(int agg_id, int max_interval);
 
 /**
-	Returns \seconds interval of data from circular buffer, corresponding to
-	\address and \id.
+	Returns \seconds interval of data from circular buffer, corresponding
+	to \address and \id.
 */
-SPacket* GetInterval(int agg_id, const char* address, uint16_t id, uint16_t num, size_t from, size_t upto, size_t* count);
+SPacket* GetInterval(int agg_id, const char* address, uint16_t id
+	, uint16_t num, size_t from, size_t upto, size_t* count);
 
 /**
-	Returns pointer to collected data. And they will not be availiable throught
-	this function, anymore.
-	(!) When you call this 2nd time, data from previous call are deleted.
-	(!) Also they will be deleted, when the librarys is unloaded.
+	Returns pointer to collected data, they will not be availiable
+	throught this function, anymore.
 	Returns array of \SPacket and writes the length into the \count.
 */
 SPacket* GetAllData(int agg_id, size_t* count);

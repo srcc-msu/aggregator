@@ -23,7 +23,7 @@ void CBufferAggregator :: Add(const SPacketExt& ext_packet)
 {
 	const SPacket& packet = ext_packet.packet;
 
-	uint32_t buff_value = packet.sensor_id << 16 | packet.sensor_num;
+	uint32_t buff_value = SENS_UID(packet.sensor_id, packet.sensor_num);
 
 	if(!allowed_id.IsIn(packet.sensor_id))
 		return;
@@ -50,7 +50,7 @@ SPacket* CBufferAggregator :: GetInterval(uint32_t address
 	, size_t upto, size_t* count)
 {
 	throw CException("GetInterval is NIY");
-	
+
 	if(!allowed_id.IsIn(sensor_id))
 	{
 		DMSG1("requested sensor" << sensor_id
@@ -58,7 +58,7 @@ SPacket* CBufferAggregator :: GetInterval(uint32_t address
 		return nullptr;
 	}
 
-	uint32_t buff_value = sensor_id << 16 | sensor_num;
+	uint32_t buff_value = SENS_UID(sensor_id, sensor_num);
 
 	if(buffers[address].count(buff_value) != 0)
 		return buffers[address][buff_value]->Get(from, upto, count);

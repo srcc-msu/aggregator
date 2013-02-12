@@ -43,6 +43,10 @@ private:
 	char* buffer;
 
 public:
+
+/**
+    TODO: mem corruption?
+*/
     const char* what() const throw()
     {
     	sprintf(buffer, "%s\n[ errno = %2d ]: %s\n", str, errno, strerror(errno));

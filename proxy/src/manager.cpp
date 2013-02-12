@@ -23,7 +23,7 @@ const SPacket* DupPacket(const SPacket* val, size_t& count)
     memset(t + count, 0, addition * sizeof(SPacket));
 
     count = mem_size;
-    
+
     return t;
 }
 

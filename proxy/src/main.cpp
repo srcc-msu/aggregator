@@ -5,6 +5,7 @@ using namespace std;
 #include "socket.h"
 #include "manager.h"
 
+
 int main(int argc, char** argv)
 {
     printf("\n --- starting proxy --- \n\n");
@@ -18,23 +19,17 @@ int main(int argc, char** argv)
 
     CProxyManager proxy(config_fname);
 
-//    int fd1 = open("test1", O_WRONLY | O_CREAT, 0666);
     proxy.BackgroundProcess();
 
     proxy.BackgroundDispatch();
 
-    int fd = ConnectUDSocket("/tmp/agg_socket");
-
-//    int reader = ListenTCPSocket(fd);
-
-    proxy.AddBinaryStream(fd);
+    proxy.AddBinaryStream(dynamic_pointer_cast<CSocket>
+        (make_shared<CUDSocket>("/tmp/agg_socket", CSocket :: CONNECT)));
 
     while(1)
     {
         sleep(1);
     }
-
-    close(fd);
 
     printf("\n --- proxy finished --- \n\n");
 

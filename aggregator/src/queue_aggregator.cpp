@@ -31,7 +31,7 @@ UValue CQueueAggregator :: CalcAverage(uint32_t address
 
 	for(int i = 0; i < count; i++)
 	{
-		uint32_t buff_value = sensor_id << 16 | (i + 1);
+		uint32_t buff_value = SENS_UID(sensor_id, i + 1);
 
 		packet = last_occurance[address][buff_value].last;
 		sum = GetSum(sum, packet.value, packet.info.type
@@ -56,13 +56,13 @@ void CQueueAggregator :: AddSpeed(SPacketExt& ext_packet) const
 {
 	if(!IsSpeedId(ext_packet.packet.sensor_id))
 		return;
-	
+
 	auto it_add = last_occurance.find(ext_packet.packet.address.b4[0]);
-	
+
 	if(it_add == last_occurance.end())
 		return;
 
-	uint32_t buff_value = ext_packet.packet.sensor_id << 16 | ext_packet.packet.sensor_num;
+	uint32_t buff_value = SENS_UID(ext_packet.packet.sensor_id, ext_packet.packet.sensor_num);
 
 	auto it_sens = it_add->second.find(buff_value);
 
@@ -102,7 +102,7 @@ void CQueueAggregator :: UnblacklistId(uint16_t sensor_id)
 int CQueueAggregator :: Filter(SPacketExt& ext_packet)
 {
 	const SPacket& packet = ext_packet.packet; // short
-	uint32_t buff_value = packet.sensor_id << 16 | packet.sensor_num;
+	uint32_t buff_value = SENS_UID(packet.sensor_id, packet.sensor_num);
 
 	int allow_res = 0;
 
@@ -145,7 +145,7 @@ int CQueueAggregator :: Filter(SPacketExt& ext_packet)
 
 //	abs delta
 	double abs_delta = fabs(diff);
-	
+
 	if(filter.max_interval > 0 && (interval >= filter.max_interval
 		|| last_filter.last.packet.agent_timestamp == 0))
 		allow_res = 1;

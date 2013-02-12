@@ -17,7 +17,7 @@ template<typename T>
 class CFWrap
 {
 private:
-/// only one instance of this class will write to disk at single moment	
+/// only one instance of this class will write to disk at single moment
 	static mutex global_write_mutex;
 
 /// full directory for file

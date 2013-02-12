@@ -17,7 +17,7 @@ void CConnectionManager :: Init()
 	data_socket_inf.sin_addr.s_addr = htonl(INADDR_ANY);
 
 	data_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	
+
 	if(data_socket == -1)
 		throw CSyscallException("socket() creation failed");
 
@@ -51,7 +51,7 @@ int CConnectionManager :: FormV1RedirectMessage(unsigned char* msg
 {
 	unsigned char* ptr = write_str(msg
 		, (unsigned char*)"MMCS.ACF\x00\x01\x00\x00", 12);
-	
+
 	uint32_t zero = 0;
 
 	ptr = write_str(ptr, (unsigned char*) &address, 4); // pretend address
@@ -60,7 +60,7 @@ int CConnectionManager :: FormV1RedirectMessage(unsigned char* msg
 		ptr = write_str(ptr, (unsigned char*) &zero, 3); // address field filler
 
 	ptr = write_str(ptr, (unsigned char*) &aggr_address, 4); // agrhost
-	
+
 	for(int i = 0; i < 4; i++)
 		ptr = write_str(ptr, (unsigned char*) &zero, 3); // address field filler
 
@@ -105,9 +105,9 @@ void CConnectionManager :: InitAgent(uint32_t address)
 //	form and send V1 control message
 
 	unsigned char msg[1024] = "";
-	
+
 	int len = FormV1RedirectMessage(msg, address);
-  	
+
   	int bytes_send = sendto(ctl_socket, msg, len, 0
   		, (sockaddr*) &agent_address, sizeof(agent_address));
 

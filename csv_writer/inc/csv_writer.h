@@ -10,6 +10,7 @@ using namespace std;
 #include "fwrap.h"
 
 #include "aggregator_api.h"
+#include "socket.h"
 
 /**
 	get \SPacket's from the stream and store them in set of files
@@ -38,7 +39,7 @@ public:
     them to apropriate files
     mem_chunk - count of packets from one message
 */
-    void FromBin(int fd, size_t mem_chunk);
+    void FromBin(shared_ptr<CSocket> socket, size_t mem_chunk);
 
     CCsvWriter(const string& config_fname):
     max_lines(-1),

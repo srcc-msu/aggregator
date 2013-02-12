@@ -12,13 +12,18 @@
 /**
 	Implements so called 'trehsotsecundnij buffer'
 	stores all packets in set of circular buffers.
-	Implemented using std::unordered_map. TODO check performance
+	Implemented using std::unordered_map.
+	TODO check performance, NOT threadsafe
 */
 class CBufferAggregator
 {
 private:
-//	sensor id and num encoded into 1st value sensor_id << 16 | sensor_num
-	std::unordered_map<uint32_t, std::unordered_map<uint32_t, CCircularBuffer<SPacket>* >> buffers;
+//	sensor id and num must encoded into 1st value using SENS_UID
+	typedef std::unordered_map<uint32_t, CCircularBuffer<SPacket>* > sens_buffer_map;
+	typedef std::unordered_map<uint32_t, sens_buffer_map> addr_sens_buffer_map;
+
+	addr_sens_buffer_map buffers;
+
 	AccessList<uint16_t> allowed_id;
 
 public:
@@ -43,10 +48,16 @@ public:
 */
 	void DisallowId(uint16_t sensor_id);
 
-//	Add single packet to the buffer
+/**
+	Add single packet to the buffer
+*/
 	void Add(const SPacketExt& ext_packet);
 
-//	Get the \seconds interval data for one sesnor on one node from the buffer
+/**
+	Get the \seconds interval data for one sesnor on one node from the buffer
+	TODO may be inconsistence (??)
+	it safe for memory, introducing a mutex may hurt performance too hard..
+*/
 	SPacket* GetInterval(uint32_t address, uint16_t sensor_id, uint16_t sensor_num, size_t from, size_t upto, size_t* count);
 
 	CBufferAggregator()

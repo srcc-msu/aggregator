@@ -49,17 +49,17 @@ public:
 /**
 	register binary stream
 */
-    void AddBinaryStream(int fd)
+    void AddBinaryStream(shared_ptr<CSocket> socket)
     {
-        BackgroundStream(new CBinaryFdWriter(fd, MEM_CHUNK), duplicator.Subscribe());
+        BackgroundStream(new CBinaryFdWriter(socket, MEM_CHUNK), duplicator.Subscribe());
     }
 
 /**
 	register json stream NIY
 */
-    void AddJsonStream(int fd)
+    void AddJsonStream(shared_ptr<CSocket> socket)
     {
-        BackgroundStream(new CJsonFdWriter(fd), duplicator.Subscribe());
+        BackgroundStream(new CJsonFdWriter(socket), duplicator.Subscribe());
     }
 
 /**

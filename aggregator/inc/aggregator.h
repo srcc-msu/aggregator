@@ -30,7 +30,7 @@ void BackgroundAgentHelper(CAggregator* agg, int sleep_time);
 /**
 	Listens the socket for all incoming packets and agregates them
 	in the set of circualr buffers and one queue
-	also provides access to them and manages filtering options(TODO).
+	also provides access to them and manages filtering options
 */
 class CAggregator
 {
@@ -48,14 +48,31 @@ public:
 	long stat_filtered_blacklist;
 	long stat_added;
 
+
+/**
+	print stat about flitration, discards old values
+*/
 	void Stat();
 
+/**
+	print stat about active agents, reinit notresponding agents
+*/
 	void AgentsStat();
 
+/**
+	start a thread, which will print \Stat() every \sleep_time
+*/
 	void BackgroundAgentsStat(int sleep_time);
 
+/**
+	start a thread, which will print \AgentStat() every \sleep_time
+*/
 	void BackgroundStat(int sleep_time);
 
+
+/**
+	>.> <.<
+*/
 	CConnectionManager& Connection()
 		{ return connection; }
 
@@ -65,18 +82,25 @@ public:
 	CQueueAggregator& QueueAggregator()
 		{ return queue_aggregator; }
 
-	void AccumulateStat(int res);
+/**
+	accumulate statistics about one packet, basing on
+	\result of its filtration
+*/
+	void AccumulateStat(int result);
 
 /**
-	some terrible function, that adds form \packets_buffer from incoming \sans_data
-	extracting it from \Process did not go well...	
+	some terrible function, that form \packets_buffer from
+	incoming \sens_data
+	extracting it from \Process did not go well...
+	TODO rework
 */
 	void ProcessSensor(unsigned int sensor_id, nm_data_hdr_t* header,
 		unsigned char* sens_data, size_t val_size, size_t count,
-		const timeval& current_time, SPacket* packets_buffer, int& packets_count);
+		const timeval& current_time, SPacket* packets_buffer
+		, int& packets_count);
 
 /**
-	Recieve one message from the socket, converts it as needed
+	Recieve one message from the socket, convert it as needed
 	and stores it into queues.
 */
 	void Process();
