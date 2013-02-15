@@ -34,6 +34,8 @@ void CProxyManager :: BackgroundStreamHelper(CFdWriter* writer
 
     printf("new subscriber %zu\n", subscriber_id);
 
+    int step = 0;
+
     while(1)
     {
         size_t count = 0;
@@ -51,8 +53,9 @@ void CProxyManager :: BackgroundStreamHelper(CFdWriter* writer
                 return;
             }
 
-            printf("streamed     %5zu to %2zu; sleeping         %8d  (%d bytes)\n",
-                count, subscriber_id, sleeper.GetTime(), bytes_send);
+            if(step++ % 32 == 0) // print just few for statistics
+                printf("streamed %5zu to %2zu (%d bytes) ; sleeping %8d\n",
+                    count, subscriber_id, sleeper.GetTime(), bytes_send);
 
             delete[] msg;
         }
@@ -63,9 +66,11 @@ void CProxyManager :: BackgroundStreamHelper(CFdWriter* writer
     printf("end\n");
 }
 
-void CProxyManager :: BackgroundStream(CFdWriter* writer, size_t subscriber_id)
+void CProxyManager :: BackgroundStream(CFdWriter* writer
+    , size_t subscriber_id)
 {
-    thread t(&CProxyManager :: BackgroundStreamHelper, this, writer, subscriber_id);
+    thread t(&CProxyManager :: BackgroundStreamHelper
+        , this, writer, subscriber_id);
 
     t.detach();
 }
@@ -74,12 +79,15 @@ void CProxyManager :: BackgroundDispatchHelper()
 {
     CDynSleeper sleeper;
 
+    int step = 0;
+
     while(1)
     {
         size_t count = Dispatch();
 
-        printf("duplicated   %5zu      ; sleeping %8d\n"
-            , count, sleeper.GetTime());
+        if(count != 0 && step++ % 32 == 0) // print just few for statistics
+            printf("duplicated %5zu ; sleeping %8d\n"
+                , count, sleeper.GetTime());
 
         sleeper.Sleep(count < 1024);
     }
@@ -99,11 +107,12 @@ int CProxyManager :: Dispatch()
     if(count == 0)
         return count;
 
-    duplicator.Add(packets, count, DupPacket);
+    int sub = duplicator.Add(packets, count, DupPacket);
 
-    delete[] packets;
+    if(packets)
+        delete[] packets;
 
-    return count;
+    return (sub == 0) ? 0 : count;
 }
 
 void CProxyManager :: BackgroundDispatch()

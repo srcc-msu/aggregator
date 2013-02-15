@@ -5,6 +5,7 @@
 #include <string>
 #include <algorithm>
 #include <thread>
+#include <vector>
 
 using namespace std;
 
@@ -21,11 +22,37 @@ using namespace std;
 #include "buffer_aggregator.h"
 #include "queue_aggregator.h"
 
-class CAggregator;
+nm_data_hdr_t* MapHeaderNtoH(unsigned char* buffer);
 
-void BackgroundStatHelper(CAggregator* agg, int sleep_time);
+/**
+	stores pointers and service info about packets
+	can be consturcted from raw packet data
+*/
+struct SDecodedPacket
+{
+	size_t bytes_read;
 
-void BackgroundAgentHelper(CAggregator* agg, int sleep_time);
+	nm_data_hdr_t* header;
+	size_t sens_offset;
+
+	unsigned char* sens_data;
+	size_t data_size;
+
+	timeval current_time;
+
+	SDecodedPacket(unsigned char* _buffer, size_t _bytes_read):
+		bytes_read(_bytes_read)
+	{
+		header = MapHeaderNtoH(_buffer);
+		sens_offset = sizeof(nm_data_hdr_t);
+		sens_data = _buffer + sens_offset;
+		data_size = bytes_read - sizeof(nm_data_hdr_t);
+
+		gettimeofday(&current_time, NULL);
+	}
+
+	SDecodedPacket() = delete;
+};
 
 /**
 	Listens the socket for all incoming packets and agregates them
@@ -48,27 +75,27 @@ public:
 	long stat_filtered_blacklist;
 	long stat_added;
 
-
 /**
 	print stat about flitration, discards old values
 */
-	void Stat();
+	void Stat(int sleep_time);
 
 /**
 	print stat about active agents, reinit notresponding agents
 */
-	void AgentsStat();
+	void AgentsStat(int sleep_time);
 
 /**
 	start a thread, which will print \Stat() every \sleep_time
 */
 	void BackgroundAgentsStat(int sleep_time);
+	void BackgroundAgentHelper(int sleep_time);
 
 /**
 	start a thread, which will print \AgentStat() every \sleep_time
 */
 	void BackgroundStat(int sleep_time);
-
+	void BackgroundStatHelper(int sleep_time);
 
 /**
 	>.> <.<
@@ -89,15 +116,12 @@ public:
 	void AccumulateStat(int result);
 
 /**
-	some terrible function, that form \packets_buffer from
-	incoming \sens_data
-	extracting it from \Process did not go well...
-	TODO rework
+	process sensor chunk and add all sensors to \packets_buffer
 */
-	void ProcessSensor(unsigned int sensor_id, nm_data_hdr_t* header,
-		unsigned char* sens_data, size_t val_size, size_t count,
-		const timeval& current_time, SPacket* packets_buffer
-		, int& packets_count);
+	void ProcessChunk(const SDecodedPacket& packet
+		, uint16_t sensor_id, size_t count, size_t val_size
+		, unsigned char* sens_data
+		, vector<SPacket>& packets_buffer);
 
 /**
 	Recieve one message from the socket, convert it as needed
@@ -105,8 +129,10 @@ public:
 */
 	void Process();
 
+	void ProcessPacket(const SDecodedPacket& packet);
+
 	CAggregator(int port, uint32_t address):
-	connection(port, address)
+		connection(port, address)
 	{
 		InitMetainf();
 	}

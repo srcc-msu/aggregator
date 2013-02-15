@@ -37,13 +37,14 @@ struct SensorFilterMetainf
 */
 	int max_interval;
 
-	SPacketExt last; // last packet, stored to compare
+	SPacket last; // last packet, stored to compare
 
-	SensorFilterMetainf(double _delta = DEFAULT_DELTA, double _abs_delta = DEFAULT_ABS_DELTA,
-		int _max_interval = DEFAULT_MAX_INTERVAL):
-	delta(_delta),
-	abs_delta(_abs_delta),
-	max_interval(_max_interval)
+	SensorFilterMetainf(double _delta = DEFAULT_DELTA
+		, double _abs_delta = DEFAULT_ABS_DELTA
+		, int _max_interval = DEFAULT_MAX_INTERVAL):
+		delta(_delta),
+		abs_delta(_abs_delta),
+		max_interval(_max_interval)
 	{}
 };
 
@@ -71,16 +72,16 @@ private:
 	If requested \address and/or \sensor_id found - does not check next.
 */
 
-//	address + sensor_id filter
+// address + sensor_id filter
 	addr_sens_info_param filters;
 
-//	address filter
+// address filter
 	addr_info_param address_filters;
 
-//	sensor_id filter
+// sensor_id filter
 	sens_info_param sensor_id_filters;
 
-//	default fiter, if noone of above match
+// default fiter, if noone of above match
 	SensorFilterMetainf default_filter;
 
 	AccessList<uint16_t> id_blacklist;
@@ -89,19 +90,19 @@ private:
 
 
 // TODO: there must be 2*const
-	int Filter(SPacketExt& ext_packet);
+	int Filter(SPacket& packet);
 
 /**
 	slow fnction, that checks and add single sensor packet using mutex
 	more efficient to use \Filter + \UncheckedAdd (many packets)
 */
-	void Add(SPacketExt& ext_packet);
+	void Add(SPacket& packet);
 
 /**
 	Writes speed value to the packet, if it is in \id_speed access list
 	speed is calculated by the current value and value from \last_occurance.
 */
-	void AddSpeed(SPacketExt& ext_packet, double diff, int interval) const;
+	void AddSpeed(SPacket& packet, double diff, int interval) const;
 
 public:
 /**
@@ -128,7 +129,7 @@ public:
 	writes speed to the \ext_packet, if it is allowed
 	TODO: change
 */
-	void AddSpeed(SPacketExt& ext_packet) const;
+	void AddSpeed(SPacket& packet) const;
 
 /**
 	Blacklisted packets will not be added anywhere, like they never existed
@@ -176,7 +177,7 @@ public:
 	add multiple packets to the queue, without checking
 	uses only one mutex block
 */
-	void UncheckedAdd(SPacket* packets, size_t count);
+	void UncheckedAdd(vector<SPacket>& packets);
 
 /**
 	get average \UValue for all \sensor_id, from \address
@@ -184,16 +185,17 @@ public:
 */
 	UValue CalcAverage(uint32_t address, uint16_t sensor_id, int count);
 
-
 /**
 	checks if the packet is allowed to pass in queue
 	0 - not; positives - yes
 	1 - \max_interval exceed, 2 - \delta exceed, 3 - \abs_delta exceed
 */
-	int Check(SPacketExt& ext_packet);
+	int Check(SPacket& packet);
 
 	SPacket* GetAllData(size_t* count)
-		{ return queue.GetAll(count); }
+	{
+		return queue.GetAll(count); 
+	}
 
 	CQueueAggregator()
 	{}

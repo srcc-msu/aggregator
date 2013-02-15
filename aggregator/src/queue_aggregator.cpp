@@ -6,7 +6,7 @@
 
 void CQueueAggregator :: RegisterAverageId(uint16_t sensor_id)
 {
-	DMSG1("added to the queue average list: " << sensor_id);
+DMSG1("added to the queue average list: " << sensor_id);
 
 	id_average.Add(sensor_id);
 }
@@ -15,7 +15,7 @@ void CQueueAggregator :: RegisterAverageId(uint16_t sensor_id)
 
 void CQueueAggregator :: RegisterSpeedId(uint16_t sensor_id)
 {
-	DMSG1("added to the queue speed list: " << sensor_id);
+DMSG1("added to the queue speed list: " << sensor_id);
 
 	id_speed.Add(sensor_id);
 }
@@ -27,42 +27,42 @@ UValue CQueueAggregator :: CalcAverage(uint32_t address
 {
 	UValue sum;
 
-	SPacketExt packet;
+// all that packet must have the same type and we will use last in the end
+	SPacket packet;
 
 	for(int i = 0; i < count; i++)
 	{
 		uint32_t buff_value = SENS_UID(sensor_id, i + 1);
 
 		packet = last_occurance[address][buff_value].last;
-		sum = GetSum(sum, packet.value, packet.info.type
-			, packet.info.msg_length);
+		sum = GetSum(sum, packet.value, packet.type);
 	}
 
-	return MultValue(sum, packet.info.type, packet.info.msg_length
-		, 1.0 / count);
+	return MultValue(sum, packet.type, 1.0 / count);
 }
 
 //--------------------------------
 
-void CQueueAggregator :: AddSpeed(SPacketExt& ext_packet, double diff, int interval) const
+void CQueueAggregator :: AddSpeed(SPacket& packet, double diff
+	, int interval) const
 {
-	if(!IsSpeedId(ext_packet.packet.sensor_id))
+	if(!IsSpeedId(packet.sensor_id))
 		return;
 
-	ext_packet.packet.speed = (interval != 0) ? diff / interval : 0;
+	packet.speed = (interval != 0) ? diff / interval : 0;
 }
 
-void CQueueAggregator :: AddSpeed(SPacketExt& ext_packet) const
+void CQueueAggregator :: AddSpeed(SPacket& packet) const
 {
-	if(!IsSpeedId(ext_packet.packet.sensor_id))
+	if(!IsSpeedId(packet.sensor_id))
 		return;
 
-	auto it_add = last_occurance.find(ext_packet.packet.address.b4[0]);
+	auto it_add = last_occurance.find(packet.address.b4[0]);
 
 	if(it_add == last_occurance.end())
 		return;
 
-	uint32_t buff_value = SENS_UID(ext_packet.packet.sensor_id, ext_packet.packet.sensor_num);
+	uint32_t buff_value = SENS_UID(packet.sensor_id, packet.sensor_num);
 
 	auto it_sens = it_add->second.find(buff_value);
 
@@ -71,42 +71,41 @@ void CQueueAggregator :: AddSpeed(SPacketExt& ext_packet) const
 
 	const SensorFilterMetainf& last_filter = it_sens->second;
 
-//	time diff
-	int interval = ext_packet.packet.agent_timestamp
-		- last_filter.last.packet.agent_timestamp;
+// time diff
+	int interval = packet.agent_timestamp
+		- last_filter.last.agent_timestamp;
 
-	double diff = GetDiff(ext_packet.value, last_filter.last.value,
-		ext_packet.info.type, last_filter.last.info.msg_length);
+	double diff = GetDiff(packet.value, last_filter.last.value
+		, packet.type);
 
-	ext_packet.packet.speed = diff / interval;
+	packet.speed = diff / interval;
 }
 
 //--------------------------------
 
 void CQueueAggregator :: BlacklistId(uint16_t sensor_id)
 {
-	DMSG1("added to the queue blacklist: " << sensor_id);
+DMSG1("added to the queue blacklist: " << sensor_id);
 
 	id_blacklist.Add(sensor_id);
 }
 
 void CQueueAggregator :: UnblacklistId(uint16_t sensor_id)
 {
-	DMSG1("removed from the queue blacklist: " << sensor_id);
+DMSG1("removed from the queue blacklist: " << sensor_id);
 
 	id_blacklist.Remove(sensor_id);
 }
 
 //--------------------------------
 
-int CQueueAggregator :: Filter(SPacketExt& ext_packet)
+int CQueueAggregator :: Filter(SPacket& packet)
 {
-	const SPacket& packet = ext_packet.packet; // short
 	uint32_t buff_value = SENS_UID(packet.sensor_id, packet.sensor_num);
 
 	int allow_res = 0;
 
-//	get appropriate filter
+// get appropriate filter
 	SensorFilterMetainf filter = default_filter;
 
 	SensorFilterMetainf& last_filter =
@@ -115,39 +114,41 @@ int CQueueAggregator :: Filter(SPacketExt& ext_packet)
  	if(filters[packet.address.b4[0]].find(packet.sensor_id)
  		!= filters[packet.address.b4[0]].end())
  	{
- 		DMSG2(packet.address.b4[0] << " and " << packet.sensor_id
+DMSG2(packet.address.b4[0] << " and " << packet.sensor_id
  			<< " present in filter")
  		filter = filters[packet.address.b4[0]][packet.sensor_id];
  	}
 
- 	else if(address_filters.find(packet.address.b4[0]) != address_filters.end())
+	else if(address_filters.find(packet.address.b4[0])
+		!= address_filters.end())
 	{
- 		DMSG2(packet.address.b4[0] << " presents in filter")
+DMSG2(packet.address.b4[0] << " presents in filter")
  		filter = address_filters[packet.address.b4[0]];
 	}
 
- 	else if(sensor_id_filters.find(packet.sensor_id) != sensor_id_filters.end())
+	else if(sensor_id_filters.find(packet.sensor_id)
+		!= sensor_id_filters.end())
  	{
- 		DMSG2(packet.sensor_id << " presents in filter")
+DMSG2(packet.sensor_id << " presents in filter")
  		filter = sensor_id_filters[packet.sensor_id];
 	}
 
-//	time diff
+// time diff
 	int interval = packet.agent_timestamp
-		- last_filter.last.packet.agent_timestamp;
+		- last_filter.last.agent_timestamp;
 
-//	relative delta
-	double delta = fabs(GetDiv(ext_packet.value, last_filter.last.value,
-		ext_packet.info.type, last_filter.last.info.msg_length) - 1.0);
+// relative delta
+	double delta = fabs(GetDiv(packet.value, last_filter.last.value,
+		packet.type) - 1.0);
 
-	double diff = GetDiff(ext_packet.value, last_filter.last.value,
-		ext_packet.info.type, last_filter.last.info.msg_length);
+	double diff = GetDiff(packet.value, last_filter.last.value,
+		packet.type);
 
-//	abs delta
+// abs delta
 	double abs_delta = fabs(diff);
 
 	if(filter.max_interval > 0 && (interval >= filter.max_interval
-		|| last_filter.last.packet.agent_timestamp == 0))
+		|| last_filter.last.agent_timestamp == 0))
 		allow_res = 1;
 
 	else if(filter.delta > 0 && delta > filter.delta)
@@ -156,38 +157,37 @@ int CQueueAggregator :: Filter(SPacketExt& ext_packet)
 	else if(filter.abs_delta > 0 && abs_delta > filter.abs_delta)
 		allow_res = 3;
 
-	DMSG2("time diff " << interval << "      max_int " << filter.max_interval <<
-		"      delta " << delta << "      filter.delta " << filter.delta <<
-		"      abs_delta " << abs_delta << "      filter.abs_delta " << filter.abs_delta <<
-		(allow_res ? "      let it pass!" : "         drop it!") <<
-		packet.data_string << " " << last_filter.last.packet.data_string <<
-		" " << (unsigned long long)ext_packet.value.b8[0] <<
-		" " << (unsigned long long)last_filter.last.value.b8[0])
+DMSG2("interval " << interval << "      max_int " << filter.max_interval
+	<< "      delta " << delta << "      filter.delta " << filter.delta
+	<< "      abs_delta " << abs_delta << "      filter.abs_delta "
+	<< filter.abs_delta
+	<< (allow_res ? "      let it pass!" : "         drop it!")
+	<< " " << (unsigned long long)packet.value.b8[0]
+	<< " " << (unsigned long long)last_filter.last.value.b8[0])
 
 	if(allow_res)
 	{
-		AddSpeed(ext_packet, diff, interval);
-		last_filter.last = ext_packet;
+		AddSpeed(packet, diff, interval);
+		last_filter.last = packet;
 	}
 
 	return allow_res;
 }
 
-void CQueueAggregator :: Add(SPacketExt& ext_packet)
+void CQueueAggregator :: Add(SPacket& packet)
 {
-	if(Check(ext_packet) > 0)
-		queue.Add(ext_packet.packet);
+	if(Check(packet) > 0)
+		queue.Add(packet);
 }
 
-int CQueueAggregator :: Check(SPacketExt& ext_packet)
+int CQueueAggregator :: Check(SPacket& packet)
 {
-	return Filter(ext_packet);
+	return Filter(packet);
 }
 
-void CQueueAggregator :: UncheckedAdd(SPacket* packets_buffer
-	, size_t count)
+void CQueueAggregator :: UncheckedAdd(vector<SPacket>& packets_buffer)
 {
-	queue.Add(packets_buffer, count);
+	queue.Add(packets_buffer);
 }
 
 //--------------------------------

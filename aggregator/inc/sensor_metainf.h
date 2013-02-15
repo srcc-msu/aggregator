@@ -18,7 +18,8 @@ struct SSensorMetainf
 	size_t msg_length;
 	double scale;
 
-	SSensorMetainf(e_sens_type type = INTEGER, size_t msg_length = 0, double scale = 1.0):
+	SSensorMetainf(e_sens_type type = INTEGER, size_t msg_length = 0
+		, double scale = 1.0):
 	type(type),
 	msg_length(msg_length),
 	scale(scale)

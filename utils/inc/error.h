@@ -27,7 +27,7 @@ public:
     }
 
     CException(const char* _str = nullptr):
-    str(_str)
+        str(_str)
     {}
 };
 
@@ -55,7 +55,7 @@ public:
     }
 
     CSyscallException(const char* _str = ""):
-    str(_str)
+        str(_str)
     {
     	size_t len = strlen(str);
     	buffer = new char[len + MAX_ERR_STR + 32];

@@ -14,6 +14,11 @@ union UIP
 {
     uint32_t b4[1];
     uint8_t b1[4];
+
+    UIP(uint32_t _b4 = 0)
+    {
+        b4[0] = _b4;
+    }
 };
 
 /**
@@ -21,39 +26,6 @@ union UIP
 */
 #define SENS_UID(sensor_id, sensor_num) ((sensor_id) << 16 | (sensor_num))
 
-/**
-    A base structure, that will be sent to upper level
-    TODO learn if more info needed
-*/
-struct SPacket
-{
-    double speed; // ??? TODO: make separate sensor?
-
-    UIP address; // IPv4
-
-    uint32_t agent_timestamp;
-    uint32_t agent_usec;
-
-    uint32_t server_timestamp;
-    uint32_t server_usec;
-
-    uint16_t sensor_id;
-    uint8_t sensor_num;
-
-    char data_string[MAX_LEN]; // string ??? seems like an easiest way to pass uniform data for now
-
-    SPacket():
-    speed(0),
-    agent_timestamp(0),
-    agent_usec(0),
-    server_timestamp(0),
-    server_usec(0),
-    sensor_id(0),
-    sensor_num(0)
-    {
-        address.b4[0] = 0;
-    }
-};
 
 /**
     union for easier parsing different types
@@ -74,71 +46,102 @@ union UValue
     }
 };
 
+#define CURRENT_VERSION 1
+
+enum class E_VAL_TYPE : uint8_t
+{
+    uint8,
+    uint16,
+    uint32,
+    uint64,
+    int8,
+    int16,
+    int32,
+    int64,
+    float32,
+    float64,
+    none
+};
+
+/**
+    Sensor value, that will be send to upper level
+    protocol version 1
+*/
+struct SPacket
+{
+    UValue value;
+    E_VAL_TYPE type;
+
+    double speed; // ??? TODO: make separate sensor?
+
+    UIP address; // IPv4
+
+    uint32_t server_timestamp;
+    uint32_t server_usec;
+
+    uint32_t agent_timestamp;
+    uint32_t agent_usec;
+
+    uint16_t sensor_id;
+    uint8_t sensor_num;
+
+    uint8_t version;
+
+    SPacket():
+        type(E_VAL_TYPE :: none),
+        speed(0),
+        server_timestamp(0),
+        server_usec(0),
+        agent_timestamp(0),
+        agent_usec(0),
+        sensor_id(0),
+        sensor_num(0),
+        version(CURRENT_VERSION)
+    {}
+
+};
+
 /**
     parse UValue from \buffer according to msg_length
     converts network byte order to normal
 */
 
-UValue ParseSensValue(unsigned char* buffer, size_t msg_length);
+UValue ParseUValue(unsigned char* buffer, size_t msg_length);
 
+/**
+    returns a type of \sensor_id with given msg_length
+    uses sensor_metainf to lookup
+*/
+E_VAL_TYPE GetType(uint16_t sensor_id, e_sens_type type, size_t msg_length);
+
+/**
+    calculates and fills all fields in \packet
+    that should be a default method to create a packet
+*/
+void CreatePacket(SPacket& packet, unsigned char* buffer
+    , uint16_t sensor_id, uint8_t sensor_num
+    , UIP address
+    , uint32_t server_timestamp, uint32_t server_usec
+    , uint32_t agent_timestamp, uint32_t agent_usec);
 
 /**
     self explaining
 */
-double GetDiv(const UValue& v1, const UValue& v2, e_sens_type type, size_t msg_length);
+double GetDiv(const UValue& v1, const UValue& v2, E_VAL_TYPE type);
 
 /**
     self explaining
 */
-double GetDiff(const UValue& v1, const UValue& v2, e_sens_type type, size_t msg_length);
+double GetDiff(const UValue& v1, const UValue& v2, E_VAL_TYPE type);
 
 /**
     self explaining
 */
-UValue GetSum(const UValue& v1, const UValue& v2, e_sens_type type, size_t msg_length);
+UValue GetSum(const UValue& v1, const UValue& v2, E_VAL_TYPE type);
 
 /**
     self explaining
 */
-UValue MultValue(const UValue& value, e_sens_type type, size_t msg_length, double mult);
-
-/**
-    Packet structure with extended info that will be used for filtering.
-    Currently copies and modifies the packet  int internal \packet
-*/
-struct SPacketExt
-{
-    SPacket packet;
-
-    UValue value;
-
-    SSensorMetainf info; // TODO const ref
-
-private:
-
-public:
-    void WriteValueToPacket();
-
-    SPacketExt()
-    {}
-
-/**
-    parses UValue to \value
-    and provide scaling, basing on \sensor_metainf
-*/
-    SPacketExt(SPacket packet, unsigned char* raw_buffer):
-    packet(packet),
-    info(sensor_metainf[packet.sensor_id])
-    {
-        value = ParseSensValue(raw_buffer, info.msg_length);
-        value = MultValue(value, info.type, info.msg_length, info.scale);
-    }
-
-    SPacketExt(SPacket packet, UValue value):
-    packet(packet),
-    value(value),
-    info(sensor_metainf[packet.sensor_id])
-    {}
-};
+UValue MultValue(const UValue& value, E_VAL_TYPE type, double mult);
 
 #endif

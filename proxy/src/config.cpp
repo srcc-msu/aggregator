@@ -17,7 +17,7 @@ void BackgroundInitHelper(int agg_id, Json::Value agents)
 
         InitAgent(agg_id, agent);
         printf("agent %s added\n", agent);
-        usleep(1000);
+        usleep(10000);
     }
 }
 
@@ -51,7 +51,8 @@ int ConfigAggregator(const string& config_fname
 
     if(!reader.parse(buffer.str(), root))
     {
-        fprintf(stderr, "failed to parse configuration: %s\n", reader.getFormatedErrorMessages ().c_str());
+        fprintf(stderr, "failed to parse configuration: %s\n"
+            , reader.getFormatedErrorMessages ().c_str());
 
         throw CException("json parser failed");
     }
@@ -77,18 +78,22 @@ int ConfigAggregator(const string& config_fname
     printf("time interval set to %d\n", interval);
 
 //  person interval filters for sensos
-    const Json::Value sensors_interval = root["server"]["queue"]["sensors_interval"];
+    const Json::Value sensors_interval
+        = root["server"]["queue"]["sensors_interval"];
 
     for(size_t i = 0; i < sensors_interval.size(); i++)
     {
         SetIntervalS(agg_id, sensors_interval[i][0u].asInt()
             , sensors_interval[i][1u].asInt());
+
         printf("sensor %d has personal interval %d\n"
-            , sensors_interval[i][0u].asInt(), sensors_interval[i][1u].asInt());
+            , sensors_interval[i][0u].asInt()
+            , sensors_interval[i][1u].asInt());
     }
 
 //  person delta filters for sensos
-    const Json::Value sensors_delta = root["server"]["queue"]["sensors_delta"];
+    const Json::Value sensors_delta
+        = root["server"]["queue"]["sensors_delta"];
 
     for(size_t i = 0; i < sensors_delta.size(); i++)
     {
@@ -99,14 +104,17 @@ int ConfigAggregator(const string& config_fname
     }
 
 //  person abs_delta filters for sensos
-    const Json::Value sensors_abs_delta = root["server"]["queue"]["sensors_abs_delta"];
+    const Json::Value sensors_abs_delta
+        = root["server"]["queue"]["sensors_abs_delta"];
 
     for(size_t i = 0; i < sensors_abs_delta.size(); i++)
     {
         SetAbsDeltaS(agg_id, sensors_abs_delta[i][0u].asInt()
             , sensors_abs_delta[i][1u].asDouble());
+
         printf("sensor %d has personal abs_delta %lg\n"
-            , sensors_abs_delta[i][0u].asInt(), sensors_abs_delta[i][1u].asDouble());
+            , sensors_abs_delta[i][0u].asInt()
+            , sensors_abs_delta[i][1u].asDouble());
     }
 
 //  sensors to be collected in the buffer
@@ -129,7 +137,8 @@ int ConfigAggregator(const string& config_fname
 
         id_to_name[sensor[0u].asInt()] = sensor[1u].asString();
 
-        printf("name for %d is %s\n", sensor[0u].asInt(), sensor[1u].asCString());
+        printf("name for %d is %s\n", sensor[0u].asInt()
+            , sensor[1u].asCString());
     }
 
 // average

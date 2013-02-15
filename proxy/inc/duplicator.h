@@ -40,7 +40,7 @@ public:
 /**
     duplicate and add message to all subscribers
 */
-    void Add(T msg, size_t count, mult_duplicator DupFunc)
+    int Add(T msg, size_t count, mult_duplicator DupFunc)
     {
         lock_guard<mutex> lock_add(mutex_add);
 
@@ -65,6 +65,7 @@ public:
 
             subscribers[0].push(make_pair(msg, count));
         }*/
+        return subscribers.size();
     };
 
 /**

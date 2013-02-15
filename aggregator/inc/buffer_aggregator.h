@@ -18,7 +18,7 @@
 class CBufferAggregator
 {
 private:
-//	sensor id and num must encoded into 1st value using SENS_UID
+// sensor id and num must encoded into 1st value using SENS_UID
 	typedef std::unordered_map<uint32_t, CCircularBuffer<SPacket>* > sens_buffer_map;
 	typedef std::unordered_map<uint32_t, sens_buffer_map> addr_sens_buffer_map;
 
@@ -51,14 +51,15 @@ public:
 /**
 	Add single packet to the buffer
 */
-	void Add(const SPacketExt& ext_packet);
+	void Add(const SPacket& packet);
 
 /**
 	Get the \seconds interval data for one sesnor on one node from the buffer
 	TODO may be inconsistence (??)
 	it safe for memory, introducing a mutex may hurt performance too hard..
 */
-	SPacket* GetInterval(uint32_t address, uint16_t sensor_id, uint16_t sensor_num, size_t from, size_t upto, size_t* count);
+	SPacket* GetInterval(uint32_t address, uint16_t sensor_id
+		, uint16_t sensor_num, size_t from, size_t upto, size_t* count);
 
 	CBufferAggregator()
 	{}

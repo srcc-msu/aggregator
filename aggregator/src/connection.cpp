@@ -21,13 +21,13 @@ void CConnectionManager :: Init()
 	if(data_socket == -1)
 		throw CSyscallException("socket() creation failed");
 
-    int ret_val = bind(data_socket, (sockaddr *)&data_socket_inf
+    int ret_val = ::bind(data_socket, (sockaddr *)&data_socket_inf
     	, sizeof(data_socket_inf));
 
 	if(ret_val == -1)
 		throw CSyscallException("bind() socket failed");
 
-//	learn what port did we get from OS
+// learn what port did we get from OS
     sockaddr_in info;
 	socklen_t info_len = sizeof(info);
 
@@ -37,7 +37,8 @@ void CConnectionManager :: Init()
 
 //--------------------------------
 
-unsigned char* write_str(unsigned char* dst, unsigned char* str, int count = 0)
+unsigned char* write_str(unsigned char* dst, unsigned char* str
+	, int count = 0)
 {
 	int l = (count == 0) ? strlen((const char*)str) : count;
 	memcpy(dst, str, l);
@@ -74,7 +75,7 @@ int CConnectionManager :: FormV1RedirectMessage(unsigned char* msg
 
 void CConnectionManager :: InitAgent(uint32_t address)
 {
-//	create sending socket
+// create sending socket
 	sockaddr_in ctl_socket_inf;
 	int ctl_socket;
 
@@ -87,22 +88,22 @@ void CConnectionManager :: InitAgent(uint32_t address)
 	if(ctl_socket == -1)
 		throw CSyscallException("socket() creation failed");
 
-    int ret_val = bind(ctl_socket, (struct sockaddr *)&ctl_socket_inf
+    int ret_val = ::bind(ctl_socket, (struct sockaddr *)&ctl_socket_inf
     	, sizeof(ctl_socket_inf));
 
 	if(ret_val == -1)
 		throw CSyscallException("bind() socket failed");
 
-//	create destionation address
+// create destionation address
 	sockaddr_in agent_address;
 	agent_address.sin_family = AF_INET;
     agent_address.sin_port = htons(control_port);
 	agent_address.sin_addr.s_addr = address;
 
-//	register agent
+// register agent
 	agents_activity[agent_address.sin_addr.s_addr] = 0;
 
-//	form and send V1 control message
+// form and send V1 control message
 
 	unsigned char msg[1024] = "";
 
@@ -133,7 +134,7 @@ int CConnectionManager :: GetData(unsigned char* data, int max_count)
 // if the address in a global blacklist - skip
 	if(address_blacklist.IsIn(info.sin_addr.s_addr))
 	{
-		DMSG2("address " << info.sin_addr.s_addr
+DMSG2("address " << info.sin_addr.s_addr
 			<< " is in blacklist, ignoring");
 		return 0;
 	}

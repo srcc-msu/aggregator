@@ -140,13 +140,18 @@ public:
         return bytes_written;
     }
 
+    int Write(const string& data)
+    {
+        return Write(data.c_str(), data.size());
+    }
+
     ~CSocket()
     {
         socket_fd = -1;
     }
 
     CSocket():
-    socket_fd(-1)
+        socket_fd(-1)
     {}
 };
 
@@ -157,6 +162,12 @@ private:
 
     virtual void Create()
     {
+        if(access(fname.c_str(), F_OK) == 0)
+        {
+            fprintf(stderr, "file exists %s\n", fname.c_str());
+            throw CException("can not create socket");
+        }
+
         sockaddr_un address;
         memset(&address, 0, sizeof(sockaddr_un));
         address.sun_family = AF_UNIX;
@@ -170,7 +181,8 @@ private:
 
         snprintf(address.sun_path, UNIX_PATH_MAX, "%s", fname.c_str());
 
-        if(::bind(socket_fd, (sockaddr *) &address, sizeof(sockaddr_un)) != 0) // conflicts with std::bind
+        if(::bind(socket_fd, (sockaddr *) &address
+            , sizeof(sockaddr_un)) != 0) // conflicts with std::bind
         {
             throw CSyscallException("bind() failed");
         }
@@ -183,7 +195,7 @@ private:
         if(socket_fd == -1)
             throw CSyscallException("socket() creation failed");
 
-        //signal(SIGPIPE, SIG_IGN); // prevent getting SIGPIPE; TODO: do some other way?
+//signal(SIGPIPE, SIG_IGN); // prevent getting SIGPIPE; TODO: do some other way?
 
         sockaddr_un address;
         memset(&address, 0, sizeof(sockaddr_un));
@@ -191,9 +203,11 @@ private:
         address.sun_family = AF_UNIX;
         snprintf(address.sun_path, UNIX_PATH_MAX, "%s", fname.c_str());
 
-        if(connect(socket_fd, (sockaddr *) &address, sizeof(sockaddr_un)) != 0)
+        if(connect(socket_fd, (sockaddr *) &address
+            , sizeof(sockaddr_un)) != 0)
         {
-            fprintf(stderr, "can not connect to socket %s\n", fname.c_str());
+            fprintf(stderr, "can not connect to socket %s\n"
+                , fname.c_str());
             throw CSyscallException("connect() failed");
         }
     }
@@ -207,7 +221,7 @@ public:
     }
 
     CUDSocket(const string& _fname, CSocket :: E_TYPE type):
-    fname(_fname)
+        fname(_fname)
     {
         Init(type);
     }

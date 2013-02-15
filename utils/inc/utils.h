@@ -39,10 +39,11 @@ public:
         usleep(sleep_time);
     }
 
-    CDynSleeper(int _min_sleep_time = MIN_SLEEP_TIME, int _max_sleep_time = MAX_SLEEP_TIME):
-    min_sleep_time(_min_sleep_time),
-    max_sleep_time(_max_sleep_time),
-    sleep_time(_min_sleep_time)
+    CDynSleeper(int _min_sleep_time = MIN_SLEEP_TIME
+        , int _max_sleep_time = MAX_SLEEP_TIME):
+        min_sleep_time(_min_sleep_time),
+        max_sleep_time(_max_sleep_time),
+        sleep_time(_min_sleep_time)
     {}
 };
 

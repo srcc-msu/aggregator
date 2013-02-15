@@ -3,9 +3,10 @@
 
 #include <unordered_map>
 #include <iostream>
+#include <vector>
+#include <algorithm>
 
-using std::cout;
-using std::endl;
+using namespace std;
 
 #include <sys/socket.h>
 #include <unistd.h>
@@ -27,7 +28,7 @@ private:
 	int control_port;
 
 // Stores inited agents addresses
-	std::unordered_map<uint32_t, long> agents_activity;
+	unordered_map<uint32_t, long> agents_activity;
 
 	AccessList<uint32_t> address_blacklist;
 
@@ -37,34 +38,42 @@ private:
 	void Init();
 
 public:
-	void AgentStats()
+	void AgentStats(int sleep_time)
 	{
-		int not_responding = 0;
 		long sum = 0;
 		long count = 0;
 
-		for(auto it : agents_activity)
+		vector<std::string> dead_list;
+
+		for(auto& agent : agents_activity)
 		{
-			if(it.second == 0)
+			if(agent.second == 0)
 			{
-				if(not_responding == 0)
-					printf("Not responding agents: ");
-
 				in_addr address;
-				address.s_addr = it.first;
+				address.s_addr = agent.first;
 
-				printf("%s, ", inet_ntoa(address));
-
-				not_responding ++;
+				dead_list.push_back(string(inet_ntoa(address)));
 			}
 			else
 			{
-				sum += it.second;
+				sum += agent.second;
 				count ++;
 			}
 		}
 
-		printf("\nprocessed %ld packets from %ld agents\n", sum, count);
+		if(dead_list.size() > 0)
+		{
+			printf("not responding agetns : %zu\n", dead_list.size());
+			sort(dead_list.begin(), dead_list.end());
+			
+			for(auto& dead_agent : dead_list)
+			{
+				printf("%s\n", dead_agent.c_str());
+			}
+		}
+
+		printf("\nprocessed %ld packets/sec from %ld agents\n"
+			, sum / sleep_time, count);
 	}
 
 	void PokeAgents()
@@ -74,7 +83,7 @@ public:
 			if(it.second == 0)
 			{
 				InitAgent(it.first);
-				DMSG1("agent " << it.first << " is not responding, reiniting");
+DMSG1("agent " << it.first << " is not responding, reiniting");
 				usleep(10000);
 			}
 		}
@@ -115,9 +124,9 @@ public:
 	aggr_address in network byte order
 */
 	CConnectionManager(int control_port, uint32_t aggr_address):
-	aggr_address(aggr_address),
-	aggr_port(0),
-	control_port(control_port)
+		aggr_address(aggr_address),
+		aggr_port(0),
+		control_port(control_port)
 	{
 		Init();
 	}

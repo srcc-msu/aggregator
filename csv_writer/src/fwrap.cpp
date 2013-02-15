@@ -12,6 +12,35 @@ void CFWrap<T> :: ReinitQueue()
 
 //--------------------------------
 
+/**
+    uses sprintf to print \value basing on its \type
+    TODO check, may be VERY slow
+*/
+
+const int MAX_UVALUE_REPR = 64;
+
+const char* UValueToString(UValue value, E_VAL_TYPE type)
+{
+    static char str[64];
+
+    switch(type)
+    {
+        case E_VAL_TYPE :: uint8  : sprintf(str, "%u", value.b1[0]); break;
+        case E_VAL_TYPE :: uint16 : sprintf(str, "%u", value.b2[0]); break;
+        case E_VAL_TYPE :: uint32 : sprintf(str, "%u", value.b4[0]); break;
+        case E_VAL_TYPE :: uint64 : sprintf(str, "%lu", value.b8[0]); break;
+
+        case E_VAL_TYPE :: float32 : sprintf(str, "%f", value.f4[0]); break;
+        case E_VAL_TYPE :: float64 : sprintf(str, "%f", value.f8[0]); break;
+
+        default : 
+            throw CException("unsupported E_VAL_TYPE type during printing");
+    }
+
+    return str;
+}
+//--------------------------------
+
 template <typename T>
 void CFWrap<T> :: WriteHelper(shared_ptr<vector<T>> queue_dump)
 {
@@ -35,9 +64,11 @@ void CFWrap<T> :: WriteHelper(shared_ptr<vector<T>> queue_dump)
 
 	for(auto& it : *queue_dump)
 	{
+
 		fprintf(f, "%u%06u;node-%02u-%02u;%s;%u;%.3f\n"
 			, it.server_timestamp, it.server_usec
-			, it.address.b1[2], it.address.b1[3], it.data_string
+			, it.address.b1[2], it.address.b1[3]
+			, UValueToString(it.value, it.type)
 			, it.sensor_num, it.speed);
 	}
 

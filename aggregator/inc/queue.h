@@ -2,8 +2,10 @@
 #define QUEUE_H
 
 #include <mutex>
-
 #include <cstring>
+#include <vector>
+
+using namespace std;
 
 #include "debug.h"
 #include "error.h"
@@ -18,7 +20,7 @@ template<typename T>
 class CSensorQueue
 {
 private:
-	std::mutex mutex;
+	mutex mut;
 
 	T* queue;
 	size_t pointer;
@@ -43,7 +45,7 @@ public:
 */
 	void Add(T value)
 	{
-		std::lock_guard<std::mutex> lock(mutex);
+		lock_guard<mutex> lock(mut);
 
 		if(pointer == MAX_QUEUE_SIZE)
 			Reinit();
@@ -57,17 +59,49 @@ public:
 */
 	void Add(T* values, size_t count)
 	{
-		std::lock_guard<std::mutex> lock(mutex);
+		lock_guard<mutex> lock(mut);
 
 		if(count > MAX_QUEUE_SIZE)
 			count = count % MAX_QUEUE_SIZE;
 
 		if(pointer == MAX_QUEUE_SIZE || pointer + count >= MAX_QUEUE_SIZE)
-			Reinit();
+		{
+			auto ptr = Reinit();
+
+			if(ptr)
+				delete ptr;
+		}
 
 		memcpy(queue + pointer, values, count * sizeof(T));
 
 		pointer += count;
+	}
+
+/**
+	Add few values to the queue.
+*/
+	void Add(vector<T>& values)
+	{
+		size_t count = values.size();
+
+		lock_guard<mutex> lock(mut);
+
+		if(count > MAX_QUEUE_SIZE)
+			count = count % MAX_QUEUE_SIZE;
+
+		if(pointer == MAX_QUEUE_SIZE || pointer + count >= MAX_QUEUE_SIZE)
+		{
+			auto ptr = Reinit();
+
+			if(ptr)
+				delete ptr;
+		}
+
+		for(auto& it : values)
+		{
+			*(queue + pointer) = it;
+			pointer++;
+		}
 	}
 
 /**
@@ -77,7 +111,7 @@ public:
 */
 	T* GetAll(size_t* count)
 	{
-		std::lock_guard<std::mutex> lock(mutex);
+		lock_guard<mutex> lock(mut);
 
 		if(count)
 			*count = pointer;
@@ -86,8 +120,8 @@ public:
 	}
 
 	CSensorQueue():
-	queue(nullptr),
-	pointer(0)
+		queue(nullptr),
+		pointer(0)
 	{
 		Reinit();
 	}
@@ -108,7 +142,7 @@ template<typename T>
 class CCircularBuffer
 {
 private:
-	mutable std::mutex mutex;
+	mutable mutex mut;
 	T* buffer;
 
 	size_t size;
@@ -124,7 +158,7 @@ private:
 public:
 	void Add(T value)
 	{
-		std::lock_guard<std::mutex> lock(mutex);
+		lock_guard<mutex> lock(mut);
 
 		buffer[pointer++] = value;
 
@@ -138,7 +172,7 @@ public:
 */
 	T* Get(size_t from, size_t upto, size_t* count)
 	{
-        DMSG1(from << " <> " << upto << " requested. current pointer is " << pointer);
+DMSG1(from << " <> " << upto << " requested. current pointer is " << pointer);
 
 		if(from <= upto || upto > size)
 		{
@@ -153,7 +187,7 @@ public:
 
 		T* res = new T[*count];
 
-		std::lock_guard<std::mutex> lock(mutex);
+		lock_guard<mutex> lock(mut);
 
 		int start = pointer - from;
 		int end = pointer - upto;
@@ -179,7 +213,7 @@ public:
 
 	void Resize(size_t new_size)
 	{
-		std::lock_guard<std::mutex> lock(mutex);
+		lock_guard<mutex> lock(mut);
 
 		if(buffer != nullptr)
 			delete[] buffer;
@@ -196,9 +230,9 @@ public:
 	}
 
 	CCircularBuffer(size_t size = DEFAULT_BUFF_SIZE):
-	buffer(nullptr),
-	size(0),
-	pointer(0)
+		buffer(nullptr),
+		size(0),
+		pointer(0)
 	{
 		Resize(size);
 	}

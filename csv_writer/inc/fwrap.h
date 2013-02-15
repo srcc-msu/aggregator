@@ -17,18 +17,18 @@ template<typename T>
 class CFWrap
 {
 private:
-/// only one instance of this class will write to disk at single moment
+// only one instance of this class will write to disk at single moment
 	static mutex global_write_mutex;
 
-/// full directory for file
+// full directory for file
     string dir;
 
     shared_ptr<vector<T>> queue;
 
-/// count of lines, that will be stored in memory before writing to the file
+// count of lines, that will be stored in memory before writing to the file
     size_t max_lines;
 
-/// max time difference for all packets in queue
+// max time difference for all packets in queue
     unsigned int max_time;
 
 /**
@@ -54,9 +54,9 @@ public:
 	void AddPacket(const T& packet);
 
     CFWrap(string _dir, int _max_lines, int _max_time, FILE* _f = nullptr):
-    dir(_dir),
-    max_lines(_max_lines),
-    max_time(_max_time)
+	    dir(_dir),
+	    max_lines(_max_lines),
+	    max_time(_max_time)
     {
 		ReinitQueue();
     }

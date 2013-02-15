@@ -15,7 +15,7 @@ public:
     virtual int Write(const SPacket* p, int count) const = 0;
 
     CFdWriter(shared_ptr<CSocket> _socket):
-    socket(_socket)
+      socket(_socket)
     {}
 };
 
@@ -62,8 +62,8 @@ public:
     }
 
     CBinaryFdWriter(shared_ptr<CSocket> socket, int _mem_chunk):
-    CFdWriter(socket),
-    mem_chunk(_mem_chunk)
+        CFdWriter(socket),
+        mem_chunk(_mem_chunk)
     {}
 };
 
@@ -84,7 +84,7 @@ public:
     }
 
     CJsonFdWriter(shared_ptr<CSocket> socket):
-    CFdWriter(socket)
+      CFdWriter(socket)
     {}
 };
 

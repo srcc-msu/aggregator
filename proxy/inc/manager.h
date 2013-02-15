@@ -51,7 +51,8 @@ public:
 */
     void AddBinaryStream(shared_ptr<CSocket> socket)
     {
-        BackgroundStream(new CBinaryFdWriter(socket, MEM_CHUNK), duplicator.Subscribe());
+        BackgroundStream(new CBinaryFdWriter(socket, MEM_CHUNK)
+            , duplicator.Subscribe());
     }
 
 /**
@@ -81,7 +82,7 @@ public:
     void BackgroundDispatch();
 
     CProxyManager(string config_fname):
-    duplicator(MAX_QUEUE)
+       duplicator(MAX_QUEUE)
     {
         Config(config_fname);
     }
