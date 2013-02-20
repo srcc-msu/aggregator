@@ -57,6 +57,7 @@ public:
 			else
 			{
 				sum += agent.second;
+				agent.second = 0;
 				count ++;
 			}
 		}
