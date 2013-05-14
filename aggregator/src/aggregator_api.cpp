@@ -61,7 +61,7 @@ void BackgroundProcess(int agg_id)
 
     t1.detach();
 
-    aggregators[agg_id]->BackgroundAgentsStat(60);
+    aggregators[agg_id]->BackgroundAgentsStat(10);
     aggregators[agg_id]->BackgroundStat(10);
 }
 
@@ -194,3 +194,4 @@ SPacket* GetAllData(int agg_id, size_t* count)
 {
 	return aggregators[agg_id]->QueueAggregator().GetAllData(count);
 }
+

@@ -5,10 +5,68 @@
 #include <cstdio>
 #include <iostream>
 
+using namespace std;
+
 #include "debug.h"
 #include "error.h"
 
-using namespace std;
+//--------------------------------
+
+void CConnectionManager :: AgentStats(int sleep_time)
+{
+	long sum = 0;
+	long count = 0;
+
+	vector<std::string> dead_list;
+
+	for(auto& agent : agents_activity)
+	{
+		if(agent.second == 0)
+		{
+			in_addr address;
+			address.s_addr = agent.first;
+
+			dead_list.push_back(string(inet_ntoa(address)));
+		}
+		else
+		{
+			sum += agent.second;
+			agent.second = 0;
+			count ++;
+		}
+	}
+
+	if(dead_list.size() > 0)
+	{
+		printf("not responding agetns : %zu\n", dead_list.size());
+		sort(dead_list.begin(), dead_list.end());
+		
+		for(auto& dead_agent : dead_list)
+		{
+			printf("%s\n", dead_agent.c_str());
+		}
+	}
+
+	printf("\nprocessed %ld packets/sec from %ld agents\n"
+		, sum / sleep_time, count);
+}
+
+//--------------------------------
+
+void CConnectionManager :: PokeAgents()
+{
+	for(auto it : agents_activity)
+	{
+		if(it.second == 0)
+		{
+			InitAgent(it.first);
+DMSG1("agent " << it.first << " is not responding, reiniting");
+			usleep(10000);
+		}
+	}
+}
+
+//--------------------------------
 
 void CConnectionManager :: Init()
 {

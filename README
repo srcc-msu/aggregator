@@ -29,13 +29,21 @@ agents.list - list of agent, that will be inited on loading. adding new agent ca
 *** Running ***
 ***************
 
-$ cd proxy
-$ bin/holang_proxy.rb
+Proxy server takes two params:
+1st - path to a file, where the control socket will be created
+2nd - path to the config file.
 
-...
+$ cd proxy
+$ bin/holang_proxy.rb /tmp/proxy ./aggregator.conf
+
+
+csv_writer takes 3 params:
+1st - path to the proxy control socket (see above)
+2nd - path to own socket, where it will read data from; this path will be provided to the proxy in control message
+3rd - pah to the config file
 
 $ cd csv_writer
-$ bin/holang_proxy.rb
+$ bin/holang_proxy.rb /tmp/proxy /tmp/writer ./writer.conf
 
 *************
 *** Usage ***

@@ -86,9 +86,17 @@ void CFWrap<T> :: Write()
 
 	ReinitQueue();
 
-	thread t(&CFWrap :: WriteHelper, this, queue_dump);
+// if disk is busy, number of process will grow.. somethign is wrong
+	try
+	{
+		thread t(&CFWrap :: WriteHelper, this, queue_dump);
 
-	t.detach();
+		t.detach();
+	}
+	catch(const std::system_error& e)
+	{
+		throw CException("disk write overrun");
+	}
 }
 
 //--------------------------------
