@@ -49,3 +49,4 @@ $ bin/holang_proxy.rb /tmp/proxy /tmp/writer ./writer.conf
 *** Usage ***
 *************
 
+rm /tmp/proxy; screen -d -m bin/proxy /tmp/proxy cfg/graphit.cfg

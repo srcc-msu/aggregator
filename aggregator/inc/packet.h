@@ -88,8 +88,10 @@ struct SPacket
     uint8_t version;
 
     SPacket():
+        value(),
         type(E_VAL_TYPE :: none),
         speed(0),
+        address(),
         server_timestamp(0),
         server_usec(0),
         agent_timestamp(0),

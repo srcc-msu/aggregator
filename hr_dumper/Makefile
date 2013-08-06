@@ -4,20 +4,18 @@ SRC_DIR = src
 INC_DIR = inc
 BIN_DIR = bin
 
-INC_FLAGS = -I$(INC_DIR) -I ../aggregator/inc -I ../utils/inc -I ../side_libs/jsoncpp/include
+INC_FLAGS = -I$(INC_DIR) -I../aggregator/inc/ -I ../utils/inc/
 
 SRC = $(wildcard $(SRC_DIR)/*.cpp)
 INC = $(wildcard $(INC_DIR)/*.h)
 
-NAME = proxy
+NAME = hr_dumper
 TGT = $(BIN_DIR)/$(NAME)
 
 all: $(TGT)
 
 $(TGT): $(SRC) $(INC)
-	cp ../aggregator/bin/libaggregator.so bin/
-
-	$(CXX) $(SRC) $(CXX_CFLAGS) $(INC_FLAGS) -Lbin -laggregator -ljson -o $(TGT)
+	$(CXX) $(SRC) $(CXX_CFLAGS) $(INC_FLAGS) -Lbin/ -o $(TGT)
 
 .PHONY: clean
 

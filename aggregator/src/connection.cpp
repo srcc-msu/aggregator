@@ -36,9 +36,9 @@ void CConnectionManager :: AgentStats(int sleep_time)
 		}
 	}
 
-	if(dead_list.size() > 0)
+	if(!dead_list.empty())
 	{
-		printf("not responding agetns : %zu\n", dead_list.size());
+		printf("not responding agents : %zu\n", dead_list.size());
 		sort(dead_list.begin(), dead_list.end());
 		
 		for(auto& dead_agent : dead_list)

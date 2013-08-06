@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <chrono>
 
 using namespace std;
 
@@ -17,7 +18,10 @@ void BackgroundInitHelper(int agg_id, Json::Value agents)
 
         InitAgent(agg_id, agent);
         printf("agent %s added\n", agent);
-        usleep(10000);
+
+        this_thread::sleep_for(std::chrono::milliseconds(10));
+
+//        usleep(10000);
     }
 }
 

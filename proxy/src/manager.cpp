@@ -27,7 +27,7 @@ const SPacket* DupPacket(const SPacket* val, size_t& count)
     return t;
 }
 
-void CProxyManager :: BackgroundStreamHelper(CFdWriter* writer
+void CProxyManager :: BackgroundStreamHelper(shared_ptr<CFdWriter> writer
     , size_t subscriber_id)
 {
     CDynSleeper sleeper;
@@ -48,8 +48,7 @@ void CProxyManager :: BackgroundStreamHelper(CFdWriter* writer
             if(bytes_send == -1)
             {
                 printf("subscriber %zu disconnected\n", subscriber_id);
-                delete writer;
-                writer = nullptr;
+                duplicator.DeleteSubscriber(subscriber_id);
                 return;
             }
 
@@ -66,7 +65,7 @@ void CProxyManager :: BackgroundStreamHelper(CFdWriter* writer
     printf("end\n");
 }
 
-void CProxyManager :: BackgroundStream(CFdWriter* writer
+void CProxyManager :: BackgroundStream(shared_ptr<CFdWriter> writer
     , size_t subscriber_id)
 {
     thread t(&CProxyManager :: BackgroundStreamHelper

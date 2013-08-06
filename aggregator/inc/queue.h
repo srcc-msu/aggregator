@@ -148,12 +148,9 @@ private:
 	size_t size;
 	size_t pointer;
 
-	CCircularBuffer& operator =(const CCircularBuffer& t)
-	{}
+	CCircularBuffer& operator =(const CCircularBuffer& t) = delete;
 
-	CCircularBuffer(const CCircularBuffer& t)
-	{}
-
+	CCircularBuffer(const CCircularBuffer& t) = delete;
 
 public:
 	void Add(T value)

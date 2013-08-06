@@ -1,10 +1,13 @@
-all: aggregator proxy csv_writer
+all: aggregator proxy csv_writer hr_dumper
 
 aggregator:
 	$(MAKE) -C aggregator
 
 proxy:
 	$(MAKE) -C proxy
+
+hr_dumper:
+	$(MAKE) -C hr_dumper
 
 csv_writer:
 	$(MAKE) -C csv_writer

@@ -17,6 +17,7 @@ class CDuplicator
 {
 private:
     vector< queue< pair<T, size_t> > > subscribers;
+    vector< bool > subscriber_active; // TODO change
 // protects a single subscriber's queue
     vector< shared_ptr<mutex> > subscriber_mutex;
 
@@ -33,7 +34,9 @@ public:
         if(subscribers[i].size() > max_queue)
         {
             subscribers[i].pop(); // TODO memory leak here
-            fprintf(stderr, "message for %zu droppe, queueu is full\n", i);
+            fprintf(stderr, "message for %zu dropped, queueu is full\n", i);
+
+            DeleteSubscriber(i);
         }
     }
 
@@ -44,17 +47,23 @@ public:
     {
         lock_guard<mutex> lock_add(mutex_add);
 
+        int active_count = 0;
 //  duplicate and add \msg to everyone except 1st
 //        if(subscribers.size() > 1)
-            for(size_t i = 0; i < subscribers.size(); i++)
-            {
-                lock_guard<mutex> lock(*subscriber_mutex[i]);
+        for(size_t i = 0; i < subscribers.size(); i++)
+        {
+            if(!subscriber_active[i]) 
+                continue;
 
-                CheckQueue(i);
+            lock_guard<mutex> lock(*subscriber_mutex[i]);
 
-                auto dup = DupFunc(msg, count); // count changes
-                subscribers[i].push(make_pair(dup, count));
-            }
+            CheckQueue(i);
+
+            auto dup = DupFunc(msg, count); // count changes
+            subscribers[i].push(make_pair(dup, count));
+
+            active_count++;
+        }
 /*
 //  add original pointer to first: serve it last to keep pointer alive
         if(subscribers.size() > 0)
@@ -65,7 +74,7 @@ public:
 
             subscribers[0].push(make_pair(msg, count));
         }*/
-        return subscribers.size();
+        return active_count;
     };
 
 /**
@@ -75,6 +84,9 @@ public:
     {
         if(subscriber_id >= subscribers.size())
             throw CException("attempt to get data from unknown subscriber");
+
+        if(!subscriber_active[subscriber_id])
+            throw CException("subscriber is not active");
 
         lock_guard<mutex> lock_get(mutex_get);
 
@@ -98,15 +110,17 @@ public:
 */
     void DeleteSubscriber(size_t subscriber_id)
     {
-        throw CException("NIY");
-
         if(subscriber_id >= subscribers.size())
             throw CException("attempt to delete unknown subscriber");
 
         lock_guard<mutex> lock_add(mutex_add);
         lock_guard<mutex> lock_get(mutex_get);
 
-//        subscribers.erase(subscribers.begin + subscriber_id);
+//        subscribers[subscriber_id] = subscribers.back();
+//        subscribers.pop_back();
+
+        subscriber_active[subscriber_id] = false;
+        fprintf(stderr, "subscriber %zu killed\n", subscriber_id);
     }
 
 /**
@@ -119,6 +133,7 @@ public:
 
         size_t subscriber_id = subscribers.size();
         subscribers.push_back(queue< pair<T, size_t> >());
+        subscriber_active.push_back(true);
 
         subscriber_mutex.push_back(make_shared<mutex>());
 

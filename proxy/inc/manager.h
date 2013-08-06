@@ -25,12 +25,12 @@ private:
    service function, to be run in separate thread
    may block if pipe is full
 */
-    void BackgroundStreamHelper(CFdWriter* writer, size_t subscriber_id);
+    void BackgroundStreamHelper(shared_ptr<CFdWriter> writer, size_t subscriber_id);
 
 /**
 	creates separate thread for every new subscriber
 */
-    void BackgroundStream(CFdWriter* writer, size_t subscriber_id);
+    void BackgroundStream(shared_ptr<CFdWriter> writer, size_t subscriber_id);
 
 /**
 	service function, to be run in separe thread, only one call is allowed
@@ -51,7 +51,7 @@ public:
 */
     void AddBinaryStream(shared_ptr<CSocket> socket)
     {
-        BackgroundStream(new CBinaryFdWriter(socket, MEM_CHUNK)
+        BackgroundStream(make_shared<CBinaryFdWriter>(socket, MEM_CHUNK)
             , duplicator.Subscribe());
     }
 
@@ -60,7 +60,7 @@ public:
 */
     void AddJsonStream(shared_ptr<CSocket> socket)
     {
-        BackgroundStream(new CJsonFdWriter(socket), duplicator.Subscribe());
+        BackgroundStream(make_shared<CJsonFdWriter>(socket), duplicator.Subscribe());
     }
 
 /**

@@ -217,8 +217,8 @@ void CAggregator :: AgentsStat(int sleep_time)
 {
 	printf("\n --- agents stat for %3d seconds --- \n", sleep_time);
 
-	connection.AgentStats(sleep_time);
 	connection.PokeAgents();
+	connection.AgentStats(sleep_time);
 
 	printf(" ----------------------------------- \n\n");
 }
