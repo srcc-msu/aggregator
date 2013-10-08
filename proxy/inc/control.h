@@ -14,12 +14,20 @@ private:
 
 public:
 	
-	void AddBinaryStream(char* path)
+	void AddUDStream(const char* path)
 	{
 		printf("added new binary stream to: %s\n", path);
 
-	    proxy.AddBinaryStream(dynamic_pointer_cast<CSocket>
-    	    (make_shared<CUDSocket>(path, CSocket :: CONNECT)));
+		proxy.AddBinaryStream(dynamic_pointer_cast<CSocket>
+			(make_shared<CUDSocket>(path, CSocket :: CONNECT)));
+	}
+
+	void AddNetworkStream(const char* path)
+	{
+		printf("added new binary stream to: %s\n", path);
+
+		proxy.AddBinaryStream(dynamic_pointer_cast<CSocket>
+			(make_shared<CDGRAMSocket>(path+2, path[0]+path[1]*256)));
 	}
 
 	void ProcessCommands()
@@ -35,7 +43,8 @@ public:
 
 			switch(command[0])
 			{
-				case 'b' : AddBinaryStream(command+1); break;
+				case 'b' : AddUDStream(command+1); break;
+				case 'n' : AddNetworkStream(command+1); break;
 				case 'j' : throw CException("json stream NIY"); break;
 				case 'e' : return; break;
 				
@@ -51,7 +60,7 @@ public:
 		ctl_socket(ctl_fname, CSocket :: CREATE),
 		proxy(config_fname)
 	{
-	    proxy.BackgroundProcess();
-	    proxy.BackgroundDispatch();
-    }
+		proxy.BackgroundProcess();
+		proxy.BackgroundDispatch();
+	}
 };

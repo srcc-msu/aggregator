@@ -53,11 +53,11 @@ void CCsvWriter :: FromBin(shared_ptr<CSocket> socket, size_t mem_chunk)
 {
 	SPacket* packets = new SPacket[mem_chunk];
 
-    int bytes_read = 0;
-	int total = 0;
+    size_t bytes_read = 0;
+	size_t total = 0;
 
     while((bytes_read = socket->Read(packets, sizeof(SPacket) * mem_chunk)) 
-        == sizeof(SPacket) * mem_chunk)
+        == (size_t)sizeof(SPacket) * mem_chunk)
 	{
         for(size_t i = 0; i < mem_chunk; i++)
         {
@@ -73,8 +73,8 @@ void CCsvWriter :: FromBin(shared_ptr<CSocket> socket, size_t mem_chunk)
         }
 	}
 
-    fprintf(stderr, "read %d/%d, not match to %zu\n", bytes_read, total
-        , sizeof(SPacket) * mem_chunk);
+    fprintf(stderr, "read %zu/%zu, not match to %zu\n", bytes_read, total
+        , (size_t)sizeof(SPacket) * mem_chunk);
 
     delete[] packets;
 }

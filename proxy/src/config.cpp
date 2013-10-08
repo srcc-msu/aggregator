@@ -20,8 +20,6 @@ void BackgroundInitHelper(int agg_id, Json::Value agents)
         printf("agent %s added\n", agent);
 
         this_thread::sleep_for(std::chrono::milliseconds(10));
-
-//        usleep(10000);
     }
 }
 
