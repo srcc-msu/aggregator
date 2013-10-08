@@ -31,9 +31,9 @@ public:
 */
     void Sleep(bool sleep_more)
     {
-        if(sleep_more && sleep_time < MAX_SLEEP_TIME)
+        if(sleep_more && sleep_time < max_sleep_time)
             sleep_time *= 2;
-        else if(sleep_time > MIN_SLEEP_TIME)
+        else if(sleep_time > min_sleep_time)
             sleep_time /= 2;
 
         usleep(sleep_time);

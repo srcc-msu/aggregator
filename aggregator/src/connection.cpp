@@ -187,7 +187,7 @@ int CConnectionManager :: GetData(unsigned char* data, int max_count)
  		, (struct sockaddr*)&info, (socklen_t*)&info_len);
 
 	if(bytes_read == -1)
-		throw CSyscallException("sendto() socket failed");
+		throw CSyscallException("recvfrom() socket failed");
 
 // if the address in a global blacklist - skip
 	if(address_blacklist.IsIn(info.sin_addr.s_addr))

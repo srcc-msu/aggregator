@@ -8,7 +8,7 @@
 using namespace std;
 
 static const double INF = 1024; // sensor value was zero, and now - not
-static const int EPS = 1e-5;
+static const double EPS = 1e-5;
 
 //--------------------------------
 
