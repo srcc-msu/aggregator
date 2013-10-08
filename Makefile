@@ -21,3 +21,4 @@ clean :
 	$(MAKE) -C aggregator clean
 	$(MAKE) -C proxy clean
 	$(MAKE) -C csv_writer clean
+	$(MAKE) -C hr_dumper clean
