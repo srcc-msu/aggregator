@@ -4,7 +4,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <chrono>
+//#include <chrono>
+#include <unistd.h>
 
 using namespace std;
 
@@ -19,7 +20,8 @@ void BackgroundInitHelper(int agg_id, Json::Value agents)
         InitAgent(agg_id, agent);
         printf("agent %s added\n", agent);
 
-        this_thread::sleep_for(std::chrono::milliseconds(10));
+//      this_thread::sleep_for(std::chrono::milliseconds(10)); // not working in gcc 4.6
+        usleep(10000);
     }
 }
 

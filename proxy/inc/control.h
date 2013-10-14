@@ -22,12 +22,19 @@ public:
 			(make_shared<CUDSocket>(path, CSocket :: CONNECT)));
 	}
 
-	void AddNetworkStream(const char* path)
+	void AddNetworkStream(const char* cmd)
 	{
-		printf("added new binary stream to: %s\n", path);
+		char address[64];
+		char str_port[64];
+
+		sscanf(cmd, "%s %s", address, str_port);
+
+		int port = strtol(str_port, 0, 10);
+
+		printf("added new networt stream to: %s:%d\n", address, port);
 
 		proxy.AddBinaryStream(dynamic_pointer_cast<CSocket>
-			(make_shared<CDGRAMSocket>(path+2, path[0]+path[1]*256)));
+			(make_shared<CDGRAMSocket>(address, port)));
 	}
 
 	void ProcessCommands()

@@ -15,7 +15,7 @@ TGT = $(BIN_DIR)/$(NAME)
 all: $(TGT)
 
 $(TGT): $(SRC) $(INC)
-	$(CXX) $(SRC) $(CXX_CFLAGS) $(INC_FLAGS) -Lbin/ -ljson -o $(TGT)
+	$(CXX) $(SRC) -Lbin/ -ljson $(CXX_CFLAGS) $(INC_FLAGS) -o $(TGT)
 
 .PHONY: clean
 

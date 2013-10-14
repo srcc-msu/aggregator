@@ -1,5 +1,5 @@
-CXX_CFLAGS = -Werror -Wall -std=c++0x -O2 -pthread
-CXX_LFLAGS = -shared -fpic
+CXX_CFLAGS = -Werror -Wall -std=c++0x -O2 -pthread 
+CXX_LFLAGS = -shared -fPIC
 #	g++ -shared -Wl,-soname,libmylib.so -o libmylib.so mylib.o
 
 NAME=aggregator

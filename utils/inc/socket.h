@@ -244,7 +244,7 @@ private:
 		if(socket_fd == -1)
 			throw CSyscallException("socket() creation failed");
 
-		if(bind(socket_fd, (sockaddr *)&addr, sizeof(sockaddr_in)) == -1)
+		if(::bind(socket_fd, (sockaddr *)&addr, sizeof(sockaddr_in)) == -1)
 			throw CSyscallException("bind() failed");
 	}
 
@@ -272,7 +272,7 @@ private:
 			throw CSyscallException("socket() creation failed");
 		
 		
-		if(bind(socket_fd, (sockaddr *)&my, sizeof(sockaddr_in)) == -1)
+		if(::bind(socket_fd, (sockaddr *)&my, sizeof(sockaddr_in)) == -1)
 			throw CSyscallException("bind() failed");
 	}
 

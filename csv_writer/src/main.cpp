@@ -1,6 +1,8 @@
 #include "aggregator_api.h"
 
 #include <memory>
+#include <cstdio>
+#include <cassert>
 
 using namespace std;
 
@@ -107,7 +109,22 @@ int main(int argc, char** argv)
 			return 1;
 		}
 
-		printf("\n --- db writer fiished--- \n\n");
+		printf("\n --- db writer finished--- \n\n");
+	}
+	else if(mode == "init")
+	{
+		string proxy_socket_fname = string(argv[2]);
+		string remote_address = string(argv[3]);
+
+		string str_port = argv[4];
+
+		string msg = string("n") + remote_address + " " + str_port;
+
+		printf("Sending command message to socket %s : %s", proxy_socket_fname.c_str(), msg.c_str());
+	
+		CUDSocket proxy_ctl_socket(proxy_socket_fname, CSocket :: CONNECT);
+		proxy_ctl_socket.Write(msg);
+
 	}
 	else
 	{ 
@@ -115,6 +132,8 @@ int main(int argc, char** argv)
 		printf("./csv_writer local [<proxy UD file>] [<own UD file>] [<config file>]\n");
 		printf("or\n");
 		printf("./csv_writer network <port> [<config file>]\n");
+		printf("or\n");
+		printf("./csv_writer init <proxy UD file> <remote address> <remote port>\n");
 	}
 
 	return 0;
