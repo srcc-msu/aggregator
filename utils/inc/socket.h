@@ -127,6 +127,8 @@ class CUDSocket : public CSocket
 private:
 	string fname;
 
+	bool self_created;
+
 	virtual void Create()
 	{
 		if(access(fname.c_str(), F_OK) == 0)
@@ -201,13 +203,16 @@ public:
 	~CUDSocket()
 	{
 		close(socket_fd);
-		unlink(fname.c_str());
+
+		if(self_created)
+			unlink(fname.c_str());
 	}
 
 	CUDSocket(const string& _fname, CSocket :: E_TYPE type):
 		fname(_fname)
 	{
 		Init(type);
+		self_created = (type == CREATE);
 	}
 };
 
