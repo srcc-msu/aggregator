@@ -19,6 +19,8 @@ static const int DEFAULT_MAX_INTERVAL = 30;
 */
 struct SensorFilterMetainf
 {
+	SPacket last; // last packet, stored to compare
+
 /**
 	max relative value change, bypassing that new packet will be sent
 	if less than 0 - not used
@@ -36,8 +38,6 @@ struct SensorFilterMetainf
 	if less than 0 - not used
 */
 	int max_interval;
-
-	SPacket last; // last packet, stored to compare
 
 	SensorFilterMetainf(double _delta = DEFAULT_DELTA
 		, double _abs_delta = DEFAULT_ABS_DELTA

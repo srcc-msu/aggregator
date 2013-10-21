@@ -66,7 +66,9 @@ void CCsvWriter :: FromBin(shared_ptr<CSocket> socket, size_t mem_chunk)
     		if(it != files.end())
     		{
     			shared_ptr<CFWrap<SPacket>> fwrap = it->second;
-    			fwrap->AddPacket(packets[i]);
+
+                if(packets[i].speed > -1) // ?? TODO learn why can it be negative
+                    fwrap->AddPacket(packets[i]);
     		}
 
             total += bytes_read;

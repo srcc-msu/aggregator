@@ -70,7 +70,6 @@ enum class E_VAL_TYPE : uint8_t
 struct SPacket
 {
     UValue value;
-    E_VAL_TYPE type;
 
     double speed; // ??? TODO: make separate sensor?
 
@@ -87,9 +86,10 @@ struct SPacket
 
     uint8_t version;
 
+    E_VAL_TYPE type;
+
     SPacket():
         value(),
-        type(E_VAL_TYPE :: none),
         speed(0),
         address(),
         server_timestamp(0),
@@ -98,7 +98,8 @@ struct SPacket
         agent_usec(0),
         sensor_id(0),
         sensor_num(0),
-        version(CURRENT_VERSION)
+        version(CURRENT_VERSION),
+        type(E_VAL_TYPE :: none)
     {}
 
 };
@@ -125,6 +126,11 @@ void CreatePacket(SPacket& packet, unsigned char* buffer
     , UIP address
     , uint32_t server_timestamp, uint32_t server_usec
     , uint32_t agent_timestamp, uint32_t agent_usec);
+
+/**
+    self explaining
+*/
+UValue ConvertTo(E_VAL_TYPE type_to, const UValue& value, E_VAL_TYPE type);
 
 /**
     self explaining

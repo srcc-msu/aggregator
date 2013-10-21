@@ -20,17 +20,18 @@ using namespace std;
 class CConnectionManager
 {
 private:
-	sockaddr_in data_socket_inf;
-	int data_socket;
-	uint32_t aggr_address; // network byte order
-	uint16_t aggr_port; // network byte order
-
-	int control_port;
-
 // Stores inited agents addresses
 	unordered_map<uint32_t, long> agents_activity;
 
 	AccessList<uint32_t> address_blacklist;
+
+	sockaddr_in data_socket_inf;
+	int data_socket;
+
+	uint32_t aggr_address; // network byte order
+
+	int control_port; // agent control port
+	uint16_t aggr_port; // network byte order
 
 /**
 	Creates a socket, where data will be read from
@@ -83,10 +84,10 @@ public:
 /**
 	aggr_address in network byte order
 */
-	CConnectionManager(int control_port, uint32_t aggr_address):
-		aggr_address(aggr_address),
-		aggr_port(0),
-		control_port(control_port)
+	CConnectionManager(int _control_port, uint32_t _aggr_address):
+		aggr_address(_aggr_address),
+		control_port(_control_port),
+		aggr_port(0) // will get from os
 	{
 		Init();
 	}

@@ -7,15 +7,13 @@
 
 #include <errno.h>
 
-using namespace std;
-
 const int MAX_ERR_STR = 256;
 
 /**
     exception, caused by some error, that may happen and
     should be checked (TODO: not always true)
 */
-class CException : public exception
+class CException : public std::exception
 {
 private:
 	const char* str;
@@ -36,7 +34,7 @@ public:
     stores and prints errno
     TODO forbid copy
 */
-class CSyscallException : public exception
+class CSyscallException : public std::exception
 {
 private:
 	const char* str;

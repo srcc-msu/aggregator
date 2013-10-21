@@ -226,9 +226,9 @@ DMSG1(from << " <> " << upto << " requested. current pointer is " << pointer);
 			buffer[i] = T();
 	}
 
-	CCircularBuffer(size_t size = DEFAULT_BUFF_SIZE):
+	CCircularBuffer(size_t _size = DEFAULT_BUFF_SIZE):
 		buffer(nullptr),
-		size(0),
+		size(_size),
 		pointer(0)
 	{
 		Resize(size);

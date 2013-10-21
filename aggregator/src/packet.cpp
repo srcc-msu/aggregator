@@ -118,6 +118,18 @@ UValue MultValue(const UValue& value, E_VAL_TYPE type, double mult)
 	return res;
 }
 
+UValue ConvertTo(E_VAL_TYPE type_to, const UValue& value, E_VAL_TYPE type)
+{
+	UValue res;
+
+	if(type != E_VAL_TYPE :: uint32 || type_to != E_VAL_TYPE :: float32)
+		throw CException("unsupported types convert : NIY");
+
+	res.f4[0] = value.b4[0];
+
+	return res;
+}
+
 //--------------------------------
 
 UValue ParseUValue(unsigned char* buffer, size_t msg_length)
@@ -171,6 +183,14 @@ void CreatePacket(SPacket& packet, unsigned char* buffer
 
     packet.type = GetType(sensor_id, info.type, info.msg_length);
     packet.value = ParseUValue(buffer, info.msg_length);
+
+// if we try to reduce integer - expand uint32 to float32
+    if(info.scale < 1.0 - EPS && packet.type == E_VAL_TYPE :: uint32)
+    {
+		packet.value = ConvertTo(E_VAL_TYPE :: float32, packet.value, packet.type);
+		packet.type = E_VAL_TYPE :: float32;
+    }
+
     packet.value = MultValue(packet.value, packet.type, info.scale);
 
     packet.sensor_id        = sensor_id;
