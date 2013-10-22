@@ -68,43 +68,52 @@ int main(int argc, char** argv)
 {
 	printf("\n --- starting hr dumper --- \n\n");
 
-    string proxy_socket_fname = "/tmp/proxy";
-    string socket_fname = "/tmp/hr_dumper";
+	string mode = "";
 
-    if(argc >= 2)
-        proxy_socket_fname = string(argv[1]);
+	if(argc >= 2)
+		mode = argv[1];
 
-    if(argc >= 3)
-        socket_fname = string(argv[2]);
+	if(mode == "network" && argc == 3)
+    {
+		string mode = argv[1];
+        string str_port;
+        
+        int port = 0;
+
+        str_port = argv[2];
+        port = strtol(str_port.c_str(), nullptr, 10);
+
+        printf("starting hr_dumper\n");
+        printf("port: %d\n", port);
+
+        try
+        {
+	        auto socket = make_shared<CDGRAMSocket>(port);
+            DumpFromBin(dynamic_pointer_cast<CSocket>(socket), 128); // mem chunk
+        }
+        catch(const CSyscallException& e)
+        {
+            fprintf(stderr, "Syscall exception occured: %s\n", e.what());
+            return 1;
+        }
+
+        catch(const CException& e)
+        {
+            fprintf(stderr, "Exception occured: %s\n", e.what());
+            return 1;
+        }
+
+        printf("\n --- hr dumper fiished--- \n\n");
+
+        return 0;
+    }
+
+    printf("Usage:\n");
+    printf("./hr_dumper network <port>\n");
+
+    return 0;
 
 
-    printf("starting hr dumper\n");
-    printf("proxy socket: %s\n", proxy_socket_fname.c_str());
-    printf("my socket: %s\n", socket_fname.c_str());
 
-	try
-	{
-		auto socket = make_shared<CUDSocket>(socket_fname
-			, CSocket :: CREATE);
-
-		CUDSocket proxy_ctl_socket(proxy_socket_fname, CSocket :: CONNECT);
-		proxy_ctl_socket.Write(string("b")+socket_fname);
-
-		while(1)
-			DumpFromBin(dynamic_pointer_cast<CSocket>(socket), 128); // mem chunk
-	}
-	catch(const CSyscallException& e)
-	{
-		fprintf(stderr, "Syscall exception occured: %s\n", e.what());
-		return 1;
-	}
-
-	catch(const CException& e)
-	{
-		fprintf(stderr, "Exception occured: %s\n", e.what());
-		return 1;
-	}
-
-	printf("\n --- hr dumper fiished--- \n\n");
 	return 0;
 }

@@ -13,15 +13,6 @@ private:
 	CProxyManager proxy;
 
 public:
-	
-	void AddUDStream(const char* path)
-	{
-		printf("added new binary stream to: %s\n", path);
-
-		proxy.AddBinaryStream(dynamic_pointer_cast<CSocket>
-			(make_shared<CUDSocket>(path, CSocket :: CONNECT)));
-	}
-
 	void AddNetworkStream(const char* cmd)
 	{
 		char address[64];
@@ -37,6 +28,15 @@ public:
 			(make_shared<CDGRAMSocket>(address, port)));
 	}
 
+	void DeleteStream(const char* cmd)
+	{
+		int uid = strtol(cmd, 0, 10);
+
+		printf("deleting subscriber: %d\n", uid);
+
+		proxy.DeleteSubscriber(uid);
+	}
+
 	void ProcessCommands()
 	{
 		char command[MAX_COMMAND+1];
@@ -50,8 +50,8 @@ public:
 
 			switch(command[0])
 			{
-				case 'b' : AddUDStream(command+1); break;
 				case 'n' : AddNetworkStream(command+1); break;
+				case 'd' : DeleteStream(command+1); break;
 				case 'j' : throw CException("json stream NIY"); break;
 				case 'e' : return; break;
 				
