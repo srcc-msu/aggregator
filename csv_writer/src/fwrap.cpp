@@ -64,18 +64,18 @@ void CFWrap<T> :: WriteHelper(shared_ptr<vector<T>> queue_dump)
 
 	for(auto& it : *queue_dump)
 	{
-		fprintf(f, "%u%06u;cn%02u;%s;%u;%.3f\n"
+/*		fprintf(f, "%u%06u;cn%02u;%s;%u;%.3f\n"
 			, it.server_timestamp, it.server_usec
 			, it.address.b1[3]
 			, UValueToString(it.value, it.type)
 			, it.sensor_num, it.speed);
-/*
+*/
 		fprintf(f, "%u%06u;node-%02u-%02u;%s;%u;%.3f\n"
 			, it.server_timestamp, it.server_usec
 			, it.address.b1[2], it.address.b1[3]
 			, UValueToString(it.value, it.type)
 			, it.sensor_num, it.speed);
-*/
+
 	}
 
 	fclose(f);
