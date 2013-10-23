@@ -1,146 +1,181 @@
-#include <vector>
+#include <map>
 #include <queue>
 #include <mutex>
+#include <atomic>
 #include <memory>
 
 using namespace std;
 
 #include "error.h"
+#include "utils.h"
+
+template <typename T>
+class CSubscriber
+{
+private:
+	size_t uid;
+
+	queue< pair<T, size_t> > data_queue;
+	size_t max_queue;
+
+	mutex my_mutex;
+
+
+public:
+	size_t Add(T data, size_t count)
+	{
+		lock_guard<mutex> lock_sub(my_mutex);
+
+		if(data_queue.size() > max_queue)
+		{
+			fprintf(stderr, "message for %zu dropped, queueu is full\n", uid);
+			return 0;
+		}
+
+		data_queue.push(make_pair(data, count));
+
+		return count;
+	}
+
+	T Get(size_t* count)
+	{
+		lock_guard<mutex> lock_sub(my_mutex);
+
+		if(data_queue.size() == 0)
+		{
+			*count = 0;
+			return nullptr;
+		}
+
+		auto front = data_queue.front().first;
+		*count = data_queue.front().second;
+		data_queue.pop();
+
+		return front;
+	}
+
+	CSubscriber(size_t _uid, size_t _max_queue):
+		uid(_uid),
+		max_queue(_max_queue)
+	{}
+};
 
 /**
-    threadsafe duplicator for \T type messages to all subscirbers
+	NOT threadsafe duplicator for \T type messages to all subscirbers
 
-    bad subscribing mutex system, TODO: change?
+	bad subscribing mutex system, TODO: change?
 */
 template<typename T>
 class CDuplicator
 {
 private:
-    vector< queue< pair<T, size_t> > > subscribers;
-    vector< bool > subscriber_active; // TODO change
-// protects a single subscriber's queue
-    vector< shared_ptr<mutex> > subscriber_mutex;
+	size_t next_uid;
 
-    mutex mutex_add;
-    mutex mutex_get;
+	map<size_t, shared_ptr<CSubscriber<T>> > subscribers;
 
-    size_t max_queue;
+	size_t max_queue;
+
+	atomic<int> read_allowed;
+
+	CSharedLock lock;
 
 public:
-    typedef T (*mult_duplicator)(const T, size_t&);
-
-    void CheckQueue(size_t i)
-    {
-        if(subscribers[i].size() > max_queue)
-        {
-            subscribers[i].pop(); // TODO memory leak here
-            fprintf(stderr, "message for %zu dropped, queueu is full\n", i);
-
-            DeleteSubscriber(i);
-        }
-    }
+	typedef T (*mult_duplicator)(const T, size_t&);
 
 /**
-    duplicate and add message to all subscribers
+	duplicate and add message to all subscribers
+	returns how many have successfuly added the message to the queue
 */
-    int Add(T msg, size_t count, mult_duplicator DupFunc)
-    {
-        lock_guard<mutex> lock_add(mutex_add);
+	size_t Add(T msg, size_t count, mult_duplicator DupFunc)
+	{
+		lock.ReadLock();
 
-        int active_count = 0;
-//  duplicate and add \msg to everyone except 1st
-//        if(subscribers.size() > 1)
-        for(size_t i = 0; i < subscribers.size(); i++)
-        {
-            if(!subscriber_active[i]) 
-                continue;
+		size_t sent = 0;
 
-            lock_guard<mutex> lock(*subscriber_mutex[i]);
+		for(auto& subscriber : subscribers)
+		{
+			auto dup = DupFunc(msg, count); // count changes
 
-            CheckQueue(i);
+			sent += subscriber.second->Add(dup, count);
+		}
 
-            auto dup = DupFunc(msg, count); // count changes
-            subscribers[i].push(make_pair(dup, count));
-
-            active_count++;
-        }
-/*
-//  add original pointer to first: serve it last to keep pointer alive
-        if(subscribers.size() > 0)
-        {
-            lock_guard<mutex> lock(*subscriber_mutex[0]);
-
-            CheckQueue(0);
-
-            subscribers[0].push(make_pair(msg, count));
-        }*/
-        return active_count;
-    };
+		lock.ReadUnlock();
+		return sent;
+	};
 
 /**
-    get one message from \subscriber_id queue
+	get one message from \subscriber_id queue
 */
-    T Get(size_t subscriber_id, size_t* count)
-    {
-        if(subscriber_id >= subscribers.size())
-            throw CException("attempt to get data from unknown subscriber");
+	bool IsAlive(size_t uid)
+	{
+		lock.ReadLock();
 
-        if(!subscriber_active[subscriber_id])
-            throw CException("subscriber is not active");
+		auto subscriber = subscribers.find(uid);
+		bool res = (subscriber != subscribers.end());
 
-        lock_guard<mutex> lock_get(mutex_get);
+		lock.ReadUnlock();
 
-        lock_guard<mutex> lock_sub(*subscriber_mutex[subscriber_id]);
-
-        if(subscribers[subscriber_id].size() == 0)
-        {
-            count = 0;
-            return nullptr;
-        }
-
-        auto front = subscribers[subscriber_id].front().first;
-        *count = subscribers[subscriber_id].front().second;
-        subscribers[subscriber_id].pop();
-
-        return front;
-    };
+		return res;
+	}
 
 /**
-    delete subscriber
+	get one message from \subscriber_id queue
 */
-    void DeleteSubscriber(size_t subscriber_id)
-    {
-        if(subscriber_id >= subscribers.size())
-            throw CException("attempt to delete unknown subscriber");
+	T Get(size_t uid, size_t* count)
+	{
+		lock.ReadLock();
 
-        lock_guard<mutex> lock_add(mutex_add);
-        lock_guard<mutex> lock_get(mutex_get);
+		auto subscriber = subscribers.find(uid);
 
-//        subscribers[subscriber_id] = subscribers.back();
-//        subscribers.pop_back();
+		if(subscriber == subscribers.end())
+		{
+			count = 0;
 
-        subscriber_active[subscriber_id] = false;
-        fprintf(stderr, "subscriber %zu killed\n", subscriber_id);
-    }
+			lock.ReadUnlock();
+			return nullptr;
+		}
+
+		T ret = subscriber->second->Get(count);
+
+		lock.ReadUnlock();
+		return ret;
+	}
 
 /**
-    add new subscriber
+	delete subscriber
 */
-    size_t Subscribe()
-    {
-        lock_guard<mutex> lock_add(mutex_add);
-        lock_guard<mutex> lock_get(mutex_get);
+	void DeleteSubscriber(size_t uid)
+	{
+		lock.WriteLock();
 
-        size_t subscriber_id = subscribers.size();
-        subscribers.push_back(queue< pair<T, size_t> >());
-        subscriber_active.push_back(true);
+		auto subscriber = subscribers.find(uid);
 
-        subscriber_mutex.push_back(make_shared<mutex>());
+		if(subscriber != subscribers.end())
+			subscribers.erase(subscriber);
+		else
+			fprintf(stderr, "attempt to delete unknown subscriber\n");
 
-        return subscriber_id;
-    };
+		lock.WriteUnlock();
 
-    CDuplicator(size_t _max_queue):
-    max_queue(_max_queue)
-    {}
+		fprintf(stderr, "subscriber %zu killed\n", uid);
+	}
+
+/**
+	add new subscriber
+*/
+	size_t Subscribe()
+	{
+		lock.WriteLock();
+
+		subscribers[next_uid] = std::make_shared<CSubscriber<T>>(next_uid, max_queue);
+
+		lock.WriteUnlock();
+
+		return next_uid++;
+	};
+
+	CDuplicator(size_t _max_queue):
+		next_uid(0),
+		max_queue(_max_queue)
+	{}
 };
