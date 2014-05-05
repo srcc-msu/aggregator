@@ -18,6 +18,9 @@ all: $(TGT)
 $(TGT): $(SRC) $(INC)
 	$(CXX) $(SRC) $(CXX_CFLAGS) $(INC_FLAGS) -o $(TGT)
 
+init:
+	bin/control init_stream /tmp/proxy 93.180.9.182 4544
+
 .PHONY: clean
 
 clean:
