@@ -46,7 +46,7 @@ void DumpFromBin(shared_ptr<CSocket> socket, size_t mem_chunk)
         	if(packets[i].sensor_id == 0)
         		break;
 
-			printf("%u;%u%06u;%02u.%02u.%02u.%02u;%s;%u;%.3f\n"
+			printf("%u;%u%06u;%u.%u.%u.%u;%s;%u;%.3f\n"
                 , packets[i].sensor_id
 				, packets[i].server_timestamp, packets[i].server_usec
 				, packets[i].address.b1[0], packets[i].address.b1[1], packets[i].address.b1[2], packets[i].address.b1[3]
