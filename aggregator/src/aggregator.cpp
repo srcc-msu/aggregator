@@ -91,9 +91,8 @@ DMSG2("reason " << res);
 			(average_packet.address.b4[0], average_packet.sensor_id, count);
 		average_packet.sensor_num = 0;
 
-		queue_aggregator.AddSpeed(average_packet);
-
-		packets_buffer.push_back(average_packet);
+		if(queue_aggregator.Check(average_packet) > 0)
+			packets_buffer.push_back(average_packet);
 	}
 }
 

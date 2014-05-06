@@ -55,7 +55,10 @@ void CQueueAggregator :: AddSpeed(SPacket& packet, double diff
 void CQueueAggregator :: AddSpeed(SPacket& packet) const
 {
 	if(!IsSpeedId(packet.sensor_id))
+	{
+		packet.speed = 0.0;
 		return;
+	}
 
 	auto it_add = last_occurance.find(packet.address.b4[0]);
 

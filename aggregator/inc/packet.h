@@ -108,7 +108,6 @@ struct SPacket
     parse UValue from \buffer according to msg_length
     converts network byte order to normal
 */
-
 UValue ParseUValue(unsigned char* buffer, size_t msg_length);
 
 /**
