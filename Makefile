@@ -1,4 +1,4 @@
-all: aggregator proxy csv_writer hr_dumper
+all: aggregator proxy csv_writer hr_dumper jsoncpp
 
 aggregator:
 	$(MAKE) -C aggregator
@@ -15,7 +15,7 @@ csv_writer:
 jsoncpp:
 	$(MAKE) -C side_libs
 
-.PHONY: clean aggregator proxy csv_writer jsoncpp
+.PHONY: clean aggregator proxy csv_writer hr_dumper jsoncpp
 
 clean :
 	$(MAKE) -C aggregator clean

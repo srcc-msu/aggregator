@@ -46,12 +46,12 @@ void DumpFromBin(shared_ptr<CSocket> socket, size_t mem_chunk)
         	if(packets[i].sensor_id == 0)
         		break;
 
-			printf("%u;%u;%u%06u;cn%02u;%s;%.3f\n"
-                , packets[i].sensor_id, packets[i].sensor_num 
+			printf("%u;%u%06u;%02u.%02u.%02u.%02u;%s;%u;%.3f\n"
+                , packets[i].sensor_id
 				, packets[i].server_timestamp, packets[i].server_usec
-				, packets[i].address.b1[3]
+				, packets[i].address.b1[0], packets[i].address.b1[1], packets[i].address.b1[2], packets[i].address.b1[3]
 				, UValueToString(packets[i].value, packets[i].type)
-				, packets[i].speed);
+				, packets[i].sensor_num, packets[i].speed);
 
             total += bytes_read;
         }
@@ -81,7 +81,7 @@ int main(int argc, char** argv)
         int port = 0;
 
         str_port = argv[2];
-        port = strtol(str_port.c_str(), nullptr, 10);
+        port = strtol(str_port.c_str(), nullptr, 10/*base*/);
 
         printf("starting hr_dumper\n");
         printf("port: %d\n", port);
@@ -110,10 +110,6 @@ int main(int argc, char** argv)
 
     printf("Usage:\n");
     printf("./hr_dumper network <port>\n");
-
-    return 0;
-
-
 
 	return 0;
 }
