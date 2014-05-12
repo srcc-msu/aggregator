@@ -8,42 +8,42 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-    printf("\n --- starting proxy --- \n\n");
+	printf("\n --- starting proxy --- \n\n");
 
-    if(argc == 3)
-    {
-        string ctl_fname = string(argv[1]);
-        string config_fname = string(argv[2]);
+	if(argc == 3)
+	{
+		string ctl_fname = string(argv[1]);
+		string config_fname = string(argv[2]);
 
-        printf("starting proxy\n");
-        printf("control socket: %s\n", ctl_fname.c_str());
-        printf("config file: %s\n", config_fname.c_str());
-        
-        try
-        {
-            CControl control(ctl_fname, config_fname);
+		printf("starting proxy\n");
+		printf("control socket: %s\n", ctl_fname.c_str());
+		printf("config file: %s\n", config_fname.c_str());
 
-            control.ProcessCommands();
-        }
-        catch(const CSyscallException& e)
-        {
-            fprintf(stderr, "syscall exception occured: %s\n", e.what());
-            return 1;
-        }
+		try
+		{
+			CControl control(ctl_fname, config_fname);
 
-        catch(const CException& e)
-        {
-            fprintf(stderr, "exception occured: %s\n", e.what());
-            return 1;
-        }
+			control.ProcessCommands();
+		}
+		catch(const CSyscallException& e)
+		{
+			fprintf(stderr, "syscall exception occured: %s\n", e.what());
+			return 1;
+		}
 
-        printf("\n --- proxy finished --- \n\n");
+		catch(const CException& e)
+		{
+			fprintf(stderr, "exception occured: %s\n", e.what());
+			return 1;
+		}
 
-        return 0;
-    }
+		printf("\n --- proxy finished --- \n\n");
 
-    printf("Usage:\n");
-    printf("./proxy <proxy UD control file> <config file>\n");
+		return 0;
+	}
 
-    return 0;
+	printf("Usage:\n");
+	printf("./proxy <proxy UD control file> <config file>\n");
+
+	return 0;
 }
