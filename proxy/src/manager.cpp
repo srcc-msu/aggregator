@@ -110,7 +110,11 @@ int CProxyManager :: Dispatch()
 	const SPacket* packets = GetAllData(agg_id, &count);
 
 	if(count == 0)
+	{
+		if(packets)
+			delete[] packets;
 		return 0;
+	}
 
 	size_t sent = duplicator.Add(packets, count, DupPacket);
 

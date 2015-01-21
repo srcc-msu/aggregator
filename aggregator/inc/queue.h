@@ -48,7 +48,12 @@ public:
 		lock_guard<mutex> lock(mut);
 
 		if(pointer == MAX_QUEUE_SIZE)
-			Reinit();
+		{
+			auto ptr = Reinit();
+
+			if(ptr)
+				delete[] ptr;
+		}
 
 		queue[pointer] = value;
 		pointer++;
@@ -69,7 +74,7 @@ public:
 			auto ptr = Reinit();
 
 			if(ptr)
-				delete ptr;
+				delete[] ptr;
 		}
 
 		memcpy(queue + pointer, values, count * sizeof(T));
@@ -94,7 +99,7 @@ public:
 			auto ptr = Reinit();
 
 			if(ptr)
-				delete ptr;
+				delete[] ptr;
 		}
 
 		for(auto& it : values)

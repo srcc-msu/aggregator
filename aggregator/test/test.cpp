@@ -206,11 +206,8 @@ int main(int argc, char** argv)
 	SetDeltaS(agg_id, 1053, 0.02);
 	SetIntervalS(agg_id, 1053, 10);
 
-	for(int i = 0; i < 10000; i++)
+	for(int i = 0; i < 10; i++)
 	{
-		if(i % 100 == 0)
-			printf("done %d\n", i);
-
 		Process(agg_id);
 	}
 
