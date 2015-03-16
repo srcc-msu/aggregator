@@ -37,17 +37,13 @@ void CAggregator :: ProcessChunk(const SDecodedPacket& raw_packet
 	, unsigned char* sens_data
 	, vector<SPacket>& packets_buffer)
 {
-	int any_changed = -1;
+	bool any_changed = false;
 
-	bool buffer_allow = buffer_aggregator.IsAllowed(sensor_id);
-	bool queue_allow = queue_aggregator.IsAllowed(sensor_id);
-
-	if(!queue_allow)
+	if(!queue_aggregator.IsAllowed(sensor_id))
+	{
 		stat_filtered_blacklist += count;
-
-// this \sensor_id is not needed
-	if(!buffer_allow && !queue_allow)
 		return;
+	}
 
 	SPacket packet;
 
@@ -62,28 +58,22 @@ void CAggregator :: ProcessChunk(const SDecodedPacket& raw_packet
 			, raw_packet.header->ts_m * 1000000 + raw_packet.header->ts_sec
 			, raw_packet.header->ts_usec);
 
-		if(buffer_allow)
-			buffer_aggregator.Add(packet);
-
-		if(queue_allow)
-		{
 // check if this one is filtered/blacklisted/etc
-			int res = queue_aggregator.Check(packet);
+		int res = queue_aggregator.Check(packet);
 
 DMSG2("reason " << res);
 
-			if(res > 0) // it is allowed
-			{
-				any_changed = 1;
-				packets_buffer.push_back(packet);
-			}
-
-			AccumulateStat(res);
+		if(res > 0) // it is allowed
+		{
+			any_changed = true;
+			packets_buffer.push_back(packet);
 		}
+
+		AccumulateStat(res);
 	}
 
 // add average
-	if(any_changed != -1 && queue_aggregator.IsAverageId(sensor_id))
+	if(any_changed && queue_aggregator.IsAverageId(sensor_id))
 	{
 		SPacket average_packet = packet;
 

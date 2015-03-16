@@ -19,7 +19,6 @@ using namespace std;
 #include "filter.h"
 #include "packet.h"
 #include "connection.h"
-#include "buffer_aggregator.h"
 #include "queue_aggregator.h"
 
 nm_data_hdr_t* MapHeaderNtoH(unsigned char* buffer);
@@ -64,7 +63,6 @@ class CAggregator
 private:
 	CConnectionManager connection;
 
-	CBufferAggregator buffer_aggregator;
 	CQueueAggregator queue_aggregator;
 
 public:
@@ -102,9 +100,6 @@ public:
 */
 	CConnectionManager& Connection()
 		{ return connection; }
-
-	CBufferAggregator& BufferAggregator()
-		{ return buffer_aggregator; }
 
 	CQueueAggregator& QueueAggregator()
 		{ return queue_aggregator; }

@@ -188,7 +188,7 @@ int CQueueAggregator :: Check(SPacket& packet)
 	return Filter(packet);
 }
 
-void CQueueAggregator :: UncheckedAdd(vector<SPacket>& packets_buffer)
+void CQueueAggregator :: UncheckedAdd(std::vector<SPacket>& packets_buffer)
 {
 	queue.Add(packets_buffer);
 }

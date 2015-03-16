@@ -5,8 +5,6 @@
 #include <cstring>
 #include <vector>
 
-using namespace std;
-
 #include "debug.h"
 #include "error.h"
 
@@ -20,20 +18,17 @@ template<typename T>
 class CSensorQueue
 {
 private:
-	mutex mut;
-
-	T* queue;
-	size_t pointer;
+	std::mutex mutex;
+	std::vector<T> queue;
 
 /**
-	creates new queuq, return old
+	Get all data from the queue.
+	Current container will be returned and new one will be created
 */
-	T* Reinit() // TODO renaem something
+	std::vector<T> Refresh()
 	{
-		T* old = queue;
-		queue = new T[MAX_QUEUE_SIZE];
-
-		pointer = 0;
+		std::vector<T>& old = queue;
+		queue = std::vector<T>();
 
 		return old;
 	}
@@ -45,204 +40,36 @@ public:
 */
 	void Add(T value)
 	{
-		lock_guard<mutex> lock(mut);
+		std::lock_guard<std::mutex> lock(mutex);
 
-		if(pointer == MAX_QUEUE_SIZE)
+		if(queue.size() >= MAX_QUEUE_SIZE)
 		{
-			auto ptr = Reinit();
-
-			if(ptr)
-				delete[] ptr;
+			Refresh();
 		}
 
-		queue[pointer] = value;
-		pointer++;
+		queue.push_back(value);
 	}
 
 /**
 	Add few values to the queue.
 */
-	void Add(T* values, size_t count)
+	void Add(const std::vector<T>& values)
 	{
-		lock_guard<mutex> lock(mut);
+		std::lock_guard<std::mutex> lock(mutex);
 
-		if(count > MAX_QUEUE_SIZE)
-			count = count % MAX_QUEUE_SIZE;
-
-		if(pointer == MAX_QUEUE_SIZE || pointer + count >= MAX_QUEUE_SIZE)
+		if(queue.size() + values.size() >= MAX_QUEUE_SIZE)
 		{
-			auto ptr = Reinit();
-
-			if(ptr)
-				delete[] ptr;
+			Refresh();
 		}
 
-		memcpy(queue + pointer, values, count * sizeof(T));
-
-		pointer += count;
+		queue.insert(queue.end(), values.begin(), values.end());
 	}
 
-/**
-	Add few values to the queue.
-*/
-	void Add(vector<T>& values)
+	std::vector<T> GetData()
 	{
-		size_t count = values.size();
+		std::lock_guard<std::mutex> lock(mutex);
 
-		lock_guard<mutex> lock(mut);
-
-		if(count > MAX_QUEUE_SIZE)
-			count = count % MAX_QUEUE_SIZE;
-
-		if(pointer == MAX_QUEUE_SIZE || pointer + count >= MAX_QUEUE_SIZE)
-		{
-			auto ptr = Reinit();
-
-			if(ptr)
-				delete[] ptr;
-		}
-
-		for(auto& it : values)
-		{
-			*(queue + pointer) = it;
-			pointer++;
-		}
-	}
-
-/**
-	Get all data from the queue.
-	Current pointer will be returned and new one will be allocated -
-	old one will be purged on next request. Also it can be purged manually.
-*/
-	T* GetAll(size_t* count)
-	{
-		lock_guard<mutex> lock(mut);
-
-		if(count)
-			*count = pointer;
-
-		return Reinit();
-	}
-
-	CSensorQueue():
-		queue(nullptr),
-		pointer(0)
-	{
-		Reinit();
-	}
-
-	~CSensorQueue()
-	{}
-};
-
-
-const size_t DEFAULT_BUFF_SIZE = 300;
-
-/**
-	Thread safe circular buffer.
-	Accumulates single values, rotating them over time.
-	Returns data from requested interval.
-*/
-template<typename T>
-class CCircularBuffer
-{
-private:
-	mutable mutex mut;
-	T* buffer;
-
-	size_t size;
-	size_t pointer;
-
-	CCircularBuffer& operator =(const CCircularBuffer& t) = delete;
-
-	CCircularBuffer(const CCircularBuffer& t) = delete;
-
-public:
-	void Add(T value)
-	{
-		lock_guard<mutex> lock(mut);
-
-		buffer[pointer++] = value;
-
-		if(pointer == size)
-			pointer = 0;
-	}
-
-/**
-	Gets n values from the buffer, n = \from - \upto. If thy were not added yet -
-	returns default values from \T constructor.
-*/
-	T* Get(size_t from, size_t upto, size_t* count)
-	{
-DMSG1(from << " <> " << upto << " requested. current pointer is " << pointer);
-
-		if(from <= upto || upto > size)
-		{
-			*count = 0;
-			return nullptr;
-		}
-
-		if(from > size)
-			from = size;
-
-		*count = from - upto;
-
-		T* res = new T[*count];
-
-		lock_guard<mutex> lock(mut);
-
-		int start = pointer - from;
-		int end = pointer - upto;
-
-		if(start >= 0)
-		{
-			std::memcpy(res, buffer + start, (end - start) * sizeof(T));
-		}
-
-		else if(start < 0 && end > 0)
-		{
-			std::memcpy(res, buffer + size + start, (-start) * sizeof(T));
-			std::memcpy(res + (-start), buffer, end * sizeof(T));
-		}
-
-		else if(end <= 0)
-		{
-			std::memcpy(res, buffer + size + start, (end-start) * sizeof(T));
-		}
-
-		return res;
-	}
-
-	void Resize(size_t new_size)
-	{
-		lock_guard<mutex> lock(mut);
-
-		if(buffer != nullptr)
-			delete[] buffer;
-
-		if(new_size == 0)
-			throw CException("can not init circualr buffer with 0 size");
-
-		size = new_size;
-		pointer = 0;
-		buffer = new T[size];
-
-		for(size_t i = 0; i < size; i++)
-			buffer[i] = T();
-	}
-
-	CCircularBuffer(size_t _size = DEFAULT_BUFF_SIZE):
-		buffer(nullptr),
-		size(_size),
-		pointer(0)
-	{
-		Resize(size);
-	}
-
-	~CCircularBuffer()
-	{
-		delete[] buffer;
-		buffer = nullptr;
+		return Refresh();
 	}
 };
 

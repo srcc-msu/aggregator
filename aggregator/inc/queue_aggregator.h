@@ -172,12 +172,11 @@ public:
 	void SetInterval(uint16_t sensor_id, int max_interval);
 	void SetInterval(int max_interval);
 
-
 /**
 	add multiple packets to the queue, without checking
 	uses only one mutex block
 */
-	void UncheckedAdd(vector<SPacket>& packets);
+	void UncheckedAdd(std::vector<SPacket>& packets);
 
 /**
 	get average \UValue for all \sensor_id, from \address
@@ -192,9 +191,9 @@ public:
 */
 	int Check(SPacket& packet);
 
-	SPacket* GetAllData(size_t* count)
+	std::vector<SPacket> GetData()
 	{
-		return queue.GetAll(count); 
+		return queue.GetData();
 	}
 
 	CQueueAggregator()
