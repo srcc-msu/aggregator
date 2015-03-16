@@ -1,7 +1,5 @@
 #include <string>
 
-using namespace std;
-
 #include "socket.h"
 
 const int MAX_COMMAND = 1024;
@@ -24,8 +22,8 @@ public:
 
 		printf("added new networt stream to: %s:%d\n", address, port);
 
-		proxy.AddBinaryStream(dynamic_pointer_cast<CSocket>
-			(make_shared<CDGRAMSocket>(address, port)));
+		proxy.AddBinaryStream(dynamic_pointer_cast<CSocket>(
+			make_shared<CDGRAMSocket>(address, port)));
 	}
 
 	void DeleteStream(const char* cmd)
@@ -52,11 +50,10 @@ public:
 			{
 				case 'n' : AddNetworkStream(command+1); break;
 				case 'd' : DeleteStream(command+1); break;
-				case 'j' : throw CException("json stream NIY"); break;
 				case 'e' : return; break;
 				
 				default : fprintf(stderr
-					, "got unknown command on control socket, ignoring\n");
+					, "got unknown command on control socket, ignoring: %s\n", command);
 			}
 		}
 	}
@@ -66,8 +63,5 @@ public:
 	CControl(string ctl_fname, string config_fname):
 		ctl_socket(ctl_fname, CSocket :: CREATE),
 		proxy(config_fname)
-	{
-		proxy.BackgroundProcess();
-		proxy.BackgroundDispatch();
-	}
+	{}
 };

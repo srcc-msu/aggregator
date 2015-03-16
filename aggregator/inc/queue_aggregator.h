@@ -148,8 +148,8 @@ public:
 	Proirity of filters comes as follow:
 */
 	void SetDelta(uint32_t address, uint16_t sensor_id, double delta);
-	void SetDelta(uint32_t address, double delta);
-	void SetDelta(uint16_t sensor_id, double delta);
+	void SetDeltaA(uint32_t address, double delta);
+	void SetDeltaS(uint16_t sensor_id, double delta);
 	void SetDelta(double delta);
 
 /**
@@ -158,8 +158,8 @@ public:
 	Proirity of filters comes as follow:
 */
 	void SetAbsDelta(uint32_t address, uint16_t sensor_id, double delta);
-	void SetAbsDelta(uint32_t address, double delta);
-	void SetAbsDelta(uint16_t sensor_id, double delta);
+	void SetAbsDeltaA(uint32_t address, double delta);
+	void SetAbsDeltaS(uint16_t sensor_id, double delta);
 	void SetAbsDelta(double delta);
 
 /**
@@ -168,8 +168,8 @@ public:
 	Proirity of filters comes as follow:
 */
 	void SetInterval(uint32_t address, uint16_t sensor_id, int max_interval);
-	void SetInterval(uint32_t address, int max_interval);
-	void SetInterval(uint16_t sensor_id, int max_interval);
+	void SetIntervalA(uint32_t address, int max_interval);
+	void SetIntervalS(uint16_t sensor_id, int max_interval);
 	void SetInterval(int max_interval);
 
 /**

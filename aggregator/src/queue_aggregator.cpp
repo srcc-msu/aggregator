@@ -201,12 +201,12 @@ void CQueueAggregator :: SetDelta(uint32_t address, uint16_t sensor_id
 	filters[address][sensor_id].delta = delta;
 }
 
-void CQueueAggregator :: SetDelta(uint16_t sensor_id, double delta)
+void CQueueAggregator :: SetDeltaS(uint16_t sensor_id, double delta)
 {
 	sensor_id_filters[sensor_id].delta = delta;
 }
 
-void CQueueAggregator :: SetDelta(uint32_t address, double delta)
+void CQueueAggregator :: SetDeltaA(uint32_t address, double delta)
 {
 	address_filters[address].delta = delta;
 }
@@ -224,12 +224,12 @@ void CQueueAggregator :: SetAbsDelta(uint32_t address
 	filters[address][sensor_id].abs_delta = abs_delta;
 }
 
-void CQueueAggregator :: SetAbsDelta(uint16_t sensor_id, double abs_delta)
+void CQueueAggregator :: SetAbsDeltaS(uint16_t sensor_id, double abs_delta)
 {
 	sensor_id_filters[sensor_id].abs_delta = abs_delta;
 }
 
-void CQueueAggregator :: SetAbsDelta(uint32_t address, double abs_delta)
+void CQueueAggregator :: SetAbsDeltaA(uint32_t address, double abs_delta)
 {
 	address_filters[address].abs_delta = abs_delta;
 }
@@ -247,12 +247,12 @@ void CQueueAggregator :: SetInterval(uint32_t address
 	filters[address][sensor_id].max_interval = max_interval;
 }
 
-void CQueueAggregator :: SetInterval(uint16_t sensor_id, int max_interval)
+void CQueueAggregator :: SetIntervalS(uint16_t sensor_id, int max_interval)
 {
 	sensor_id_filters[sensor_id].max_interval = max_interval;
 }
 
-void CQueueAggregator :: SetInterval(uint32_t address, int max_interval)
+void CQueueAggregator :: SetIntervalA(uint32_t address, int max_interval)
 {
 	address_filters[address].max_interval = max_interval;
 }

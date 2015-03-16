@@ -240,6 +240,19 @@ void CAggregator :: BackgroundStat(int sleep_time)
     t.detach();
 }
 
+void CAggregator :: BackgroundProcess()
+{
+	static bool started = false;
+
+	if(started == true)
+		return;
+
+	started = true;
+
+    std::thread t(&CAggregator :: BackgroundProcessHelper, this);
+    t.detach();
+}
+
 //--------------------------------
 
 void CAggregator :: BackgroundStatHelper(int sleep_time)
@@ -259,5 +272,13 @@ void CAggregator :: BackgroundAgentHelper(int sleep_time)
     {
 		sleep(sleep_time);
 		AgentsStat(sleep_time);
+    }
+}
+
+void CAggregator :: BackgroundProcessHelper()
+{
+    while(1)
+    {
+    	Process();
     }
 }

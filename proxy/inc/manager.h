@@ -2,8 +2,12 @@
 #define MANAGER_H
 
 #include <unordered_map>
+#include <memory>
 #include <cstdio>
 
+#include "aggregator.h"
+
+#include "config.h"
 #include "duplicator.h"
 #include "fd_writer.h"
 #include "utils.h"
@@ -16,83 +20,59 @@ const int MEM_CHUNK = 128;
 class CProxyManager
 {
 private:
-	int agg_id;
+	std::shared_ptr<CAggregator> aggregator;
+
 	unordered_map<uint16_t, string> id_to_name;
 
-	CDuplicator<const SPacket*> duplicator;
-
-/**
-   service function, to be run in separate thread
-   may block if pipe is full
-*/
-	void BackgroundStreamHelper(shared_ptr<CFdWriter> writer, size_t subscriber_id);
-
-/**
-	creates separate thread for every new subscriber
-*/
-	void BackgroundStream(shared_ptr<CFdWriter> writer, size_t subscriber_id);
-
-/**
-	service function, to be run in separe thread, only one call is allowed
-	call dispatch forever
-*/
-	void BackgroundDispatchHelper();
-
-/**
-	read config from JSON /config_fname
-	JSON is temporary
-	TODO: move to YAML, check that all fields are configured
-*/
-	void Config(const string& config_fname);
+	CDuplicator duplicator;
 
 public:
-/**
-	register binary stream
-*/
-	void AddBinaryStream(shared_ptr<CSocket> socket)
+	CProxyManager(const string& config_fname):
+	   duplicator(MAX_QUEUE)
 	{
-		BackgroundStream(make_shared<CBinaryFdWriter>(socket, MEM_CHUNK)
-			, duplicator.Subscribe());
+		aggregator = ConfigAggregator(config_fname, id_to_name);
+		aggregator->BackgroundProcess();
+
+		BackgroundDispatch();
 	}
 
-/**
-	register binary stream
-*/
 	void DeleteSubscriber(size_t uid)
 	{
 		duplicator.DeleteSubscriber(uid);
 	}
 
-/**
-	register json stream NIY
-*/
-	void AddJsonStream(shared_ptr<CSocket> socket)
+	size_t AddBinaryStream(shared_ptr<CSocket> socket)
 	{
-		BackgroundStream(make_shared<CJsonFdWriter>(socket), duplicator.Subscribe());
+		return duplicator.Subscribe(make_shared<CBinaryFdWriter>(socket));
 	}
 
-/**
-	start background aggregator processing
-*/
-	void BackgroundProcess()
+private:
+	void BackgroundDispatchHelper()
 	{
-		::BackgroundProcess(agg_id);
+		CDynSleeper sleeper;
+
+		while(1)
+		{
+			std::vector<SPacket> packets = aggregator->QueueAggregator().GetData();
+
+			sleeper.Sleep(packets.size() == 0); // sleep more
+
+			duplicator.Add(packets); 
+		}
 	}
 
-/**
-	get one packet from aggregator and send it to duplicator
-*/
-	int Dispatch();
-
-/**
-	starts background dispatch, call \BackgroundDispatchHelper in separate thread
-*/
-	void BackgroundDispatch();
-
-	CProxyManager(string config_fname):
-	   duplicator(MAX_QUEUE)
+	void BackgroundDispatch()
 	{
-		Config(config_fname);
+		static bool started = false;
+
+		if(started == true)
+			return;
+
+		started = true;
+
+		std::thread thread(&CProxyManager :: BackgroundDispatchHelper, this);
+
+		thread.detach();
 	}
 };
 

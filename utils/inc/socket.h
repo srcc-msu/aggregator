@@ -73,7 +73,6 @@ int ListenTCPSocket(int socket_fd)
 	return res;
 }*/
 
-
 class CSocket
 {
 public:
@@ -107,10 +106,10 @@ public:
 		return socket_fd;
 	}
 
-	virtual size_t Read(void* buff, size_t count) = 0;
-	virtual size_t Write(const void* buff, size_t count) = 0;
+	virtual ssize_t Read(void* buff, size_t count) = 0;
+	virtual ssize_t Write(const void* buff, size_t count) = 0;
 
-	virtual size_t Write(const string& data) = 0;
+	virtual ssize_t Write(const string& data) = 0;
 
 	~CSocket()
 	{
@@ -183,19 +182,19 @@ private:
 
 public:
 
-	virtual size_t Read(void* buff, size_t count)
+	virtual ssize_t Read(void* buff, size_t count)
 	{
 		int bytes_read = read(socket_fd, buff, count);
 		return bytes_read;
 	}
 
-	virtual size_t Write(const void* buff, size_t count)
+	virtual ssize_t Write(const void* buff, size_t count)
 	{
 		int bytes_written = write(socket_fd, buff, count);
 		return bytes_written;
 	}
 
-	virtual size_t Write(const string& data)
+	virtual ssize_t Write(const string& data)
 	{
 		return Write(data.c_str(), data.size());
 	}
@@ -291,13 +290,13 @@ public:
 		return result != 0;
 	}
 
-	virtual size_t Read(void* buff, size_t count)
+	virtual ssize_t Read(void* buff, size_t count)
 	{
 		int bytes_read = recv(socket_fd, buff, count, 0);
 		return bytes_read;
 	}
 
-	virtual size_t Write(const void* buff, size_t count)
+	virtual ssize_t Write(const void* buff, size_t count)
 	{
 		if(tgt_socket == nullptr)
 			throw CException("can not write to this socket");
@@ -306,7 +305,7 @@ public:
 		return bytes_written;
 	}
 
-	virtual size_t Write(const string& data)
+	virtual ssize_t Write(const string& data)
 	{
 		return Write(data.c_str(), data.size());
 	}

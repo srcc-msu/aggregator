@@ -96,6 +96,12 @@ public:
 	void BackgroundStatHelper(int sleep_time);
 
 /**
+	start a thread, which will run processing in background
+*/
+	void BackgroundProcessHelper();
+	void BackgroundProcess();
+
+/**
 	>.> <.<
 */
 	CConnectionManager& Connection()
