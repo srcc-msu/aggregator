@@ -1,6 +1,6 @@
 #include "fwrap.h"
 
-#include "aggregator_api.h"
+#include "packet.h"
 #include "error.h"
 
 template <typename T>
@@ -10,35 +10,6 @@ void CFWrap<T> :: ReinitQueue()
 	queue->reserve(max_lines+1);
 }
 
-//--------------------------------
-
-/**
-    uses sprintf to print \value basing on its \type
-    TODO check, may be VERY slow
-*/
-
-const int MAX_UVALUE_REPR = 64;
-
-const char* UValueToString(UValue value, E_VAL_TYPE type)
-{
-    static char str[64];
-
-    switch(type)
-    {
-        case E_VAL_TYPE :: uint8  : sprintf(str, "%u", value.b1[0]); break;
-        case E_VAL_TYPE :: uint16 : sprintf(str, "%u", value.b2[0]); break;
-        case E_VAL_TYPE :: uint32 : sprintf(str, "%u", value.b4[0]); break;
-        case E_VAL_TYPE :: uint64 : sprintf(str, "%lu", value.b8[0]); break;
-
-        case E_VAL_TYPE :: float32 : sprintf(str, "%f", value.f4[0]); break;
-        case E_VAL_TYPE :: float64 : sprintf(str, "%f", value.f8[0]); break;
-
-        default : 
-            throw CException("unsupported E_VAL_TYPE type during printing");
-    }
-
-    return str;
-}
 //--------------------------------
 
 template <typename T>

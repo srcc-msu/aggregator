@@ -20,6 +20,7 @@ using namespace std;
 #include "packet.h"
 #include "connection.h"
 #include "queue_aggregator.h"
+#include "avg_aggregator.h"
 
 nm_data_hdr_t* MapHeaderNtoH(unsigned char* buffer);
 
@@ -64,6 +65,7 @@ private:
 	CConnectionManager connection;
 
 	CQueueAggregator queue_aggregator;
+	CAvgAggregator avg_aggregator;
 
 public:
 	long stat_allow_time;
@@ -132,8 +134,14 @@ public:
 
 	void ProcessPacket(const SDecodedPacket& packet);
 
+	std::vector<NodeEntry> GetAvgData()
+	{
+		return avg_aggregator.GetAvgData();
+	}
+
 	CAggregator(int port, uint32_t address):
-		connection(port, address)
+		connection(port, address),
+		avg_aggregator(300)
 	{
 		InitMetainf();
 	}

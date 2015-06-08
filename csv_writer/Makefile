@@ -15,7 +15,9 @@ TGT = $(BIN_DIR)/$(NAME)
 all: $(TGT)
 
 $(TGT): $(SRC) $(INC)
-	$(CXX) $(SRC) -Lbin/ -ljson $(CXX_CFLAGS) $(INC_FLAGS) -o $(TGT)
+	cp ../aggregator/bin/libaggregator.so bin/
+
+	$(CXX) $(SRC) -Lbin -laggregator -ljson $(CXX_CFLAGS) $(INC_FLAGS) -o $(TGT)
 
 .PHONY: clean
 

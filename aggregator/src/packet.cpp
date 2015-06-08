@@ -35,7 +35,7 @@ double GetDiv(const UValue& v1, const UValue& v2, E_VAL_TYPE type)
 		case E_VAL_TYPE :: float64 : res = (fabs(v2.f8[0]) > EPS)
 			? v1.f8[0] / v2.f8[0] : INF; break;
 
-		default :
+		default:
 			throw CException("unsupported E_VAL_TYPE type during div");
 	}
 
@@ -61,7 +61,7 @@ double GetDiff(const UValue& v1, const UValue& v2, E_VAL_TYPE type)
 		case E_VAL_TYPE :: float32 : res = v1.f4[0] - v2.f4[0]; break;
 		case E_VAL_TYPE :: float64 : res = v1.f8[0] - v2.f8[0]; break;
 
-		default :
+		default:
 			throw CException("unsupported E_VAL_TYPE type during diff");
 	}
 
@@ -84,7 +84,7 @@ UValue GetSum(const UValue& v1, const UValue& v2, E_VAL_TYPE type)
 		case E_VAL_TYPE :: float32 : res.f4[0] = v1.f4[0] + v2.f4[0]; break;
 		case E_VAL_TYPE :: float64 : res.f8[0] = v1.f8[0] + v2.f8[0]; break;
 
-		default :
+		default:
 			throw CException("unsupported E_VAL_TYPE type during sum");
 	}
 
@@ -111,7 +111,7 @@ UValue MultValue(const UValue& value, E_VAL_TYPE type, double mult)
 		case E_VAL_TYPE :: float32 : res.f4[0] = value.f4[0] * mult; break;
 		case E_VAL_TYPE :: float64 : res.f8[0] = value.f8[0] * mult; break;
 
-		default :
+		default:
 			throw CException("unsupported E_VAL_TYPE type during mult");
 	}
 
@@ -201,4 +201,29 @@ void CreatePacket(SPacket& packet, unsigned char* buffer
 
     packet.agent_timestamp = agent_timestamp;
     packet.agent_usec      = agent_usec;
+}
+
+//--------------------------------
+
+static const int MAX_UVALUE_REPR = 64;
+
+const char* UValueToString(UValue value, E_VAL_TYPE type)
+{
+    static char str[MAX_UVALUE_REPR];
+
+    switch(type)
+    {
+        case E_VAL_TYPE :: uint8  : sprintf(str, "%u", value.b1[0]); break;
+        case E_VAL_TYPE :: uint16 : sprintf(str, "%u", value.b2[0]); break;
+        case E_VAL_TYPE :: uint32 : sprintf(str, "%u", value.b4[0]); break;
+        case E_VAL_TYPE :: uint64 : sprintf(str, "%lu", value.b8[0]); break;
+
+        case E_VAL_TYPE :: float32 : sprintf(str, "%f", value.f4[0]); break;
+        case E_VAL_TYPE :: float64 : sprintf(str, "%f", value.f8[0]); break;
+
+        default:
+            throw CException("unsupported E_VAL_TYPE type during printing");
+    }
+
+    return str;
 }

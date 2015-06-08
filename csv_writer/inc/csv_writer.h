@@ -9,7 +9,7 @@ using namespace std;
 
 #include "fwrap.h"
 
-#include "aggregator_api.h"
+#include "packet.h"
 #include "socket.h"
 
 /**

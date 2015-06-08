@@ -58,6 +58,8 @@ void CAggregator :: ProcessChunk(const SDecodedPacket& raw_packet
 			, raw_packet.header->ts_m * 1000000 + raw_packet.header->ts_sec
 			, raw_packet.header->ts_usec);
 
+		avg_aggregator.Add(packet);
+
 // check if this one is filtered/blacklisted/etc
 		int res = queue_aggregator.Check(packet);
 

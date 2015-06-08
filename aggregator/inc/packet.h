@@ -151,4 +151,8 @@ UValue GetSum(const UValue& v1, const UValue& v2, E_VAL_TYPE type);
 */
 UValue MultValue(const UValue& value, E_VAL_TYPE type, double mult);
 
+//--------------------------------
+
+const char* UValueToString(UValue value, E_VAL_TYPE type);
+
 #endif

@@ -51,7 +51,8 @@ void BackgroundInit(std::shared_ptr<CAggregator> aggregator, Json::Value agents)
 static const int AGENT_CONTROL_PORT = 4259;
 
 std::shared_ptr<CAggregator> ConfigAggregator(const string& config_fname
-	, std::unordered_map<uint16_t, string>& id_to_name)
+	, std::unordered_map<uint16_t, string>& id_to_name
+	, std::string& avg_address, int& avg_port)
 {
 	std::ifstream tmp(config_fname);
 	std::stringstream buffer;
@@ -74,6 +75,10 @@ std::shared_ptr<CAggregator> ConfigAggregator(const string& config_fname
 	printf("Aggregator on %s\n", address);
 
 	std::shared_ptr<CAggregator> aggregator = std::make_shared<CAggregator>(AGENT_CONTROL_PORT, inet_addr(address));
+
+//	avg stream
+	avg_address = std::string(root["server"]["avg"]["address"].asCString());
+	avg_port = root["server"]["avg"]["address"].asInt();
 
 //  default delta
 	double delta = root["server"]["queue"]["delta"].asDouble();

@@ -5,7 +5,7 @@
 
 using namespace std;
 
-#include "aggregator_api.h"
+#include "packet.h"
 #include "connection.h"
 
 static const int AGENT_CONTROL_PORT = 4259;
