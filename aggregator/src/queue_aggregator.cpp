@@ -177,12 +177,6 @@ DMSG2("interval " << interval << "      max_int " << filter.max_interval
 	return allow_res;
 }
 
-void CQueueAggregator :: Add(SPacket& packet)
-{
-	if(Check(packet) > 0)
-		queue.Add(packet);
-}
-
 int CQueueAggregator :: Check(SPacket& packet)
 {
 	return Filter(packet);

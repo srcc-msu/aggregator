@@ -8,7 +8,7 @@
 #include "debug.h"
 #include "error.h"
 
-const size_t MAX_QUEUE_SIZE = 8 * 1024;
+const size_t MAX_QUEUE_SIZE = 1024 * 1024;
 
 /**
 	Thread safe sensor queue. (ORLY?)
@@ -27,29 +27,13 @@ private:
 */
 	std::vector<T> Refresh()
 	{
-		std::vector<T>& old = queue;
-		queue = std::vector<T>();
+		std::vector<T> tmp = std::vector<T>();
+		tmp.swap(queue);
 
-		return old;
+		return tmp;
 	}
 
 public:
-/**
-	Add single value to the queue.
-	bad function, using mutex on every addition is not efficient
-*/
-	void Add(T value)
-	{
-		std::lock_guard<std::mutex> lock(mutex);
-
-		if(queue.size() >= MAX_QUEUE_SIZE)
-		{
-			Refresh();
-		}
-
-		queue.push_back(value);
-	}
-
 /**
 	Add few values to the queue.
 */

@@ -78,7 +78,7 @@ std::shared_ptr<CAggregator> ConfigAggregator(const string& config_fname
 
 //	avg stream
 	avg_address = std::string(root["server"]["avg"]["address"].asCString());
-	avg_port = root["server"]["avg"]["address"].asInt();
+	avg_port = root["server"]["avg"]["port"].asInt();
 
 //  default delta
 	double delta = root["server"]["queue"]["delta"].asDouble();

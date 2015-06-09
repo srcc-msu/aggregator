@@ -5,7 +5,7 @@
 
 #include <unordered_map>
 
-#include "queue.h"
+#include "sensor_queue.h"
 #include "sensor_metainf.h"
 #include "filter.h"
 #include "packet.h"

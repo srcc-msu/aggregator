@@ -6,7 +6,7 @@
 using namespace std;
 
 #include "packet.h"
-#include "connection.h"
+#include "aggregator.h"
 
 static const int AGENT_CONTROL_PORT = 4259;
 
@@ -25,8 +25,8 @@ int main(int argc, char** argv)
 	aggregator->Connection().InitAgent(inet_addr("10.0.80.8"));
 	aggregator->Connection().InitAgent(inet_addr("10.0.80.9"));
 
-	aggregator->QueueAggregator().SetDelta((uint16_t)1053, 0.02);
-	aggregator->QueueAggregator().SetInterval((uint16_t)1053, 10);
+	aggregator->QueueAggregator().SetDeltaS((uint16_t)1053, 0.02);
+	aggregator->QueueAggregator().SetIntervalS((uint16_t)1053, 10);
 
 	for(int i = 0; i < 10; i++)
 	{
