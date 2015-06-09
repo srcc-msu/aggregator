@@ -134,9 +134,9 @@ public:
 
 	void ProcessPacket(const SDecodedPacket& packet);
 
-	std::vector<NodeEntry> GetAvgData()
+	void GetAvgData(std::vector<NodeEntry> data)
 	{
-		return avg_aggregator.GetAvgData();
+		return avg_aggregator.GetAvgData(data);
 	}
 
 	CAggregator(int port, uint32_t address):

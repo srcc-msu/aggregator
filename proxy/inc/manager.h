@@ -59,7 +59,8 @@ private:
 
 		while(1)
 		{
-			std::vector<SPacket> packets = aggregator->QueueAggregator().GetData();
+			std::vector<SPacket> packets;
+			aggregator->QueueAggregator().GetData(packets);
 
 			sleeper.Sleep(packets.size() == 0); // sleep more
 
@@ -92,7 +93,9 @@ private:
 		{
 			shared_ptr<CSocket> socket = make_shared<CDGRAMSocket>(address, port);
 
-			std::vector<NodeEntry> packets = aggregator->GetAvgData();
+			std::vector<NodeEntry> packets;
+
+			aggregator->GetAvgData(packets);
 
 			sleeper.Sleep(packets.size() == 0); // sleep more
 

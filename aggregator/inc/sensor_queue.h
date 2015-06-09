@@ -21,18 +21,6 @@ private:
 	std::mutex mutex;
 	std::vector<T> queue;
 
-/**
-	Get all data from the queue.
-	Current container will be returned and new one will be created
-*/
-	std::vector<T> Refresh()
-	{
-		std::vector<T> tmp = std::vector<T>();
-		tmp.swap(queue);
-
-		return tmp;
-	}
-
 public:
 /**
 	Add few values to the queue.
@@ -43,17 +31,19 @@ public:
 
 		if(queue.size() + values.size() >= MAX_QUEUE_SIZE)
 		{
-			Refresh();
+			queue = std::vector<T>();
 		}
 
 		queue.insert(queue.end(), values.begin(), values.end());
 	}
 
-	std::vector<T> GetData()
+	void GetData(std::vector<T>& target)
 	{
 		std::lock_guard<std::mutex> lock(mutex);
 
-		return Refresh();
+		target.swap(queue);
+
+		queue = std::vector<T>();
 	}
 };
 

@@ -191,9 +191,9 @@ public:
 */
 	int Check(SPacket& packet);
 
-	std::vector<SPacket> GetData()
+	void GetData(std::vector<SPacket> data)
 	{
-		return queue.GetData();
+		queue.GetData(data);
 	}
 
 	CQueueAggregator()

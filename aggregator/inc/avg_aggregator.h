@@ -90,12 +90,10 @@ public:
 		}
 	}
 
-	std::vector<NodeEntry> GetAvgData()
+	void GetAvgData(std::vector<NodeEntry>& data)
 	{
-		std::vector<NodeEntry> tmp;
-		tmp.swap(output);
-
-		return tmp;
+		data.swap(output);
+		output = std::vector<NodeEntry>();
 	}
 
 	CAvgAggregator(size_t _filter_size):
